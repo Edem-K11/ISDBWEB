@@ -1,0 +1,34 @@
+# ===== Frontend (Next.js) =====
+isdb-web-frontend/node_modules/
+isdb-web-frontend/.next/
+isdb-web-frontend/out/
+isdb-web-frontend/. env. local
+isdb-web-frontend/.env.*. local
+isdb-web-frontend/dist/
+isdb-web-frontend/. DS_Store
+isdb-web-frontend/*. pem
+
+# ===== Backend (Laravel) =====
+isdb-web-backend/vendor/
+isdb-web-backend/. env
+isdb-web-backend/.env.local
+isdb-web-backend/. env.*.local
+isdb-web-backend/storage/
+isdb-web-backend/bootstrap/cache/
+isdb-web-backend/node_modules/
+isdb-web-backend/public/storage/
+isdb-web-backend/. DS_Store
+isdb-web-backend/Homestead.json
+isdb-web-backend/Homestead.yaml
+
+# ===== General =====
+. DS_Store
+.vscode/
+.idea/
+*. swp
+*.swo
+*~
+.env
+npm-debug.log
+yarn-debug.log
+composer.lock
