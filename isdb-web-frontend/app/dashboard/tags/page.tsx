@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/auth/useAuth';
 import { useTags } from '@/lib/hooks/useTag';
 import { tagService } from '@/lib/api/services/tagService';
 import { Plus, Edit, Trash2, ShieldAlert } from 'lucide-react';
-import ConfirmModal from '@/components/dashboard/blogs/confirmModal';
+import ConfirmModal from '@/components/ui/confirmModal';
 import TagFormModal from '@/components/dashboard/tags/tagFormModal';
 import toast from 'react-hot-toast';
 

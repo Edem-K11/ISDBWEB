@@ -1,7 +1,7 @@
 
 
 import { AnneeAcademique } from "./AnneeAcademique";
-import { Formation } from "./formation";
+import { Formation } from "./Formation";
 
 export interface OffreFormation {
   id: number;

@@ -20,14 +20,8 @@ class MentionController extends Controller
     {
         $query = Mention::query();
 
-        // Eager loading
-        if ($request->has('with_domaine')) {
-            $query->with('domaine');
-        }
-
-        if ($request->has('with_formations')) {
-            $query->with('formations');
-        }
+        // ✅ Eager load avec withCount pour avoir nombreFormations
+        $query->withCount('formations')->with('domaine');
 
         // Filtres
         if ($request->has('search')) {
@@ -86,14 +80,8 @@ class MentionController extends Controller
      */
     public function show(Request $request, Mention $mention): JsonResponse
     {
-        // Eager loading conditionnel
-        if ($request->has('with_domaine')) {
-            $mention->load('domaine');
-        }
-
-        if ($request->has('with_formations')) {
-            $mention->load('formations');
-        }
+        // ✅ Charger domaine et compter formations
+        $mention->loadCount('formations')->load('domaine');
 
         return response()->json([
             'success' => true,

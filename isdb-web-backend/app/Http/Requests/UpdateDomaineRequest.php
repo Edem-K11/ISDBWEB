@@ -30,7 +30,7 @@ class UpdateDomaineRequest extends FormRequest
                 'required',
                 'string',
                 'max:100',
-                Rule::unique('domaines', 'nom')->ignore($domaineId)
+                Rule::unique('domaines', 'nom')->ignore($domaineId)->whereNull('deleted_at'),
             ]
         ];
     }

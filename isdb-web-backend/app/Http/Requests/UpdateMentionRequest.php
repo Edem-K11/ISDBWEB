@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateMentionRequest extends FormRequest
 {
@@ -21,8 +22,17 @@ class UpdateMentionRequest extends FormRequest
      */
     public function rules(): array
     {
+        $mentionId = $this->route('mention');
+        
         return [
-            'titre' => ['sometimes', 'required', 'string', 'max:150'],
+            'titre' => [
+                'sometimes', 
+                'required', 
+                'string', 
+                'max:150', 
+                // Ignorer les mentions soft deleted
+                Rule::unique('mentions', 'titre')->ignore($mentionId)->whereNull('deleted_at'),
+            ],
             'description' => ['nullable', 'string', 'max:1000'],
             'domaine_id' => ['sometimes', 'required', 'integer', 'exists:domaines,id'],
         ];

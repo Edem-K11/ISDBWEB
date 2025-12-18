@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreMentionRequest extends FormRequest
 {
@@ -22,7 +23,13 @@ class StoreMentionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'titre' => ['required', 'string', 'max:150'],
+            'titre' => [
+                'required', 
+                'string', 
+                'max:150',
+                // Ignorer les mentions soft deleted
+                Rule::unique('mentions', 'titre')->whereNull('deleted_at'),
+            ],
             'description' => ['nullable', 'string', 'max:1000'],
             'domaine_id' => ['required', 'integer', 'exists:domaines,id'],
         ];

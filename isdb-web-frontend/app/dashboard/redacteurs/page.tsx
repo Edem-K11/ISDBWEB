@@ -6,7 +6,7 @@ import { useRedacteurs } from '@/lib/hooks/useRedacteur';
 import { redacteurService } from '@/lib/api/services/redacteurService';
 import { Plus, Edit, Trash2, Mail, User, ShieldAlert, Shield } from 'lucide-react';
 import Image from 'next/image';
-import ConfirmModal from '@/components/dashboard/blogs/confirmModal';
+import ConfirmModal from '@/components/ui/confirmModal';
 import RedacteurFormModal from '@/components/dashboard/redacteurs/redacteurFormModal';
 import toast from 'react-hot-toast';
 

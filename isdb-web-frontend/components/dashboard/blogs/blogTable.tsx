@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth/useAuth';
 import { blogService } from '@/lib/api/services/blogService';
 import { Edit, Trash2, Eye, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
-import ConfirmModal from './confirmModal';
+import ConfirmModal from '../../ui/confirmModal';
 import toast from 'react-hot-toast';
 import useSWR from 'swr';
 import Image from 'next/image';

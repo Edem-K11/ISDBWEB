@@ -29,9 +29,9 @@ class MentionResource extends JsonResource
                 $this->relationLoaded('domaine'),
                 $this->nom_complet
             ),
-            'nombre_formations' => $this->when($this->relationLoaded('formations'), function () {
-                return $this->formations->count();
-            }),
+
+            // Utiliser withCount au lieu de relationLoaded pour les compteurs
+            'nombre_formations' => $this->when(isset($this->formations_count), $this->formations_count),
             
             // Métadonnées
             'created_at' => $this->created_at?->toISOString(),

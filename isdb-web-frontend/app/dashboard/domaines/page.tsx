@@ -16,7 +16,7 @@ import {
 import { toast } from 'react-hot-toast';
 import { domaineService } from '@/lib/api/services/domaineService';
 import { useDomaines } from '@/lib/hooks/useDomaine';
-import ConfirmModal from '@/components/dashboard/blogs/confirmModal';
+import ConfirmModal from '@/components/ui/confirmModal';
 
 export default function DomainesPage() {
   const router = useRouter();

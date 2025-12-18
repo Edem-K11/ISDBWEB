@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth/useAuth';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/dashboard/sidebar';
 import { ENDPOINTS } from '@/lib/api/endpoints';
-import PageLoader from '@/components/loader';
+import PageLoader from '@/components/ui/loader';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();

@@ -31,6 +31,12 @@
     // Dashboard Domaines
     DASHBOARD_DOMAINES: '/dashboard/domaines',
     DASHBOARD_DOMAINE_BY_ID: (id: number) => `/dashboard/domaines/${id}`,
+    DASHBOARD_DOMAINE_EDIT: (id: number) => `/dashboard/domaines/${id}/edit`,
+
+    // Dashboard Mentions
+    DASHBOARD_MENTIONS: '/dashboard/mentions',
+    DASHBOARD_MENTION_BY_ID: (id: number) => `/dashboard/mentions/${id}`,
+    DASHBOARD_MENTION_EDIT: (id: number) => `/dashboard/mentions/${id}/edit`,
 
     // Images
     UPLOAD_IMAGE: '/images/upload',
