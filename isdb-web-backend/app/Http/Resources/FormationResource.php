@@ -50,8 +50,8 @@ class FormationResource extends JsonResource
                     return new DomaineResource($this->mention->domaine);
                 }
             ),
-            'offres_formations' => OffreFormationResource::collection($this->whenLoaded('offresFormations')),
-            'offre_actuelle' => new OffreFormationResource($this->whenLoaded('offreActuelle')),
+            'offresFormations' => OffreFormationResource::collection($this->whenLoaded('offresFormations')),
+            'offreActuelle' => new OffreFormationResource($this->whenLoaded('offreActuelle')),
             
             // Métadonnées
             'created_at' => $this->created_at?->toISOString(),

@@ -29,7 +29,10 @@ export const mentionService = {
   },
   
   update: async (id: number, mentionData: Partial<MentionFormData>): Promise<Mention> => {
-    const { data } = await apiClient.put<ApiResponse<Mention>>(ENDPOINTS.DASHBOARD_MENTION_EDIT(id), mentionData);
+    const { data } = await apiClient.put<ApiResponse<Mention>>(
+      ENDPOINTS.DASHBOARD_MENTION_BY_ID(id), 
+      mentionData
+    );
     return data.data;
   },
   

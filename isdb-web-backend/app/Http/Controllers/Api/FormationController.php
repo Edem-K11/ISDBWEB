@@ -22,7 +22,11 @@ class FormationController extends Controller
         $query = Formation::query();
 
         // Eager loading
-        $query->with(['mention.domaine']);
+        $query->with([
+            'mention.domaine',
+            'offresFormations.anneeAcademique',
+            'offreActuelle.anneeAcademique',
+        ]);
 
         if ($request->has('with_offres')) {
             $query->with('offresFormations.anneeAcademique');

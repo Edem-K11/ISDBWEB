@@ -9,7 +9,6 @@ import { useRouter } from 'next/navigation';
 import { 
   Plus, 
   Search, 
-  Filter, 
   Edit, 
   Trash2, 
   BookOpen,
@@ -23,6 +22,7 @@ import { useDomaines } from '@/lib/hooks/useDomaine';
 import ConfirmModal from '@/components/ui/confirmModal';
 import { Badge } from '@/components/ui/badge';
 import { SelectWithSearch } from '@/components/ui/selectWithSearch';
+import { ENDPOINTS } from '@/lib/api/endpoints';
 
 export default function MentionsPage() {
   const router = useRouter();
@@ -188,7 +188,7 @@ export default function MentionsPage() {
                 
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => router.push(`/dashboard/mentions/${mention.id}/edit`)}
+                    onClick={() => router.push(ENDPOINTS.DASHBOARD_MENTION_EDIT(mention.id))}
                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                     title="Modifier"
                   >
