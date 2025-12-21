@@ -13,7 +13,8 @@ import {
   LogOut,
   ChevronDown,
   ChevronRight,
-  GraduationCap
+  GraduationCap,
+  Radio
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useState } from 'react';
@@ -66,6 +67,12 @@ export default function Sidebar() {
         ]
       }
     ] : []),
+    // Dans votre sidebar ou navigation
+    {
+      name: 'Radio',
+      href: '/dashboard/radio',
+      icon: Radio,
+    },
     {
       name: 'Mon Profil',
       href: '/dashboard/profil',

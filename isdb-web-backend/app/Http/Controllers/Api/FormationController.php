@@ -75,8 +75,8 @@ class FormationController extends Controller
         }
 
         // Tri
-        $sortBy = $request->input('sort_by', 'titre');
-        $sortOrder = $request->input('sort_order', 'asc');
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortOrder = $request->input('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
         // Pagination

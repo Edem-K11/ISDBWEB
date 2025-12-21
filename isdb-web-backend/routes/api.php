@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\MentionController;
 use App\Http\Controllers\Api\FormationController;
 use App\Http\Controllers\Api\AnneeAcademiqueController;
 use App\Http\Controllers\Api\OffreFormationController;
+use App\Http\Controllers\Api\RadioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +25,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 
+// Routes publiques - Radio en direct
+Route::get('/radio', [RadioController::class, 'show']);
 
 // Routes protégées par authentification
 Route::middleware('auth:sanctum')->group(function () {
@@ -36,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/images/upload', [ImageController::class, 'upload']);
     Route::post('/images/upload-multiple', [ImageController::class, 'uploadMultiple']);            
     Route::delete('/images/delete', [ImageController::class, 'delete']);
+
     
     // Routes admin uniquement
 
@@ -74,6 +78,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
             // Offres de formation
             Route::resource('offres-formations', OffreFormationController::class);
+
+            // Radio (une seule)
+            Route::put('radio', [RadioController::class, 'update']);
+            Route::post('radio/toggle-live', [RadioController::class, 'toggleLive']);
 
         });
     });

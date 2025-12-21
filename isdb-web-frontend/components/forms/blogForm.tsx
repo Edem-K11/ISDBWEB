@@ -9,7 +9,7 @@ import { blogService } from '@/lib/api/services/blogService';
 import { useTags } from '@/lib/hooks/useTag';
 import { useRedacteurs } from '@/lib/hooks/useRedacteur';
 import RichTextEditor from '../dashboard/blogs/richTextEditor';
-import ImageUpload from '../dashboard/imageUpload';
+import ImageUpload from '../ui/imageUpload';
 import TagSelector from '../dashboard/blogs/tagSelector';
 import { Loader2, Save, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';

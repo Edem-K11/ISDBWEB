@@ -24,7 +24,7 @@ class UpdateRadioRequest extends FormRequest
         return [
             'nom' => ['sometimes', 'required', 'string', 'max:100'],
             'url_stream' => ['sometimes', 'required', 'url', 'max:500'],
-            'image' => ['nullable', 'string'],
+            'image' => ['nullable', 'string'], // URL de l'image
             'en_direct' => ['boolean'],
             'description' => ['nullable', 'string'],
         ];

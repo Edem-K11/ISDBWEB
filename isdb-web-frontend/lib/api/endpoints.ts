@@ -42,7 +42,8 @@ export const ENDPOINTS = {
   // Dashboard Formations
   DASHBOARD_FORMATIONS: '/dashboard/formations',
   DASHBOARD_FORMATION_BY_ID: (id: number) => `/dashboard/formations/${id}`,
-  DASHBOARD_FORMATION_EDIT: (id: number) => `/dashboard/formations/${id}/edit`,
+  DASHBOARD_FORMATION_MODULAIRE_EDIT: (id: number) => `/dashboard/formations/${id}/edit-modulaire`,
+  DASHBOARD_FORMATION_PRINCIPALE_EDIT: (id: number) => `/dashboard/formations/${id}/edit`,
   DASHBOARD_FORMATION_OFFRES: (id: number) => `/dashboard/formations/${id}/offres`,
 
   // Dashboard Années Académiques
@@ -52,6 +53,11 @@ export const ENDPOINTS = {
   // Dashboard Offres de Formation
   DASHBOARD_OFFRES_FORMATIONS: '/dashboard/offres-formations',
   DASHBOARD_OFFRE_FORMATION_BY_ID: (id: number) => `/dashboard/offres-formations/${id}`,
+
+  // Radio
+  RADIO: '/radio',
+  DASHBOARD_RADIO: '/dashboard/radio',
+  DASHBOARD_RADIO_TOGGLE_LIVE: '/dashboard/radio/toggle-live',
 
   // Images
   UPLOAD_IMAGE: '/images/upload',

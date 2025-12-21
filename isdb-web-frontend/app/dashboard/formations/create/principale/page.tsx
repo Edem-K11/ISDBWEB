@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   ArrowLeft, 
-  Save, 
+  Save,
   ChevronLeft, 
   ChevronRight,
   GraduationCap,
@@ -24,9 +24,10 @@ import { formationService } from '@/lib/api/services/formationService';
 import { useDomaines } from '@/lib/hooks/useDomaine';
 import { useMentions } from '@/lib/hooks/useMention';
 import { MultiStepForm } from '@/components/ui/multiStepForm';
-import { RichTextEditor } from '@/components/ui/richTextEditor';
+import RichTextEditor from '@/components/ui/richTextEditor';
 import { FileUpload } from '@/components/ui/fileUpload';
 import { SelectWithSearch } from '@/components/ui/selectWithSearch';
+import { mutate } from 'swr';
 
 // Définition des étapes
 const FORM_STEPS = [
@@ -159,7 +160,7 @@ export default function CreateFormationPrincipalePage() {
     }
   };
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: any): void => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Si on change le domaine, réinitialiser la mention
@@ -203,6 +204,13 @@ export default function CreateFormationPrincipalePage() {
         evaluation: formData.evaluation || null,
         statut_formation: 'ACTIVE',
       };
+
+      // ✅ Revalider toutes les clés SWR liées aux formations
+      await mutate(
+        key => typeof key === 'string' && key.startsWith('formations'),
+        undefined,
+        { revalidate: true }
+      );
 
       // Ajouter le fichier PDF si présent
       if (formData.programme_pdf) {
@@ -377,10 +385,10 @@ export default function CreateFormationPrincipalePage() {
                 Objectifs de la formation
               </label>
               <RichTextEditor
+                key="objectifs-editor"
                 value={formData.objectifs}
-                onChange={(value) => handleChange('objectifs', value)}
+                onChange={(value: string) => handleChange('objectifs', value)}
                 placeholder="Décrivez les objectifs d'apprentissage..."
-                height="200px"
               />
             </div>
 
@@ -389,10 +397,10 @@ export default function CreateFormationPrincipalePage() {
                 Programme général
               </label>
               <RichTextEditor
+                key="programme-editor"
                 value={formData.programme}
-                onChange={(value) => handleChange('programme', value)}
+                onChange={(value: string) => handleChange('programme', value)}
                 placeholder="Décrivez le contenu des modules..."
-                height="200px"
               />
             </div>
 
@@ -419,10 +427,10 @@ export default function CreateFormationPrincipalePage() {
                 Conditions d'admission
               </label>
               <RichTextEditor
+                key="condition-admission-editor"
                 value={formData.condition_admission}
-                onChange={(value) => handleChange('condition_admission', value)}
+                onChange={(value: string) => handleChange('condition_admission', value)}
                 placeholder="Prérequis académiques, procédures de sélection..."
-                height="200px"
               />
             </div>
 
@@ -431,10 +439,10 @@ export default function CreateFormationPrincipalePage() {
                 Profil d'entrée attendu
               </label>
               <RichTextEditor
+                key="profile-intree-editor"
                 value={formData.profile_intree}
-                onChange={(value) => handleChange('profile_intree', value)}
+                onChange={(value: string) => handleChange('profile_intree', value)}
                 placeholder="Décrivez le profil idéal des candidats..."
-                height="200px"
               />
             </div>
 
@@ -443,10 +451,10 @@ export default function CreateFormationPrincipalePage() {
                 Profil de sortie
               </label>
               <RichTextEditor
+                key="profile-sortie-editor"
                 value={formData.profile_sortie}
-                onChange={(value) => handleChange('profile_sortie', value)}
+                onChange={(value: string) => handleChange('profile_sortie', value)}
                 placeholder="Compétences acquises, débouchés professionnels..."
-                height="200px"
               />
             </div>
           </div>
@@ -460,10 +468,10 @@ export default function CreateFormationPrincipalePage() {
                 Modalités d'évaluation
               </label>
               <RichTextEditor
+                key="evaluation-editor"
                 value={formData.evaluation}
-                onChange={(value) => handleChange('evaluation', value)}
+                onChange={(value: string) => handleChange('evaluation', value)}
                 placeholder="Examens, projets, stages, mémoire..."
-                height="200px"
               />
             </div>
 

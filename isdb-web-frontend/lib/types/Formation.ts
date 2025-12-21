@@ -4,13 +4,23 @@ import { Domaine } from "./Domaine";
 import { Mention } from "./Mention";
 import { OffreFormation } from "./OffreFormation";
 
-export type TypeFormation = "PRINCIPALE" | "MODULAIRE";
-export type Diplome = 
-  | "LICENCE_PROFESSIONNELLE"
-  | "LICENCE_FONDAMENTALE"
-  | "MASTER"
-  | "CERTIFICAT_MODULE";
-export type StatutFormation = "ACTIVE" | "ARCHIVEE" | "SUPPRIMEE";
+export enum TypeFormation {
+  PRINCIPALE = "PRINCIPALE",
+  MODULAIRE = "MODULAIRE",
+}
+
+export enum Diplome {
+  LICENCE_PROFESSIONNELLE = "LICENCE_PROFESSIONNELLE",
+  LICENCE_FONDAMENTALE = "LICENCE_FONDAMENTALE",
+  MASTER = "MASTER",
+  CERTIFICAT_MODULE = "CERTIFICAT_MODULE",
+}
+
+export enum StatutFormation {
+  ACTIVE = "ACTIVE",
+  ARCHIVEE = "ARCHIVEE",
+  SUPPRIMEE = "SUPPRIMEE",
+}
 
 export interface Formation {
   id: number;

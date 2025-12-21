@@ -8,7 +8,6 @@ import {
   Search,
   Filter,
   Edit,
-  Trash2,
   Eye,
   GraduationCap,
   BookOpen,
@@ -30,6 +29,7 @@ import { Badge } from '@/components/ui/badge';
 import { SelectWithSearch } from '@/components/ui/selectWithSearch';
 import { cn } from '@/lib/utils/cn';
 import type { FormationFilters } from '@/lib/types/Formation';
+import { ENDPOINTS } from '@/lib/api/endpoints';
 
 export default function FormationsPage() {
   const router = useRouter();
@@ -49,6 +49,19 @@ export default function FormationsPage() {
   const { formations, isLoading, isLoadingMore, isReachingEnd, setSize, mutate } = useFormationsInfinite(filters);
   const { domaine: domaines } = useDomaines();
   const { mentions } = useMentions();
+
+  // ✅ Revalider les données à chaque montage du composant
+  useEffect(() => {
+    // Forcer la revalidation des formations
+    mutate();
+    
+    // Revalider aussi toutes les clés liées aux formations
+    globalMutate(
+      key => typeof key === 'string' && key.startsWith('formations'),
+      undefined,
+      { revalidate: true }
+    );
+  }, []); // Se déclenche uniquement au montage
 
   // Filtrer les mentions par domaine sélectionné
   const filteredMentions = filters.domaine_id
@@ -396,7 +409,13 @@ export default function FormationsPage() {
                           <Eye size={18} />
                         </button>
                         <button
-                          onClick={() => router.push(`/dashboard/formations/${formation.id}/edit`)}
+                          onClick={() => {
+                            if (formation.type_formation === 'MODULAIRE') {
+                              router.push(ENDPOINTS.DASHBOARD_FORMATION_MODULAIRE_EDIT(formation.id));
+                            } else {
+                              router.push(ENDPOINTS.DASHBOARD_FORMATION_PRINCIPALE_EDIT(formation.id));
+                            }
+                          }}
                           className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                           title="Modifier"
                         >
@@ -416,8 +435,8 @@ export default function FormationsPage() {
                     </div>
                   </div>
                   
-                  {/* Bouton pour voir plus */}
-                  <button
+                  {/* Bouton pour voir plus */}         
+                  {formation.type_formation === 'PRINCIPALE' && (<button
                     onClick={() => setExpandedFormation(
                       expandedFormation === formation.id ? null : formation.id
                     )}
@@ -434,7 +453,7 @@ export default function FormationsPage() {
                         Voir plus d'informations
                       </>
                     )}
-                  </button>
+                  </button>)}
                 </div>
                 
                 {/* Section étendue */}
