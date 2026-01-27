@@ -1,10 +1,10 @@
 @import "tailwindcss";
-
+/* 
 :root {
   --background: #fffffe;
   --foreground: #171717;
   
-}
+} */
 
 
 @theme inline {
@@ -20,7 +20,8 @@
   /* Couleurs principales ISDB */
   --color-isdb-green: #206b38;
   --color-isdb-red: #dc2c42;
-  --color-isdb-beige: #fad09c;
+  --color-isdb-orange: #fad09c;
+  --color-isdb-gold: #c8ad7f;
   --color-isdb-white: #ffffff;
 
   /* ———————— TINTS & SHADES : ISDB GREEN ———————— */
@@ -47,17 +48,29 @@
   --color-isdb-red-800: #7a1624;
   --color-isdb-red-900: #530e18;
 
-  /* ———————— TINTS & SHADES : ISDB BEIGE ———————— */
-  --color-isdb-beige-50:  #fff7ef;
-  --color-isdb-beige-100: #ffe7cf;
-  --color-isdb-beige-200: #fed6b0;
-  --color-isdb-beige-300: #fdc48e;
-  --color-isdb-beige-400: #fcb16a;
-  --color-isdb-beige-500: #fad09c;   /* BASE */
-  --color-isdb-beige-600: #e2b98b;
-  --color-isdb-beige-700: #c3a076;
-  --color-isdb-beige-800: #a38760;
-  --color-isdb-beige-900: #806a4a;
+  /* ———————— TINTS & SHADES : ISDB ORANGE ———————— */
+  --color-isdb-orange-50:  #fff7ef;
+  --color-isdb-orange-100: #ffe7cf;
+  --color-isdb-orange-200: #fed6b0;
+  --color-isdb-orange-300: #fdc48e;
+  --color-isdb-orange-400: #fcb16a;
+  --color-isdb-orange-500: #fad09c;   /* BASE */
+  --color-isdb-orange-600: #e2b98b;
+  --color-isdb-orange-700: #c3a076;
+  --color-isdb-orange-800: #a38760;
+  --color-isdb-orange-900: #806a4a;
+
+  /* ———————— TINTS & SHADES : ISDB GOLD ———————— */
+  --color-isdb-gold-50:  #faf7f1;
+  --color-isdb-gold-100: #f2eadb;
+  --color-isdb-gold-200: #e8dcc0;
+  --color-isdb-gold-300: #decea5;
+  --color-isdb-gold-400: #d3be8f;
+  --color-isdb-gold-500: #c8ad7f;   /* BASE */
+  --color-isdb-gold-600: #b3966d;
+  --color-isdb-gold-700: #947b59;
+  --color-isdb-gold-800: #746044;
+  --color-isdb-gold-900: #4f412f;
 
   /* ———————— MODE SOMBRE ———————— */
   --color-background-dark: #0d0d0d;
@@ -65,12 +78,62 @@
   --color-background-light: #fff3de;
 }
 
+/* ===============================
+   THEMES METIERS (DOMAINES)
+   =============================== */
+
+.theme-green {
+  --theme-50:  var(--color-isdb-green-50);
+  --theme-100: var(--color-isdb-green-100);
+  --theme-500: var(--color-isdb-green-500);
+  --theme-600: var(--color-isdb-green-600);
+}
+
+.theme-red {
+  --theme-50:  var(--color-isdb-red-50);
+  --theme-100: var(--color-isdb-red-100);
+  --theme-500: var(--color-isdb-red-500);
+  --theme-600: var(--color-isdb-red-600);
+}
+
+.theme-gold {
+  --theme-50:  var(--color-isdb-gold-50);
+  --theme-100: var(--color-isdb-gold-100);
+  --theme-500: var(--color-isdb-gold-500);
+  --theme-600: var(--color-isdb-gold-600);
+}
+
+.theme-orange {
+  --theme-50:  var(--color-isdb-orange-50);
+  --theme-100: var(--color-isdb-orange-100);
+  --theme-500: var(--color-isdb-orange-500);
+  --theme-600: var(--color-isdb-orange-600);
+}
+
+
 /* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
 } */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+
+  body {
+    @apply bg-white text-slate-900;
+  }
+
+  @layer utilities {
+    .bg-grid-slate-100 {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(241 245 249 / 0.5)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
+    }
+  }
+}
 
 body {
   background: var(--background);

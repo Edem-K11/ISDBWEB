@@ -63,7 +63,7 @@ export default function Sidebar() {
           { name: 'Domaines', href: '/dashboard/domaines' },
           { name: 'Mentions', href: '/dashboard/mentions' },
           { name: 'Années académiques', href: '/dashboard/annees-academiques' },
-          { name: 'Offres de formation', href: '/dashboard/offres-formation' },
+          { name: 'Offres de formation', href: '/dashboard/offres-formations' },
         ]
       }
     ] : []),

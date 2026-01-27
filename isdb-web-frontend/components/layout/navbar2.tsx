@@ -1,24 +1,26 @@
-
-
 'use client';
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-export default function NavFloating(){
+export default function MyNavFloating() {
   const [isOpen, setIsOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<number | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50); // Se déclenche après 50px de scroll
+      setIsScrolled(window.scrollY > 50);
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Menu items complets
   const menuItems = [
     {
       name: 'Accueil',
@@ -35,22 +37,42 @@ export default function NavFloating(){
         { 
           name: 'Philosophie', 
           href: '/formations/philosophie',
-          description: 'Solutions web modernes et performantes'
+          description: 'Formation approfondie en philosophie'
         },
         { 
           name: 'Sciences de l\'éducation', 
-          href: '/formations/science',
-          description: 'Interfaces intuitives et esthétiques'
+          href: '/formations/science-education',
+          description: 'Formation en sciences éducatives'
         },
         { 
           name: 'Communication', 
           href: '/formations/communication',
-          description: 'Expertise et conseils stratégiques'
+          description: 'Formation en communication'
         },
       ],
     },
     {
+      name: 'Blog',
+      href: '/blogs',
+      icon: (
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+        </svg>
+      )
+    },
+    {
+      name: 'Radio',
+      href: '/radio',
+      icon: (
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+        </svg>
+      )
+    },
+    {
       name: 'Admission',
+      href: '/admission',
+      highlight: true
     },
     {
       name: 'À propos',
@@ -59,7 +81,6 @@ export default function NavFloating(){
     {
       name: 'Contact',
       href: '/contact',
-      highlight: true
     },
   ];
 
@@ -67,23 +88,33 @@ export default function NavFloating(){
     setOpenSubmenu(openSubmenu === index ? null : index);
   };
 
+  // Ne pas afficher la navbar sur login et dashboard
+  if (pathname?.startsWith('/login') || pathname?.startsWith('/dashboard')) {
+    return null;
+  }
+
   return (
     <>
-      {/* Container pour la hauteur */}
-      <div className={`h-${isScrolled ? '16' : '28'} bg-red-100 transition-all duration-300`}>
+      {/* Spacer pour éviter que le contenu passe sous la navbar */}
+      {/* <div className={`transition-all duration-300 ${isScrolled ? 'h-16' : 'h-28'}`} /> */}
         
-        {/* Header avec position absolute qui devient fixed au scroll */}
-        <header className={`
+      {/* Header avec position fixed permanente */}
+      <header className={`
+        fixed top-0 left-0 right-0 z-50
+        transition-all duration-300 ease-out
+        ${isScrolled ? 'pt-0' : 'pt-4'}
+      `}>
+        <div className={`
           ${isScrolled 
-            ? 'fixed top-0 left-0 right-0 z-50' 
-            : 'absolute top-6 left-1/2 transform -translate-x-1/2 z-50'
+            ? 'mx-0' 
+            : 'mx-auto px-[2.5%] max-w-[1920px]'
           }
           transition-all duration-300 ease-out
         `}>
           <nav className={`
             ${isScrolled 
-              ? 'mx-0 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm' 
-              : 'w-[100%] max-w-8xl bg-white/80 backdrop-blur-sm border border-white/50 rounded-2xl shadow-xl'
+              ? 'bg-white/75 backdrop-blur-md border-b border-slate-400 shadow-sm rounded-none' 
+              : 'bg-white/60 backdrop-blur-sm border border-white/50 rounded-2xl shadow-xl'
             }
             transition-all duration-300 ease-out
           `}>
@@ -91,21 +122,85 @@ export default function NavFloating(){
               <div className="flex justify-between items-center h-16">
                 {/* Logo */}
                 <div className="flex-shrink-0">
-                  <Image
-                  src="/logo_isdb.png"
-                  alt="ISDB Logo"
-                  width={50}
-                  height={50}
-                  />
+                  <Link href="/">
+                    <Image
+                      src="/logo_isdb.png"
+                      alt="ISDB Logo"
+                      width={50}
+                      height={50}
+                      className="cursor-pointer"
+                    />
+                  </Link>
                 </div>
 
                 {/* Menu Desktop */}
                 <div className="hidden lg:flex items-center space-x-1">
                   {menuItems.map((item, index) => (
                     <div key={index} className="relative group">
-                      {item.href ? (
-                        <a
+                      {item.href && !item.submenu ? (
+                        <Link
                           href={item.href}
+                          className={`
+                            flex items-center px-4 py-2 rounded-xl font-medium transition-all duration-200
+                            ${item.highlight 
+                              ? 'bg-gradient-to-r from-isdb-green-600 to-isdb-green-700 text-white shadow-lg hover:from-isdb-green-700 hover:to-isdb-green-800' 
+                              : 'text-slate-700 hover:text-isdb-green-600 hover:bg-slate-50'
+                            }
+                            ${pathname === item.href ? 'text-isdb-green-600 bg-isdb-green-50' : ''}
+                          `}
+                        >
+                          {item.icon}
+                          {item.name}
+                        </Link>
+                      ) : item.submenu ? (
+                        <>
+                          <button
+                            onClick={() => handleSubmenu(index)}
+                            className="flex items-center px-4 py-2 rounded-xl font-medium text-slate-700 hover:text-isdb-green-600 hover:bg-slate-50 transition-all duration-200"
+                          >
+                            {item.name}
+                            <svg
+                              className={`ml-2 w-4 h-4 transition-transform duration-200 ${
+                                openSubmenu === index ? 'rotate-180' : ''
+                              }`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                          </button>
+
+                          {/* Sous-menu Desktop */}
+                          <div className="absolute top-full mt-2 left-0 w-64 bg-white rounded-xl shadow-lg border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-2 group-hover:translate-y-0 z-50">
+                            <div className="p-2">
+                              {item.submenu.map((subItem, subIndex) => (
+                                <Link
+                                  key={subIndex}
+                                  href={subItem.href}
+                                  className="flex flex-col p-3 rounded-lg hover:bg-isdb-green-50 transition-all duration-200 group/item"
+                                >
+                                  <span className="font-medium text-slate-800 group-hover/item:text-isdb-green-600">
+                                    {subItem.name}
+                                  </span>
+                                  {'description' in subItem && subItem.description && (
+                                    <span className="text-sm text-slate-500 mt-1">
+                                      {subItem.description}
+                                    </span>
+                                  )}
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <Link
+                          href={item.href || '#'}
                           className={`
                             flex items-center px-4 py-2 rounded-xl font-medium transition-all duration-200
                             ${item.highlight 
@@ -116,53 +211,7 @@ export default function NavFloating(){
                         >
                           {item.icon}
                           {item.name}
-                        </a>
-                      ) : (
-                        <button
-                          onClick={() => handleSubmenu(index)}
-                          className="flex items-center px-4 py-2 rounded-xl font-medium text-slate-700 hover:text-isdb-green-600 hover:bg-slate-50 transition-all duration-200"
-                        >
-                          {item.name}
-                          <svg
-                            className={`ml-2 w-4 h-4 transition-transform duration-200 ${
-                              openSubmenu === index ? 'rotate-180' : ''
-                            }`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </button>
-                      )}
-
-                      {/* Sous-menu Desktop */}
-                      {item.submenu && (
-                        <div className="absolute top-12 left-0 w-64 bg-white rounded-xl shadow-lg border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-2 group-hover:translate-y-0 z-50">
-                          <div className="p-2">
-                            {item.submenu.map((subItem, subIndex) => (
-                              <a
-                                key={subIndex}
-                                href={subItem.href}
-                                className="flex flex-col p-3 rounded-lg hover:bg-isdb-green-50 transition-all duration-200 group/item"
-                              >
-                                <span className="font-medium text-slate-800 group-hover/item:text-isdb-green-600">
-                                  {subItem.name}
-                                </span>
-                                {'description' in subItem && subItem.description && (
-                                  <span className="text-sm text-slate-500 mt-1">
-                                    {subItem.description}
-                                  </span>
-                                )}
-                              </a>
-                            ))}
-                          </div>
-                        </div>
+                        </Link>
                       )}
                     </div>
                   ))}
@@ -182,18 +231,18 @@ export default function NavFloating(){
               </div>
             </div>
           </nav>
-        </header>
-      </div>
+        </div>
+      </header>
 
       {/* Menu Mobile */}
       {isOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-28 bg-white border-b border-slate-200 shadow-lg z-40">
+        <div className={`lg:hidden fixed z-40 left-0 right-0 bg-white border-b border-slate-200 shadow-lg transition-all duration-300 ${isScrolled ? 'top-16' : 'top-28'}`}>
           <div className="container mx-auto px-6 py-4">
             <div className="space-y-1">
               {menuItems.map((item, index) => (
                 <div key={index} className="py-2">
-                  {item.href ? (
-                    <a
+                  {item.href && !item.submenu ? (
+                    <Link
                       href={item.href}
                       className={`
                         flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
@@ -201,13 +250,14 @@ export default function NavFloating(){
                           ? 'bg-gradient-to-r from-isdb-green-600 to-isdb-green-700 text-white' 
                           : 'text-slate-700 hover:bg-slate-50/80'
                         }
+                        ${pathname === item.href ? 'text-isdb-green-600 bg-isdb-green-50' : ''}
                       `}
                       onClick={() => setIsOpen(false)}
                     >
                       {item.icon}
                       {item.name}
-                    </a>
-                  ) : (
+                    </Link>
+                  ) : item.submenu ? (
                     <div>
                       <button
                         onClick={() => handleSubmenu(index)}
@@ -235,7 +285,7 @@ export default function NavFloating(){
                       {openSubmenu === index && (
                         <div className="ml-4 mt-1 bg-slate-50/50 rounded-xl overflow-hidden">
                           {item.submenu?.map((subItem, subIndex) => (
-                            <a
+                            <Link
                               key={subIndex}
                               href={subItem.href}
                               className="flex flex-col px-4 py-3 text-slate-600 hover:bg-white/80 transition-all duration-300 border-l-2 border-transparent hover:border-isdb-green-500"
@@ -247,25 +297,14 @@ export default function NavFloating(){
                                   {subItem.description}
                                 </span>
                               )}
-                            </a>
+                            </Link>
                           ))}
                         </div>
                       )}
                     </div>
-                  )}
+                  ) : null}
                 </div>
               ))}
-              
-              {/* Bouton Postuler en mobile */}
-              <div className="pt-4 mt-4 border-t border-slate-200">
-                <a
-                  href="/admissions"
-                  className="block w-full px-6 py-3 bg-gradient-to-r from-isdb-green-600 to-isdb-green-700 text-white rounded-lg text-center font-medium"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Postuler maintenant
-                </a>
-              </div>
             </div>
           </div>
         </div>
@@ -280,4 +319,4 @@ export default function NavFloating(){
       )}
     </>
   );
-};
+}

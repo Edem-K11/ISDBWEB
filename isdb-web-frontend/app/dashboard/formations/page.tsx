@@ -28,6 +28,7 @@ import ConfirmModal from '@/components/ui/confirmModal';
 import { Badge } from '@/components/ui/badge';
 import { SelectWithSearch } from '@/components/ui/selectWithSearch';
 import { cn } from '@/lib/utils/cn';
+import { StatutFormation } from '@/lib/types/Formation';
 import type { FormationFilters } from '@/lib/types/Formation';
 import { ENDPOINTS } from '@/lib/api/endpoints';
 
@@ -39,7 +40,7 @@ export default function FormationsPage() {
     domaine_id: '',
     mention_id: '',
     diplome: '',
-    statut: 'ACTIVE',
+    statut: StatutFormation.ACTIVE,
   });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [formationToDelete, setFormationToDelete] = useState<number | null>(null);
@@ -114,7 +115,7 @@ export default function FormationsPage() {
       domaine_id: '',
       mention_id: '',
       diplome: '',
-      statut: 'ACTIVE',
+      statut: StatutFormation.ACTIVE,
     });
   };
 
@@ -276,8 +277,8 @@ export default function FormationsPage() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent"
               >
                 <option value="">Tous les statuts</option>
-                <option value="ACTIVE">Active</option>
-                <option value="ARCHIVEE">Archivée</option>
+                <option value={StatutFormation.ACTIVE}>Active</option>
+                <option value={StatutFormation.ARCHIVEE}>Archivée</option>
               </select>
             </div>
 
@@ -394,9 +395,9 @@ export default function FormationsPage() {
                           {formation.offresFormations?.length || 0} offre(s)
                         </Badge>
                         <Badge variant={
-                          formation.statut_formation === 'ACTIVE' ? 'success' : 'warning'
+                          formation.statut_formation === StatutFormation.ACTIVE ? 'success' : 'warning'
                         } size="sm">
-                          {formation.statut_formation === 'ACTIVE' ? 'Active' : 'Archivée'}
+                          {formation.statut_formation === StatutFormation.ACTIVE ? 'Active' : 'Archivée'}
                         </Badge>
                       </div>
                       
@@ -540,11 +541,11 @@ export default function FormationsPage() {
               Aucune formation trouvée
             </h3>
             <p className="text-gray-500 mb-6">
-              {filters.search || Object.values(filters).some(v => v !== '' && v !== 'ACTIVE')
+              {filters.search || Object.values(filters).some(v => v !== '' && v !== StatutFormation.ACTIVE)
                 ? 'Aucun résultat pour votre recherche. Essayez de modifier vos filtres.' 
                 : 'Commencez par créer votre première formation.'}
             </p>
-            {!filters.search && Object.values(filters).every(v => v === '' || v === 'ACTIVE') && (
+            {!filters.search && Object.values(filters).every(v => v === '' || v === StatutFormation.ACTIVE) && (
               <Link
                 href="/dashboard/formations/create"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-isdb-green-500 text-white rounded-lg hover:bg-isdb-green-600 transition-colors"

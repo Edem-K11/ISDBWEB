@@ -7,6 +7,7 @@ import { ArrowLeft, Save, BookOpen, AlertCircle, Clock, DollarSign } from 'lucid
 import { toast } from 'react-hot-toast';
 import { formationService } from '@/lib/api/services/formationService';
 import { mutate } from 'swr'; // ✅ Import ajouté
+import { Diplome, StatutFormation, TypeFormation } from '@/lib/types/Formation';
 
 export default function CreateFormationModulairePage() {
   const router = useRouter();
@@ -56,12 +57,12 @@ export default function CreateFormationModulairePage() {
     try {
       await formationService.create({
         titre: formData.titre.trim(),
-        type_formation: 'MODULAIRE',
+        type_formation: TypeFormation.MODULAIRE,
         description: formData.description.trim() || undefined,
         duree_formation: formData.duree_formation.trim(),
         frais_scolarite: formData.frais_scolarite.trim() || undefined,
-        diplome: 'CERTIFICAT_MODULE',
-        statut_formation: 'ACTIVE',
+        diplome: Diplome.CERTIFICAT_MODULE,
+        statut_formation: StatutFormation.ACTIVE,
       });
 
       // ✅ Revalider toutes les clés SWR liées aux formations

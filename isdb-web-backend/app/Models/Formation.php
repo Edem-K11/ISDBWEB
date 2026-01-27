@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Formation extends Model
 {
@@ -47,6 +48,7 @@ class Formation extends Model
      */
     protected $fillable = [
         'titre',
+        'slug',
         'type_formation',
         'description',
         'mention_id',
@@ -63,6 +65,23 @@ class Formation extends Model
         'frais_scolarite',
         'statut_formation',
     ];
+
+    protected static function booted()
+{
+    static::creating(function ($formation) {
+        if (empty($formation->slug)) {
+            $baseSlug = Str::slug($formation->titre);
+            $slug = $baseSlug;
+            $counter = 1;
+
+            while (self::withTrashed()->where('slug', $slug)->exists()) {
+                $slug = $baseSlug . '-' . $counter++;
+            }
+
+            $formation->slug = $slug;
+        }
+    });
+}
 
     /**
      * The attributes that should be cast.

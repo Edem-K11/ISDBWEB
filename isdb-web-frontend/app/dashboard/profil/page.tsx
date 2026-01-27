@@ -141,7 +141,7 @@ export default function ProfilPage() {
           {!isEditing ? (
             <button
               onClick={() => setIsEditing(true)}
-              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors font-medium"
+              className="px-4 py-2 bg-gray-100 border border-gray-500 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors font-medium"
             >
               Modifier
             </button>

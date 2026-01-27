@@ -5,6 +5,7 @@ import { Formation } from "./Formation";
 export interface Mention {
   id: number;
   titre: string;
+  slug: string;
   description: string | null;
   domaine_id: number;
   domaine?: Domaine;

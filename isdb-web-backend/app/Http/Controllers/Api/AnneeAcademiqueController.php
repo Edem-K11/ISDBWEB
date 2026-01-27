@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AnneeAcademique;
+use App\Models\OffreFormation;
 use App\Http\Requests\StoreAnneeAcademiqueRequest;
 use App\Http\Requests\UpdateAnneeAcademiqueRequest;
 use App\Http\Resources\AnneeAcademiqueResource;
-use App\Http\Resources\AnneeAcademiqueCollection;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
 
 class AnneeAcademiqueController extends Controller
 {
@@ -20,16 +23,21 @@ class AnneeAcademiqueController extends Controller
     {
         $query = AnneeAcademique::query();
 
-        // Eager loading
-        if ($request->has('with_offres')) {
-            $query->with('offresFormations.formation');
-        }
+        // Eager loading automatique avec le nombre d'offres
+        $query->withCount('offresFormations')
+              ->with(['offresFormations' => function($q) {
+                  $q->select('id', 'annee_academique_id', 'formation_id', 'est_dispensee')
+                    ->with('formation:id,titre,type_formation');
+              }]);
 
         // Filtres
         if ($request->has('search')) {
             $search = $request->input('search');
-            $query->where('annee_debut', 'LIKE', "%{$search}%")
-                  ->orWhere('annee_fin', 'LIKE', "%{$search}%");
+            $query->where(function($q) use ($search) {
+                $q->where('annee_debut', 'LIKE', "%{$search}%")
+                  ->orWhere('annee_fin', 'LIKE', "%{$search}%")
+                  ->orWhereRaw("CONCAT(annee_debut, '-', annee_fin) LIKE ?", ["%{$search}%"]);
+            });
         }
 
         if ($request->boolean('actuelle_only')) {
@@ -44,23 +52,20 @@ class AnneeAcademiqueController extends Controller
             $query->passees();
         }
 
-        // Tri (par défaut, les plus récentes en premier)
-        $sortBy = $request->input('sort_by', 'annee_debut');
-        $sortOrder = $request->input('sort_order', 'desc');
-        $query->orderBy($sortBy, $sortOrder);
+        // Tri personnalisé : année actuelle en premier, puis par date décroissante
+        $query->orderByRaw('est_actuelle DESC')
+              ->orderBy('annee_debut', 'DESC');
 
-        // Pagination
-        if ($request->has('per_page')) {
-            $annees = $query->paginate($request->input('per_page', 15));
-            return response()->json(new AnneeAcademiqueCollection($annees));
-        }
 
         $annees = $query->get();
+        $total = AnneeAcademique::count();
+        
         return response()->json([
             'success' => true,
             'data' => AnneeAcademiqueResource::collection($annees),
             'meta' => [
-                'total' => $annees->count(),
+                'total' => $total,
+                'displayed' => $annees->count(),
                 'annee_actuelle' => $annees->firstWhere('est_actuelle', true)?->libelle
             ]
         ]);
@@ -71,36 +76,67 @@ class AnneeAcademiqueController extends Controller
      */
     public function store(StoreAnneeAcademiqueRequest $request): JsonResponse
     {
-        $annee = AnneeAcademique::create($request->validated());
+
+        $data = $request->validated();
+        
+        $annee = AnneeAcademique::create($data);
+
+        // Déterminer automatiquement si cette année doit être actuelle
+        $this->updateAnneeActuelle();
 
         return response()->json([
             'success' => true,
             'message' => 'Année académique créée avec succès.',
-            'data' => new AnneeAcademiqueResource($annee)
+            'data' => new AnneeAcademiqueResource($annee->fresh())
         ], 201);
     }
 
     /**
      * Display the specified année académique.
      */
-    public function show(Request $request, AnneeAcademique $anneeAcademique): JsonResponse
+    public function show(Request $request,  $id): JsonResponse
     {
-        if ($request->has('with_offres')) {
-            $anneeAcademique->load('offresFormations.formation.mention.domaine');
-        }
+        $anneeAcademique = AnneeAcademique::findOrFail($id);
+        // Eager loading complet pour la vue détaillée
+        $anneeAcademique->load(['offresFormations' => function($q) {
+            $q->with(['formation.mention.domaine']);
+        }]);
+
+        // Déterminer si l'année est terminée
+        $estTerminee = $this->isAnneeTerminee($anneeAcademique);
 
         return response()->json([
             'success' => true,
-            'data' => new AnneeAcademiqueResource($anneeAcademique)
+            'data' => new AnneeAcademiqueResource($anneeAcademique),
+            'meta' => [
+                'est_terminee' => $estTerminee,
+                'peut_modifier' => !$estTerminee,
+                'peut_supprimer' => !$estTerminee && $anneeAcademique->offresFormations()->count() === 0,
+            ]
         ]);
     }
 
     /**
      * Update the specified année académique.
      */
-    public function update(UpdateAnneeAcademiqueRequest $request, AnneeAcademique $anneeAcademique): JsonResponse
+    public function update(UpdateAnneeAcademiqueRequest $request,  $id): JsonResponse
     {
-        $anneeAcademique->update($request->validated());
+        $anneeAcademique = AnneeAcademique::findOrFail($id);
+
+        // Vérifier si l'année est terminée
+        if ($this->isAnneeTerminee($anneeAcademique)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Impossible de modifier une année académique terminée.'
+            ], 422);
+        }
+
+        $data = $request->validated();
+        
+        $anneeAcademique->update($data);
+
+        // Recalculer automatiquement quelle année doit être actuelle
+        $this->updateAnneeActuelle();
 
         return response()->json([
             'success' => true,
@@ -112,13 +148,14 @@ class AnneeAcademiqueController extends Controller
     /**
      * Remove the specified année académique (soft delete).
      */
-    public function destroy(AnneeAcademique $anneeAcademique): JsonResponse
+    public function destroy( $id): JsonResponse
     {
-        // Empêcher la suppression de l'année actuelle
-        if ($anneeAcademique->est_actuelle) {
+        $anneeAcademique = AnneeAcademique::findOrFail($id);
+        // Vérifier si l'année est terminée
+        if ($this->isAnneeTerminee($anneeAcademique)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Impossible de supprimer l\'année académique actuelle.'
+                'message' => 'Impossible de supprimer une année académique terminée. Les données doivent être conservées.'
             ], 422);
         }
 
@@ -132,24 +169,12 @@ class AnneeAcademiqueController extends Controller
 
         $anneeAcademique->delete();
 
+        // Recalculer l'année actuelle après suppression
+        $this->updateAnneeActuelle();
+
         return response()->json([
             'success' => true,
             'message' => 'Année académique supprimée avec succès.'
-        ]);
-    }
-
-    /**
-     * Set an année académique as current.
-     */
-    public function setActuelle(AnneeAcademique $anneeAcademique): JsonResponse
-    {
-        // La logique dans le boot() du modèle va désactiver les autres automatiquement
-        $anneeAcademique->update(['est_actuelle' => true]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Année académique définie comme actuelle.',
-            'data' => new AnneeAcademiqueResource($anneeAcademique)
         ]);
     }
 
@@ -158,6 +183,7 @@ class AnneeAcademiqueController extends Controller
      */
     public function actuelle(Request $request): JsonResponse
     {
+
         $annee = AnneeAcademique::actuelle()->first();
 
         if (!$annee) {
@@ -167,9 +193,7 @@ class AnneeAcademiqueController extends Controller
             ], 404);
         }
 
-        if ($request->has('with_offres')) {
-            $annee->load('offresFormations.formation.mention.domaine');
-        }
+        $annee->load(['offresFormations.formation.mention.domaine']);
 
         return response()->json([
             'success' => true,
@@ -178,57 +202,105 @@ class AnneeAcademiqueController extends Controller
     }
 
     /**
-     * Restore a soft-deleted année académique.
+     * Reconduire les offres de formation d'une année à une autre.
      */
-    public function restore(int $id): JsonResponse
+    public function reconduireOffres(Request $request, AnneeAcademique $anneeSource): JsonResponse
     {
-        $annee = AnneeAcademique::withTrashed()->findOrFail($id);
-        
-        if (!$annee->trashed()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cette année académique n\'est pas supprimée.'
-            ], 422);
-        }
-
-        $annee->restore();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Année académique restaurée avec succès.',
-            'data' => new AnneeAcademiqueResource($annee)
+        $request->validate([
+            'annee_cible_id' => 'required|exists:annees_academiques,id',
+            'offre_ids' => 'nullable|array',
+            'offre_ids.*' => 'exists:offres_formations,id',
         ]);
-    }
 
-    /**
-     * Permanently delete an année académique.
-     */
-    public function forceDelete(int $id): JsonResponse
-    {
-        $annee = AnneeAcademique::withTrashed()->findOrFail($id);
+        $anneeCible = AnneeAcademique::findOrFail($request->annee_cible_id);
 
-        // Empêcher la suppression de l'année actuelle
-        if ($annee->est_actuelle) {
+        // Vérifier que l'année cible n'est pas terminée
+        if ($this->isAnneeTerminee($anneeCible)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Impossible de supprimer définitivement l\'année académique actuelle.'
+                'message' => 'Impossible de reconduire vers une année académique terminée.'
             ], 422);
         }
 
-        // Vérifier s'il y a des offres (même supprimées)
-        if ($annee->offresFormations()->withTrashed()->count() > 0) {
+        // Vérifier que l'année cible est différente
+        if ($anneeSource->id === $anneeCible->id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Impossible de supprimer définitivement cette année car elle contient des offres de formation.'
+                'message' => 'L\'année source et l\'année cible doivent être différentes.'
             ], 422);
         }
 
-        $annee->forceDelete();
+        DB::beginTransaction();
+        try {
+            $offresQuery = $anneeSource->offresFormations();
+            
+            if ($request->has('offre_ids') && !empty($request->offre_ids)) {
+                $offresQuery->whereIn('id', $request->offre_ids);
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Année académique supprimée définitivement.'
-        ]);
+            $offresSource = $offresQuery->with('formation')->get();
+
+            if ($offresSource->isEmpty()) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Aucune offre à reconduire.'
+                ], 422);
+            }
+
+            $offresCreated = 0;
+            $offresSkipped = 0;
+            $errors = [];
+
+            foreach ($offresSource as $offreSource) {
+                // Vérifier si une offre existe déjà
+                $existingOffre = OffreFormation::where('formation_id', $offreSource->formation_id)
+                    ->where('annee_academique_id', $anneeCible->id)
+                    ->first();
+
+                if ($existingOffre) {
+                    $offresSkipped++;
+                    $errors[] = "Formation '{$offreSource->formation->titre}' déjà offerte pour {$anneeCible->libelle}";
+                    continue;
+                }
+
+                // Créer la nouvelle offre
+                OffreFormation::create([
+                    'formation_id' => $offreSource->formation_id,
+                    'annee_academique_id' => $anneeCible->id,
+                    'chef_parcours' => $offreSource->chef_parcours,
+                    'animateur' => $offreSource->animateur,
+                    'date_debut' => null,
+                    'date_fin' => null,
+                    'place_limited' => $offreSource->place_limited,
+                    'prix' => $offreSource->prix,
+                    'est_dispensee' => false,
+                ]);
+
+                $offresCreated++;
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Reconduction terminée : {$offresCreated} offre(s) créée(s), {$offresSkipped} ignorée(s).",
+                'data' => [
+                    'offres_created' => $offresCreated,
+                    'offres_skipped' => $offresSkipped,
+                    'errors' => $errors,
+                    'annee_source' => $anneeSource->libelle,
+                    'annee_cible' => $anneeCible->libelle,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la reconduction : ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -261,7 +333,11 @@ class AnneeAcademiqueController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => \App\Http\Resources\OffreFormationResource::collection($offres)
+            'data' => \App\Http\Resources\OffreFormationResource::collection($offres),
+            'meta' => [
+                'est_terminee' => $this->isAnneeTerminee($anneeAcademique),
+                'peut_modifier' => !$this->isAnneeTerminee($anneeAcademique),
+            ]
         ]);
     }
 
@@ -277,6 +353,7 @@ class AnneeAcademiqueController extends Controller
             'data' => [
                 'libelle' => $anneeAcademique->libelle,
                 'est_actuelle' => $anneeAcademique->est_actuelle,
+                'est_terminee' => $this->isAnneeTerminee($anneeAcademique),
                 'nombre_offres' => $offres->count(),
                 'offres_dispensees' => $offres->where('est_dispensee', true)->count(),
                 'formations_principales' => $anneeAcademique->offresFormations()
@@ -288,6 +365,101 @@ class AnneeAcademiqueController extends Controller
                 'places_totales' => $offres->sum('place_limited'),
                 'offres_avec_places_limitees' => $offres->whereNotNull('place_limited')->count()
             ]
+        ]);
+    }
+
+    /**
+     * Méthode privée pour déterminer automatiquement l'année actuelle.
+     */
+    private function updateAnneeActuelle(): void
+    {
+        $now = Carbon::today();
+
+        // 1. Désactiver uniquement l'année actuellement marquée
+        AnneeAcademique::where('est_actuelle', true)
+            ->update(['est_actuelle' => false]);
+
+        // 2. Trouver l'année correspondant à la date actuelle
+        $anneeActuelle = AnneeAcademique::whereDate('date_debut', '<=', $now)
+            ->whereDate('date_fin', '>=', $now)
+            ->orderBy('date_debut')
+            ->first();
+
+        // 3. Marquer comme actuelle
+        if ($anneeActuelle) {
+            $anneeActuelle->forceFill([
+                'est_actuelle' => true
+            ])->save();
+        }
+    }
+
+
+    /**
+     * Vérifier si une année académique est terminée.
+     */
+    private function isAnneeTerminee(AnneeAcademique $annee): bool
+    {
+        if (!$annee->date_fin) {
+            return false;
+        }
+
+        return now()->isAfter($annee->date_fin);
+    }
+
+    /**
+     * Restore a soft-deleted année académique.
+     */
+    public function restore(int $id): JsonResponse
+    {
+        $annee = AnneeAcademique::withTrashed()->findOrFail($id);
+        
+        if (!$annee->trashed()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cette année académique n\'est pas supprimée.'
+            ], 422);
+        }
+
+        $annee->restore();
+
+        // Recalculer l'année actuelle
+        $this->updateAnneeActuelle();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Année académique restaurée avec succès.',
+            'data' => new AnneeAcademiqueResource($annee)
+        ]);
+    }
+
+    /**
+     * Permanently delete an année académique.
+     */
+    public function forceDelete(int $id): JsonResponse
+    {
+        $annee = AnneeAcademique::withTrashed()->findOrFail($id);
+
+        // Vérifier si l'année est terminée
+        if ($this->isAnneeTerminee($annee)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Impossible de supprimer définitivement une année académique terminée.'
+            ], 422);
+        }
+
+        // Vérifier s'il y a des offres
+        if ($annee->offresFormations()->withTrashed()->count() > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Impossible de supprimer définitivement cette année car elle contient des offres de formation.'
+            ], 422);
+        }
+
+        $annee->forceDelete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Année académique supprimée définitivement.'
         ]);
     }
 }

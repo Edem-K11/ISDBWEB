@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\FormationController;
 use App\Http\Controllers\Api\AnneeAcademiqueController;
 use App\Http\Controllers\Api\OffreFormationController;
 use App\Http\Controllers\Api\RadioController;
+use App\Http\Controllers\Api\MentionPageContentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +28,15 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // Routes publiques - Radio en direct
 Route::get('/radio', [RadioController::class, 'show']);
+
+// Récupérer les mentions et leur contenu pour la page /formations
+Route::get('/formations', [MentionPageContentController::class, 'indexPublic']);
+Route::get('/formations/{mentionSlug}', [MentionPageContentController::class, 'show']);
+// Détails d'une offre de formation
+Route::get('/formations/{mentionSlug}/{formationSlug}', [MentionPageContentController::class, 'showOffre']);
+
+
+
 
 // Routes protégées par authentification
 Route::middleware('auth:sanctum')->group(function () {
@@ -74,10 +84,20 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::resource('formations', FormationController::class);
 
             // Années académiques
-            Route::resource('annees-academiques', AnneeAcademiqueController::class);
+            Route::get('annees-academiques', [AnneeAcademiqueController::class, 'index']);
+            Route::post('annees-academiques', [AnneeAcademiqueController::class, 'store']);
+            Route::get('annees-academiques/{id}', [AnneeAcademiqueController::class, 'show']);
+            Route::put('annees-academiques/{id}', [AnneeAcademiqueController::class, 'update']);
+            Route::delete('annees-academiques/{id}', [AnneeAcademiqueController::class, 'destroy']);
+
 
             // Offres de formation
-            Route::resource('offres-formations', OffreFormationController::class);
+            Route::get('offres-formations', [OffreFormationController::class, 'index']);
+            Route::post('offres-formations', [OffreFormationController::class, 'store']);
+            Route::get('offres-formations/{offreFormation}', [OffreFormationController::class, 'show']);
+            Route::put('offres-formations/{offreFormation}', [OffreFormationController::class, 'update']);
+            Route::delete('offres-formations/{offreFormation}', [OffreFormationController::class, 'destroy']);
+            Route::patch('offres-formations/{offreFormation}/toggle-dispensee', [OffreFormationController::class, 'toggleDispensee']);
 
             // Radio (une seule)
             Route::put('radio', [RadioController::class, 'update']);

@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 
 class Mention extends Model
 {
@@ -26,9 +28,28 @@ class Mention extends Model
      */
     protected $fillable = [
         'titre',
+        'slug',
         'description',
         'domaine_id',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($mention) {
+            if (empty($mention->slug)) {
+                $baseSlug = Str::slug($mention->titre);
+                $slug = $baseSlug;
+                $counter = 1;
+
+                while (self::withTrashed()->where('slug', $slug)->exists()) {
+                    $slug = $baseSlug . '-' . $counter++;
+                }
+
+                $mention->slug = $slug;
+            }
+        });
+    }
+
 
     /**
      * The attributes that should be cast.
@@ -56,6 +77,19 @@ class Mention extends Model
     public function formations(): HasMany
     {
         return $this->hasMany(Formation::class, 'mention_id');
+    }
+
+    public function mentionPageContent(): HasOne
+    {
+        return $this->hasOne(MentionPageContent::class, 'mention_id');
+    }
+
+    /**
+     * Scope pour récupérer avec le contenu
+     */
+    public function scopeWithContent($query)
+    {
+        return $query->with('mentionPageContent');
     }
 
     /**

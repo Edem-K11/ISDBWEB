@@ -44,10 +44,10 @@ export default function HeroSection({
 
       {/* Contenu */}
       <div className="container px-12 text-left relative z-10">
-        <h1 className={`${lexendDeca.className} text-4xl md:text-5xl lg:text-6xl font-bold mb-6 max-w-3xl`}>
+        <h1 className={`${lexendDeca.className} text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight`}>
           {title}
         </h1>
-        <p className="text-lg md:text-xl max-w-2xl opacity-90">
+        <p className="text-lg md:text-xl max-w-3xl text-white/90 leading-relaxed">
           {description}
         </p>
       </div>
