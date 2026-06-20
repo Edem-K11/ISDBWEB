@@ -49,8 +49,16 @@ class RedacteurController extends Controller
     public function destroy($id)
     {
         $redacteur = Redacteur::findOrFail($id);
+
+        if ($redacteur->role === 'admin') {
+            return response()->json([
+                'message' => 'Impossible de supprimer un administrateur',
+                'error' => 'admin_cannot_be_deleted'
+            ], 403);
+        }
+
         $redacteur->delete();
-        
+
         return response()->json([
             'message' => 'Redacteur supprimé avec succès'
         ]);

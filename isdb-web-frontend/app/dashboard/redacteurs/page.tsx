@@ -168,20 +168,24 @@ export default function RedacteursPage() {
                 >
                   <Edit className="w-5 h-5" />
                 </button>
-                
-                {/* Séparateur vertical */}
-                <div className="h-6 w-px bg-gray-300 mx-1"></div>
-                
-                <button
-                  onClick={() => {
-                    setRedacteurToDelete(redacteur.id);
-                    setDeleteModalOpen(true);
-                  }}
-                  className="p-4 text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Supprimer"
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
+
+                {redacteur.role !== 'admin' && (
+                  <>
+                    {/* Séparateur vertical */}
+                    <div className="h-6 w-px bg-gray-300 mx-1"></div>
+
+                    <button
+                      onClick={() => {
+                        setRedacteurToDelete(redacteur.id);
+                        setDeleteModalOpen(true);
+                      }}
+                      className="p-4 text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Supprimer"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>

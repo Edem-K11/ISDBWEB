@@ -34,22 +34,42 @@ export default function MyNavFloating() {
     {
       name: 'Formations',
       submenu: [
-        { 
-          name: 'Philosophie', 
-          href: '/formations/philosophie',
-          description: 'Formation approfondie en philosophie'
+        {
+          name: 'Formations diplômantes',
+          isGroup: true,
+          children: [
+            {
+              name: 'Philosophie',
+              href: '/formations/philosophie',
+              description: 'Licence fondamentale & Master recherche'
+            },
+            {
+              name: 'Sciences de l\'éducation',
+              href: '/formations/sciences-de-l-education',
+              description: 'Licence fondamentale & Master professionnel'
+            },
+            {
+              name: 'Communication',
+              href: '/formations/sciences-et-techniques-de-la-communication',
+              description: 'Production multimédia & relations publiques'
+            },
+          ]
         },
-        { 
-          name: 'Sciences de l\'éducation', 
-          href: '/formations/science-education',
-          description: 'Formation en sciences éducatives'
-        },
-        { 
-          name: 'Communication', 
-          href: '/formations/communication',
-          description: 'Formation en communication'
+        {
+          name: 'Formations modulaires',
+          href: '/formations-modulaires',
+          description: 'Modules du soir — audiovisuel, journalisme, etc.'
         },
       ],
+    },
+    {
+      name: 'Studios',
+      href: '/studios',
+      icon: (
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      )
     },
     {
       name: 'Blog',
@@ -177,23 +197,48 @@ export default function MyNavFloating() {
                           </button>
 
                           {/* Sous-menu Desktop */}
-                          <div className="absolute top-full mt-2 left-0 w-64 bg-white rounded-xl shadow-lg border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-2 group-hover:translate-y-0 z-50">
+                          <div className="absolute top-full mt-2 left-0 w-72 bg-white rounded-xl shadow-lg border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-2 group-hover:translate-y-0 z-50">
                             <div className="p-2">
-                              {item.submenu.map((subItem, subIndex) => (
-                                <Link
-                                  key={subIndex}
-                                  href={subItem.href}
-                                  className="flex flex-col p-3 rounded-lg hover:bg-isdb-green-50 transition-all duration-200 group/item"
-                                >
-                                  <span className="font-medium text-slate-800 group-hover/item:text-isdb-green-600">
-                                    {subItem.name}
-                                  </span>
-                                  {'description' in subItem && subItem.description && (
-                                    <span className="text-sm text-slate-500 mt-1">
-                                      {subItem.description}
-                                    </span>
+                              {item.submenu.map((subItem: any, subIndex: number) => (
+                                <div key={subIndex}>
+                                  {subItem.isGroup ? (
+                                    <div>
+                                      <div className="px-4 py-2 text-sm font-semibold text-slate-700 mt-2 first:mt-0">
+                                        {subItem.name}
+                                      </div>
+                                      {subItem.children?.map((child: any, childIndex: number) => (
+                                        <Link
+                                          key={childIndex}
+                                          href={child.href}
+                                          className="flex flex-col p-3 pl-6 rounded-lg hover:bg-isdb-green-50 transition-all duration-200 group/item"
+                                        >
+                                          <span className="font-medium text-slate-800 group-hover/item:text-isdb-green-600">
+                                            {child.name}
+                                          </span>
+                                          {child.description && (
+                                            <span className="text-sm text-slate-500 mt-1">
+                                              {child.description}
+                                            </span>
+                                          )}
+                                        </Link>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <Link
+                                      href={subItem.href}
+                                      className="flex flex-col p-3 rounded-lg hover:bg-isdb-green-50 transition-all duration-200 group/item"
+                                    >
+                                      <span className="font-medium text-slate-800 group-hover/item:text-isdb-green-600">
+                                        {subItem.name}
+                                      </span>
+                                      {subItem.description && (
+                                        <span className="text-sm text-slate-500 mt-1">
+                                          {subItem.description}
+                                        </span>
+                                      )}
+                                    </Link>
                                   )}
-                                </Link>
+                                </div>
                               ))}
                             </div>
                           </div>
@@ -284,20 +329,44 @@ export default function MyNavFloating() {
                       {/* Sous-menu Mobile */}
                       {openSubmenu === index && (
                         <div className="ml-4 mt-1 bg-slate-50/50 rounded-xl overflow-hidden">
-                          {item.submenu?.map((subItem, subIndex) => (
-                            <Link
-                              key={subIndex}
-                              href={subItem.href}
-                              className="flex flex-col px-4 py-3 text-slate-600 hover:bg-white/80 transition-all duration-300 border-l-2 border-transparent hover:border-isdb-green-500"
-                              onClick={() => setIsOpen(false)}
-                            >
-                              <span className="font-medium">{subItem.name}</span>
-                              {'description' in subItem && subItem.description && (
-                                <span className="text-sm text-slate-500 mt-1">
-                                  {subItem.description}
-                                </span>
+                          {item.submenu?.map((subItem: any, subIndex: number) => (
+                            <div key={subIndex}>
+                              {subItem.isGroup ? (
+                                <div>
+                                  <div className="px-4 py-2 text-sm font-semibold text-slate-700 mt-2 first:mt-0">
+                                    {subItem.name}
+                                  </div>
+                                  {subItem.children?.map((child: any, childIndex: number) => (
+                                    <Link
+                                      key={childIndex}
+                                      href={child.href}
+                                      className="flex flex-col px-6 py-3 text-slate-600 hover:bg-white/80 transition-all duration-300 border-l-2 border-transparent hover:border-isdb-green-500"
+                                      onClick={() => setIsOpen(false)}
+                                    >
+                                      <span className="font-medium">{child.name}</span>
+                                      {child.description && (
+                                        <span className="text-sm text-slate-500 mt-1">
+                                          {child.description}
+                                        </span>
+                                      )}
+                                    </Link>
+                                  ))}
+                                </div>
+                              ) : (
+                                <Link
+                                  href={subItem.href}
+                                  className="flex flex-col px-4 py-3 text-slate-600 hover:bg-white/80 transition-all duration-300 border-l-2 border-transparent hover:border-isdb-green-500"
+                                  onClick={() => setIsOpen(false)}
+                                >
+                                  <span className="font-medium">{subItem.name}</span>
+                                  {subItem.description && (
+                                    <span className="text-sm text-slate-500 mt-1">
+                                      {subItem.description}
+                                    </span>
+                                  )}
+                                </Link>
                               )}
-                            </Link>
+                            </div>
                           ))}
                         </div>
                       )}

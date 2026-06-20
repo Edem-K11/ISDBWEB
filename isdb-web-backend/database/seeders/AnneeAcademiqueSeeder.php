@@ -14,13 +14,6 @@ class AnneeAcademiqueSeeder extends Seeder
     {
         $annees = [
             [
-                'annee_debut' => 2022,
-                'annee_fin' => 2023,
-                'date_debut' => '2022-10-01',
-                'date_fin' => '2023-09-30',
-                'est_actuelle' => false,
-            ],
-            [
                 'annee_debut' => 2023,
                 'annee_fin' => 2024,
                 'date_debut' => '2023-10-01',
@@ -32,13 +25,20 @@ class AnneeAcademiqueSeeder extends Seeder
                 'annee_fin' => 2025,
                 'date_debut' => '2024-10-01',
                 'date_fin' => '2025-09-30',
-                'est_actuelle' => true, // Année actuelle
+                'est_actuelle' => false,
             ],
             [
                 'annee_debut' => 2025,
                 'annee_fin' => 2026,
                 'date_debut' => '2025-10-01',
                 'date_fin' => '2026-09-30',
+                'est_actuelle' => true, // Année actuelle
+            ],
+            [
+                'annee_debut' => 2026,
+                'annee_fin' => 2027,
+                'date_debut' => '2026-10-01',
+                'date_fin' => '2027-09-30',
                 'est_actuelle' => false,
             ],
         ];
@@ -47,6 +47,6 @@ class AnneeAcademiqueSeeder extends Seeder
             AnneeAcademique::create($annee);
         }
 
-        $this->command->info('✅ 4 années académiques créées (2024-2025 est l\'année actuelle)');
+        $this->command->info('✅ 4 années académiques créées (2025-2026 est l\'année actuelle)');
     }
 }
