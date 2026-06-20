@@ -32,53 +32,54 @@ export default function EventCard({
   return (
     <Link
       href={link}
-      className={`group relative overflow-hidden rounded-3xl border-2 ${color.border} bg-gradient-to-br ${color.bg} p-8 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300`}
+      className= {`group relative block p-8 border bg-gradient-to-br ${color.bg} ${color.hover} ${color.border} hover:-translate-y-[2px] hover:shadow-lg transition-shadow duration-300`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Fond animé avec gradient overlay */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${color.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
-
-      {/* Accent border en haut */}
-      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${color.bg} ${color.accent}`}></div>
-
       {/* Contenu principal */}
-      <div className="relative z-10 flex flex-col h-full min-h-64 justify-between">
+      <div className="space-y-8">
 
-        {/* Header avec icône */}
-        <div className="mb-6">
-          <div className={`${color.accent} inline-flex p-3 rounded-2xl mb-4 text-white`}>
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C6.5 6.253 3 9.756 3 14s3.5 7.747 9 7.747m0-13c5.5 0 9 3.756 9 7.747m0 0c0 4.244-3.5 7.747-9 7.747m0-13C6.5 6.253 3 9.756 3 14" />
-            </svg>
-          </div>
-
-          {/* Titre avec animation */}
-          <h3 className="text-3xl font-bold text-gray-900 mb-2 transition-all duration-300 group-hover:text-gray-950">
+        {/* Titre avec animation de soulignement */}
+        <div className="relative">
+          <h3 className="text-3xl font-bold text-gray-900 mb-10 transition-all duration-300 group-hover:text-black">
             {title}
           </h3>
-
-          {/* Underline animée */}
-          <div className={`h-1 bg-gradient-to-r ${color.bg} rounded-full transition-all duration-300 ${isHovered ? 'w-24' : 'w-12'}`}></div>
+          <div
+            className={`absolute bottom-0 left-0 h-[1px] bg-black transition-all duration-300 ${
+              isHovered ? "w-full" : "w-0"
+            }`}
+          />
         </div>
 
-        {/* Description et CTA */}
-        <div className="space-y-4">
-          <p className="text-sm font-semibold text-gray-700">Explorez nos formations spécialisées</p>
+        <p className="text-sm font-medium">Découvrez les offres de formations</p>
 
-          {/* Flèche animée */}
-          <div className="flex items-center gap-2 text-sm font-bold">
-            <span className={`${color.accent} text-white px-3 py-1 rounded-full text-xs font-semibold`}>Découvrir</span>
-            <svg className={`w-5 h-5 transition-all duration-300 ${isHovered ? 'translate-x-1' : 'translate-x-0'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-        </div>
       </div>
 
-      {/* Décoration d'arrière-plan */}
-      <div className="absolute -bottom-8 -right-8 w-32 h-32 opacity-0 group-hover:opacity-10 transition-opacity duration-300">
-        <div className={`w-full h-full rounded-full ${color.accent}`}></div>
+      {/* Flèche animée en bas à droite */}
+      <div className="absolute bottom-4 right-4">
+        <div className="relative h-6 w-6">
+          {/* Queue de la flèche */}
+          <div
+            className={`absolute right-0 bottom-0 h-[4px] rotate-45 -translate-x-[1px] -translate-y-[1px] bg-black transition-all duration-300 ${
+              isHovered ? "w-4" : "w-6"
+            }`}
+            style={{ transformOrigin: "right bottom" }}
+          />
+
+          {/* Points des branches pour l'effet d'allongement */}
+          <div
+            className={`absolute right-0 bottom-0 h-[4px] translate-y-[1px] bg-black rotate-90 transition-all duration-300 ${
+              isHovered ? "w-8 " : "w-6"
+            }`}
+            style={{ transformOrigin: "right center" }}
+          />
+          <div
+            className={`absolute right-0 bottom-0 h-[4px] translate-x-[1px] bg-black transition-all duration-300 ${
+              isHovered ? "w-8" : "w-6"
+            }`}
+            style={{ transformOrigin: "right center" }}
+          />
+        </div>
       </div>
     </Link>
   );

@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 export default function MyNavFloating() {
   const [isOpen, setIsOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<number | null>(null);
+  const [openSubSubmenu, setOpenSubSubmenu] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
 
@@ -196,37 +197,52 @@ export default function MyNavFloating() {
                             </svg>
                           </button>
 
-                          {/* Sous-menu Desktop */}
+                          {/* Sous-menu Desktop - Niveau 1 */}
                           <div className="absolute top-full mt-2 left-0 w-72 bg-white rounded-xl shadow-lg border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-2 group-hover:translate-y-0 z-50">
                             <div className="p-2">
                               {item.submenu.map((subItem: any, subIndex: number) => (
-                                <div key={subIndex}>
+                                <div key={subIndex} className="relative group/submenu">
                                   {subItem.isGroup ? (
-                                    <div>
-                                      <div className="px-4 py-2 text-sm font-semibold text-slate-700 mt-2 first:mt-0">
-                                        {subItem.name}
+                                    <>
+                                      <button
+                                        onMouseEnter={() => setOpenSubSubmenu(`formations-${subIndex}`)}
+                                        onMouseLeave={() => setOpenSubSubmenu(null)}
+                                        className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-all duration-200 group/item"
+                                      >
+                                        <span className="font-medium text-slate-800 group-hover/item:text-isdb-green-600">
+                                          {subItem.name}
+                                        </span>
+                                        <svg className="w-4 h-4 text-slate-500 group-hover/item:text-isdb-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                      </button>
+
+                                      {/* Sous-sous-menu */}
+                                      <div className="absolute left-full top-0 ml-2 w-72 bg-white rounded-xl shadow-lg border border-slate-100 opacity-0 invisible group-hover/submenu:opacity-100 group-hover/submenu:visible transition-all duration-200 z-50">
+                                        <div className="p-2">
+                                          {subItem.children?.map((child: any, childIndex: number) => (
+                                            <Link
+                                              key={childIndex}
+                                              href={child.href}
+                                              className="flex flex-col p-3 rounded-lg hover:bg-isdb-green-50 transition-all duration-200 group/child"
+                                            >
+                                              <span className="font-medium text-slate-800 group-hover/child:text-isdb-green-600">
+                                                {child.name}
+                                              </span>
+                                              {child.description && (
+                                                <span className="text-sm text-slate-500 mt-1">
+                                                  {child.description}
+                                                </span>
+                                              )}
+                                            </Link>
+                                          ))}
+                                        </div>
                                       </div>
-                                      {subItem.children?.map((child: any, childIndex: number) => (
-                                        <Link
-                                          key={childIndex}
-                                          href={child.href}
-                                          className="flex flex-col p-3 pl-6 rounded-lg hover:bg-isdb-green-50 transition-all duration-200 group/item"
-                                        >
-                                          <span className="font-medium text-slate-800 group-hover/item:text-isdb-green-600">
-                                            {child.name}
-                                          </span>
-                                          {child.description && (
-                                            <span className="text-sm text-slate-500 mt-1">
-                                              {child.description}
-                                            </span>
-                                          )}
-                                        </Link>
-                                      ))}
-                                    </div>
+                                    </>
                                   ) : (
                                     <Link
                                       href={subItem.href}
-                                      className="flex flex-col p-3 rounded-lg hover:bg-isdb-green-50 transition-all duration-200 group/item"
+                                      className="flex flex-col p-3 rounded-lg hover:bg-slate-50 transition-all duration-200 group/item"
                                     >
                                       <span className="font-medium text-slate-800 group-hover/item:text-isdb-green-600">
                                         {subItem.name}
@@ -333,24 +349,50 @@ export default function MyNavFloating() {
                             <div key={subIndex}>
                               {subItem.isGroup ? (
                                 <div>
-                                  <div className="px-4 py-2 text-sm font-semibold text-slate-700 mt-2 first:mt-0">
-                                    {subItem.name}
-                                  </div>
-                                  {subItem.children?.map((child: any, childIndex: number) => (
-                                    <Link
-                                      key={childIndex}
-                                      href={child.href}
-                                      className="flex flex-col px-6 py-3 text-slate-600 hover:bg-white/80 transition-all duration-300 border-l-2 border-transparent hover:border-isdb-green-500"
-                                      onClick={() => setIsOpen(false)}
+                                  <button
+                                    onClick={() => setOpenSubSubmenu(openSubSubmenu === `formations-${subIndex}` ? null : `formations-${subIndex}`)}
+                                    className="w-full flex justify-between items-center px-4 py-3 text-slate-700 hover:bg-white/80 transition-all duration-300 font-medium"
+                                  >
+                                    <span>{subItem.name}</span>
+                                    <svg
+                                      className={`w-4 h-4 transition-transform duration-300 ${
+                                        openSubSubmenu === `formations-${subIndex}` ? 'rotate-180' : ''
+                                      }`}
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
                                     >
-                                      <span className="font-medium">{child.name}</span>
-                                      {child.description && (
-                                        <span className="text-sm text-slate-500 mt-1">
-                                          {child.description}
-                                        </span>
-                                      )}
-                                    </Link>
-                                  ))}
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M19 9l-7 7-7-7"
+                                      />
+                                    </svg>
+                                  </button>
+
+                                  {openSubSubmenu === `formations-${subIndex}` && (
+                                    <div className="ml-4 bg-white/50 rounded-lg mt-1">
+                                      {subItem.children?.map((child: any, childIndex: number) => (
+                                        <Link
+                                          key={childIndex}
+                                          href={child.href}
+                                          className="flex flex-col px-4 py-3 text-slate-600 hover:bg-white/80 transition-all duration-300 border-l-2 border-transparent hover:border-isdb-green-500"
+                                          onClick={() => {
+                                            setIsOpen(false);
+                                            setOpenSubSubmenu(null);
+                                          }}
+                                        >
+                                          <span className="font-medium">{child.name}</span>
+                                          {child.description && (
+                                            <span className="text-sm text-slate-500 mt-1">
+                                              {child.description}
+                                            </span>
+                                          )}
+                                        </Link>
+                                      ))}
+                                    </div>
+                                  )}
                                 </div>
                               ) : (
                                 <Link

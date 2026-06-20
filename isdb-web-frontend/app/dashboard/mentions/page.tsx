@@ -166,73 +166,87 @@ export default function MentionsPage() {
       {/* Liste des mentions */}
       {filteredMentions.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredMentions.map((mention) => (
-            <div
-              key={mention.id}
-              className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-isdb-green-50 rounded-lg">
-                    <BookOpen className="text-isdb-green-600" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900">{mention.titre}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="info" size="sm">
-                        {mention.domaine?.nom || 'Sans domaine'}
-                      </Badge>
+          {filteredMentions.map((mention, index) => {
+            const colors = [
+              { bg: 'from-isdb-green-50 to-isdb-green-100', accent: 'bg-isdb-green-600', border: 'border-isdb-green-200' },
+              { bg: 'from-isdb-orange-50 to-isdb-orange-100', accent: 'bg-isdb-orange-600', border: 'border-isdb-orange-200' },
+              { bg: 'from-isdb-red-50 to-isdb-red-100', accent: 'bg-isdb-red-600', border: 'border-isdb-red-200' },
+              { bg: 'from-isdb-gold-50 to-isdb-gold-100', accent: 'bg-isdb-gold-600', border: 'border-isdb-gold-200' }
+            ];
+            const color = colors[index % colors.length];
+
+            return (
+              <div
+                key={mention.id}
+                className={`group relative overflow-hidden rounded-2xl border-2 ${color.border} bg-gradient-to-br ${color.bg} p-6 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1`}
+              >
+                <div className="relative z-10">
+                  {/* Header */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className={`${color.accent} p-2.5 rounded-lg text-white`}>
+                        <BookOpen size={20} />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-bold text-gray-900 text-lg group-hover:text-gray-950 transition-colors">
+                          {mention.titre}
+                        </h3>
+                        <Badge variant="info" size="sm" className="mt-1">
+                          {mention.domaine?.nom || 'Sans domaine'}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
-                </div>
-                
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => router.push(ENDPOINTS.DASHBOARD_MENTION_EDIT(mention.id))}
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    title="Modifier"
-                  >
-                    <Edit size={16} />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMentionToDelete(mention.id);
-                      setDeleteModalOpen(true);
-                    }}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Supprimer"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
 
-              {mention.description && (
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                  {mention.description}
-                </p>
-              )}
+                  {/* Description */}
+                  {mention.description && (
+                    <p className="text-gray-700 text-sm mb-4 line-clamp-2">
+                      {mention.description}
+                    </p>
+                  )}
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <Building className="text-gray-400" size={16} />
-                    <span className="text-sm text-gray-500">
+                  {/* Stats */}
+                  <div className="flex items-center gap-2 mb-4 pt-4 border-t border-gray-200/50">
+                    <Building className="text-gray-500" size={16} />
+                    <span className="text-sm font-medium text-gray-600">
                       {mention.nombre_formations || 0} formation(s)
                     </span>
                   </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => router.push(ENDPOINTS.DASHBOARD_MENTION_EDIT(mention.id))}
+                        className={`p-2 ${color.accent} text-white hover:opacity-90 rounded-lg transition-all`}
+                        title="Modifier"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setMentionToDelete(mention.id);
+                          setDeleteModalOpen(true);
+                        }}
+                        className="p-2 bg-red-600 text-white hover:bg-red-700 rounded-lg transition-colors"
+                        title="Supprimer"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    <button
+                      onClick={() => router.push(`/dashboard/mentions/${mention.id}`)}
+                      className={`text-xs font-semibold ${color.accent} text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-all flex items-center gap-1`}
+                    >
+                      <Eye size={12} />
+                      Détails
+                    </button>
+                  </div>
                 </div>
-                
-                <button
-                  onClick={() => router.push(`/dashboard/mentions/${mention.id}`)}
-                  className="text-sm text-isdb-green-600 hover:text-isdb-green-700 flex items-center gap-1"
-                >
-                  <Eye size={14} />
-                  Voir détails
-                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-12">
