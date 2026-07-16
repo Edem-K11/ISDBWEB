@@ -7,6 +7,7 @@ isdb-web-frontend/.env.*. local
 isdb-web-frontend/dist/
 isdb-web-frontend/. DS_Store
 isdb-web-frontend/*. pem
+isdb-web-frontend/*.tsbuildinfo
 
 # ===== Backend (Laravel) =====
 isdb-web-backend/vendor/

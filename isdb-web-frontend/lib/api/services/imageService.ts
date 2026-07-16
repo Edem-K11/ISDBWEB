@@ -14,10 +14,12 @@ export const imageService = {
     formData.append('image', file);
     formData.append('type', type);
 
+    // apiClient a "Content-Type: application/json" par défaut. Sans ce header explicite,
+    // axios voit du JSON attendu + un body FormData et le convertit en JSON (formDataToJSON),
+    // ce qui détruit le fichier avant même l'envoi ("The image field is required" côté Laravel).
+    // Ne PAS ajouter de boundary manuellement : axios/le navigateur s'en chargent correctement.
     const { data } = await apiClient.post(ENDPOINTS.UPLOAD_IMAGE, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
 
     return {
@@ -37,9 +39,7 @@ export const imageService = {
     formData.append('type', type);
 
     const { data } = await apiClient.post(ENDPOINTS.UPLOAD_MULTIPLE_IMAGES, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
 
     return data.images;

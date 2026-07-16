@@ -12,6 +12,7 @@ export interface Mention {
   formations?: Formation[];
   nom_complet?: string;
   nombre_formations?: number;
+  theme?: string;
   created_at?: string | null;
   updated_at?: string | null;
 }

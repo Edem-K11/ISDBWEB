@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import Breadcrumbs from '@/components/layout/breadcrumbs';
 import InfoCard from '@/components/formations/infoCard';
 import TabsContent from '@/components/formations/tabsContent';
+import { getMentionThemePalette } from '@/lib/utils/mentionTheme';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -55,36 +56,15 @@ export default async function FormationDetailPage({ params }: PageProps) {
     { label: formation.titre, href: `/formations/${mention.slug}/${formation.slug}` }
   ];
 
-  // Thème
+  // Thème (aligné sur la mention, identique aux pages /formations et /formations/[mentionSlug])
   const theme = mention.theme || 'green';
-  const themeColors = {
-    green: {
-      gradient: 'from-isdb-green-800 via-isdb-green-600 to-isdb-green-500',
-      accent: 'bg-isdb-green-600',
-      border: 'border-isdb-green-200',
-      text: 'text-isdb-green-700',
-    },
-    red: {
-      gradient: 'from-isdb-red-800 via-isdb-red-600 to-isdb-red-500',
-      accent: 'bg-isdb-red-600',
-      border: 'border-isdb-red-200',
-      text: 'text-isdb-red-700',
-    },
-    gold: {
-      gradient: 'from-isdb-gold-800 via-isdb-gold-600 to-isdb-gold-500',
-      accent: 'bg-isdb-gold-600',
-      border: 'border-isdb-gold-200',
-      text: 'text-isdb-gold-700',
-    },
-    orange: {
-      gradient: 'from-isdb-orange-800 via-isdb-orange-600 to-isdb-orange-500',
-      accent: 'bg-isdb-orange-600',
-      border: 'border-isdb-orange-200',
-      text: 'text-isdb-orange-700',
-    },
+  const palette = getMentionThemePalette(theme);
+  const colors = {
+    gradient: palette.gradient,
+    accent: palette.accentBg,
+    border: palette.borderStrong,
+    text: palette.text,
   };
-
-  const colors = themeColors[theme as keyof typeof themeColors];
 
   // Déterminer le diplôme lisible
   const diplomeMap: Record<string, string> = {
@@ -98,11 +78,11 @@ export default async function FormationDetailPage({ params }: PageProps) {
   return (
     <div className={`min-h-screen bg-gray-50 theme-${theme}`}>
       {/* Hero Section */}
-      <div className={`relative bg-gradient-to-br ${colors.gradient} text-white p-6 overflow-hidden`}>
+      <div className={`relative bg-gradient-to-br ${colors.gradient} text-white py-20 px-6 overflow-hidden`}>
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32" />
-        
-        <div className="container mx-auto max-w-6xl mt-20 relative z-10">          
+
+        <div className="container mx-auto max-w-6xl relative z-10">
           <div className="mt-6">
             <div className="flex items-center gap-3 mb-4">
               <span className="px-4 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
@@ -131,7 +111,7 @@ export default async function FormationDetailPage({ params }: PageProps) {
       </div>
 
       {/* Contenu principal */}
-      <div className="container mx-auto max-w-6xl py-8">
+      <div className="container mx-auto max-w-6xl px-6 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Info */}
           <InfoCard 

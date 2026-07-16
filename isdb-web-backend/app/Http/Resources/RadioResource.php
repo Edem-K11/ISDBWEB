@@ -21,6 +21,9 @@ class RadioResource extends JsonResource
             'image' => $this->image ? asset('storage/' . $this->image) : null,
             'enDirect' => $this->en_direct,
             'description' => $this->description,
+            'messageAppMobile' => $this->message_app_mobile,
+            'appStoreUrl' => $this->app_store_url,
+            'playStoreUrl' => $this->play_store_url,
             'createdAt' => $this->created_at?->toISOString(),
             'updatedAt' => $this->updated_at?->toISOString(),
         ];

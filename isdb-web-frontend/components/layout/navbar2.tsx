@@ -46,7 +46,7 @@ export default function MyNavFloating() {
             },
             {
               name: 'Sciences de l\'éducation',
-              href: '/formations/sciences-de-l-education',
+              href: '/formations/sciences-de-leducation',
               description: 'Licence fondamentale & Master professionnel'
             },
             {
@@ -150,6 +150,7 @@ export default function MyNavFloating() {
                       width={50}
                       height={50}
                       className="cursor-pointer"
+                      priority
                     />
                   </Link>
                 </div>

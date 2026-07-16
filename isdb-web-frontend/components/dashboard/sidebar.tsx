@@ -3,18 +3,22 @@
 import { useAuth } from '@/lib/auth/useAuth';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Users, 
-  Tag, 
+import {
+  LayoutDashboard,
+  FileText,
+  Users,
+  Tag,
   Settings,
   User,
   LogOut,
   ChevronDown,
   ChevronRight,
   GraduationCap,
-  Radio
+  Radio,
+  Layers,
+  Bookmark,
+  Calendar,
+  ClipboardList
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useState } from 'react';
@@ -24,71 +28,109 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
-  const navigation = [
+  // Groupes de navigation : `title` sert d'en-tête de section (aucun en-tête si null),
+  // les entrées de chaque groupe sont des liens directs (pas de sous-menu à déplier).
+  const navigationSections: { title: string | null; items: any[] }[] = [
     {
-      name: 'Tableau de bord',
-      href: '/dashboard',
-      icon: LayoutDashboard,
-      current: pathname === '/dashboard',
+      title: null,
+      items: [
+        {
+          name: 'Tableau de bord',
+          href: '/dashboard',
+          icon: LayoutDashboard,
+          current: pathname === '/dashboard',
+        },
+      ],
     },
     {
-      name: 'Articles',
-      href: '/dashboard/blogs',
-      icon: FileText,
-      current: pathname.startsWith('/dashboard/blogs'),
-      children: [
-        { name: 'Tous les articles', href: '/dashboard/blogs' },
-        { name: 'Créer un article', href: '/dashboard/blogs/new' },
-      ]
+      title: 'Blog',
+      items: [
+        {
+          name: 'Articles',
+          href: '/dashboard/blogs',
+          icon: FileText,
+          current: pathname.startsWith('/dashboard/blogs'),
+        },
+        ...(isAdmin() ? [
+          {
+            name: 'Redacteurs',
+            href: '/dashboard/redacteurs',
+            icon: Users,
+            current: pathname.startsWith('/dashboard/redacteurs'),
+          },
+          {
+            name: 'Tags',
+            href: '/dashboard/tags',
+            icon: Tag,
+            current: pathname.startsWith('/dashboard/tags'),
+          },
+        ] : []),
+      ],
     },
     ...(isAdmin() ? [
       {
-        name: 'Redacteurs',
-        href: '/dashboard/redacteurs',
-        icon: Users,
-        current: pathname.startsWith('/dashboard/redacteurs'),
+        title: 'Formations',
+        items: [
+          {
+            name: 'Toutes les formations',
+            href: '/dashboard/formations',
+            icon: GraduationCap,
+            current: pathname === '/dashboard/formations',
+          },
+          {
+            name: 'Domaines',
+            href: '/dashboard/domaines',
+            icon: Layers,
+            current: pathname.startsWith('/dashboard/domaines'),
+          },
+          {
+            name: 'Mentions',
+            href: '/dashboard/mentions',
+            icon: Bookmark,
+            current: pathname.startsWith('/dashboard/mentions'),
+          },
+          {
+            name: 'Années académiques',
+            href: '/dashboard/annees-academiques',
+            icon: Calendar,
+            current: pathname.startsWith('/dashboard/annees-academiques'),
+          },
+          {
+            name: 'Offres de formation',
+            href: '/dashboard/offres-formations',
+            icon: ClipboardList,
+            current: pathname.startsWith('/dashboard/offres-formations'),
+          },
+        ],
       },
-      {
-        name: 'Tags',
-        href: '/dashboard/tags',
-        icon: Tag,
-        current: pathname.startsWith('/dashboard/tags'),
-      },
-      {
-        name: 'Formations',
-        icon: GraduationCap,
-        current: pathname.startsWith('/dashboard/formations'),
-        children: [
-          { name: 'Toutes les formations', href: '/dashboard/formations' },
-          { name: 'Domaines', href: '/dashboard/domaines' },
-          { name: 'Mentions', href: '/dashboard/mentions' },
-          { name: 'Années académiques', href: '/dashboard/annees-academiques' },
-          { name: 'Offres de formation', href: '/dashboard/offres-formations' },
-        ]
-      }
     ] : []),
-    // Dans votre sidebar ou navigation
     {
-      name: 'Radio',
-      href: '/dashboard/radio',
-      icon: Radio,
-    },
-    {
-      name: 'Mon Profil',
-      href: '/dashboard/profil',
-      icon: User,
-      current: pathname === '/dashboard/profil',
-    },
-    {
-      name: 'Paramètres',
-      href: '/dashboard/parametres',
-      icon: Settings,
-      current: pathname === '/dashboard/parametres',
-      children: [
-        { name: 'Général', href: '/dashboard/parametres/general' },
-        { name: 'Sécurité', href: '/dashboard/parametres/securite' },
-        { name: 'Notifications', href: '/dashboard/parametres/notifications' },
-      ]
+      title: null,
+      items: [
+        {
+          name: 'Radio',
+          href: '/dashboard/radio',
+          icon: Radio,
+          current: pathname.startsWith('/dashboard/radio'),
+        },
+        {
+          name: 'Mon Profil',
+          href: '/dashboard/profil',
+          icon: User,
+          current: pathname === '/dashboard/profil',
+        },
+        {
+          name: 'Paramètres',
+          href: '/dashboard/parametres',
+          icon: Settings,
+          current: pathname === '/dashboard/parametres',
+          children: [
+            { name: 'Général', href: '/dashboard/parametres/general' },
+            { name: 'Sécurité', href: '/dashboard/parametres/securite' },
+            { name: 'Notifications', href: '/dashboard/parametres/notifications' },
+          ]
+        },
+      ],
     },
   ];
 
@@ -214,15 +256,24 @@ export default function Sidebar() {
         
         {/* Logo */}
         <div className="flex items-center justify-center h-20 border-b border-gray-100/20 px-2 lg:px-4">
-          <h1 className="hidden lg:block text-xl font-bold text-white">Blog Dashboard</h1>
+          <h1 className="hidden lg:block text-xl font-bold text-white">ISDB Dashboard</h1>
           <div className="lg:hidden w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">B</span>
+            <span className="text-white font-bold text-sm">I</span>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 py-4 space-y-1 px-2 lg:px-3">
-          {navigation.map((item) => renderNavigationItem(item))}
+        <nav className="flex-1 py-4 space-y-4 px-2 lg:px-3">
+          {navigationSections.map((section, index) => (
+            <div key={section.title ?? `section-${index}`} className="space-y-1">
+              {section.title && (
+                <p className="hidden lg:block px-3 mb-1 text-xs font-semibold text-white/40 uppercase tracking-wider">
+                  {section.title}
+                </p>
+              )}
+              {section.items.map((item) => renderNavigationItem(item))}
+            </div>
+          ))}
         </nav>
 
         {/* User info et Logout */}

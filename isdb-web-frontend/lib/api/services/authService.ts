@@ -1,18 +1,12 @@
 
 import apiClient from '../axios';
 import { ENDPOINTS } from '../endpoints';
-import { User, AuthResponse, LoginCredentials, RegisterData } from '@/lib/types/user';
+import { User, AuthResponse, LoginCredentials } from '@/lib/types/user';
 
 export const authService = {
   // Connexion
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     const { data } = await apiClient.post<AuthResponse>(ENDPOINTS.LOGIN, credentials);
-    return data;
-  },
-
-  // Inscription
-  register: async (userData: RegisterData): Promise<AuthResponse> => {
-    const { data } = await apiClient.post<AuthResponse>(ENDPOINTS.REGISTER, userData);
     return data;
   },
 

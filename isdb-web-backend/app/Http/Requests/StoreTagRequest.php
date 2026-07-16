@@ -23,6 +23,7 @@ class StoreTagRequest extends FormRequest
     {
         return [
             'nom' => 'required|string|max:100|unique:tags,nom',
+            'couleur' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
         ];
     }
 }

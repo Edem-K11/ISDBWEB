@@ -37,13 +37,13 @@ export default async function FormationsPage() {
   return (
     <div>
       <HeroSection
-        title="Découvrez les formations de ISDB"
-        description="ISDB propose des formations menant à des diplômes reconnus par le Ministère de l'Enseignement supérieur et de la Recherche (via Parcoursup), à des titres inscrits au Répertoire National des Certifications Professionnelles (RNCP)."
+        title="Découvrez les formations de l'ISDB"
+        description="L'Institut Supérieur Don Bosco propose des formations menant à des diplômes reconnus : licences fondamentales et professionnelles, masters recherche et professionnels."
         color="red"
         breadcrumbs={breadcrumbs}
       />
 
-      <div className="container mx-auto px-12 py-8">
+      <div className="container mx-auto max-w-6xl px-6 py-8">
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
           Nos domaines de formation
         </h2>
@@ -53,12 +53,12 @@ export default async function FormationsPage() {
         
         {mentions.length > 0 ? (
           <div className="grid gap-8 lg:gap-10 md:grid-cols-2">
-            {mentions.map((mention, index) => (
+            {mentions.map((mention) => (
               <EventCard
                 key={mention.id}
                 title={mention.titre}
                 link={`/formations/${mention.slug}`}
-                index={index}
+                theme={mention.theme}
               />
             ))}
           </div>

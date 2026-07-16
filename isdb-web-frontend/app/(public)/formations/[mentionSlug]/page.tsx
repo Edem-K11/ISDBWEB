@@ -5,6 +5,7 @@ import FormationCard from '@/components/layout/formationCard';
 import Breadcrumbs from '@/components/layout/breadcrumbs';
 import DiscoverCard from '@/components/layout/discoverdCard';
 import { notFound } from 'next/navigation';
+import { getMentionThemePalette, normalizeMentionTheme } from '@/lib/utils/mentionTheme';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -17,7 +18,7 @@ interface PageProps {
 async function getMentionData(mentionSlug: string) {
   try {
     const res = await fetch(`${API_URL}/formations/${mentionSlug}`, {
-      next: { revalidate: 1800 }, // Cache 30 min
+      cache: 'no-store', // Contenu piloté par l'admin (thème, offres, mentions liées) : ne pas mettre en cache
       headers: {
         'Accept': 'application/json',
       }
@@ -55,44 +56,9 @@ export default async function MentionPage({ params }: PageProps) {
         { label: mention.titre, href: `/formations/${mention.slug}` }
     ];
 
-    // Thème par défaut si pas de contenu
-    const theme = content?.theme || 'green';
-    const themeColors = {
-        green: {
-        gradient: 'from-isdb-green-800 via-isdb-green-600 to-isdb-green-500',
-        accent: '#206b38',
-        bg: 'bg-isdb-green-50',
-        border: 'border-isdb-green-100',
-        text: 'text-isdb-green-700',
-        hoverBg: 'hover:bg-isdb-green-50',
-        },
-        red: {
-        gradient: 'from-isdb-red-800 via-isdb-red-600 to-isdb-red-500',
-        accent: '#dc2c42',
-        bg: 'bg-isdb-red-50',
-        border: 'border-isdb-red-100',
-        text: 'text-isdb-red-700',
-        hoverBg: 'hover:bg-isdb-red-50',
-        },
-        gold: {
-        gradient: 'from-isdb-gold-800 via-isdb-gold-600 to-isdb-gold-500',
-        accent: '#c8ad7f',
-        bg: 'bg-isdb-gold-50',
-        border: 'border-isdb-gold-100',
-        text: 'text-isdb-gold-700',
-        hoverBg: 'hover:bg-isdb-gold-50',
-        },
-        orange: {
-        gradient: 'from-isdb-orange-800 via-isdb-orange-600 to-isdb-orange-500',
-        accent: '#fad09c',
-        bg: 'bg-isdb-orange-50',
-        border: 'border-isdb-orange-100',
-        text: 'text-isdb-orange-700',
-        hoverBg: 'hover:bg-isdb-orange-50',
-        },
-    };
-
-    const colors = themeColors[theme as keyof typeof themeColors];
+    // Thème par défaut si pas de contenu (aligné sur les cartes de /formations)
+    const theme = normalizeMentionTheme(content?.theme);
+    const colors = getMentionThemePalette(theme);
 
     return (
         <div className={`min-h-screen theme-${theme}`}>
@@ -168,7 +134,7 @@ export default async function MentionPage({ params }: PageProps) {
                     className="text-5xl md:text-6xl lg:text-8xl font-black leading-none pointer-events-none select-none"
                     style={{
                         color: 'transparent',
-                        WebkitTextStroke: `2px ${colors.accent}`,
+                        WebkitTextStroke: `2px ${colors.accentHex}`,
                         opacity: 0.8,
                         filter: `drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))`
                     }}
@@ -206,6 +172,7 @@ export default async function MentionPage({ params }: PageProps) {
                             badge={mention.titre}
                             link={`/formations/${mention.slug}/${formation.slug}`}
                             highlights={highlights}
+                            theme={theme}
                             />
                             
                             {/* Highlights supplémentaires */}
@@ -264,7 +231,7 @@ export default async function MentionPage({ params }: PageProps) {
                     <div key={item.id} className="transform hover:-translate-y-2 transition-transform duration-300">
                         <DiscoverCard
                         title={item.titre}
-                        color={`bg-gradient-to-r from-${item.theme}-400 to-${item.theme}-300`}
+                        theme={item.theme}
                         link={`/formations/${item.slug}`}
                         />
                     </div>

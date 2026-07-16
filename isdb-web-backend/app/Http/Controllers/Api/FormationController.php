@@ -46,8 +46,8 @@ class FormationController extends Controller
             });
         }
 
-        if ($request->has('type_formation')) {
-            $type = strtoupper($request->input('type_formation'));
+        if ($request->has('type')) {
+            $type = strtoupper($request->input('type'));
             if ($type === 'PRINCIPALE') {
                 $query->principales();
             } elseif ($type === 'MODULAIRE') {

@@ -12,34 +12,33 @@ class AnneeAcademiqueSeeder extends Seeder
      */
     public function run(): void
     {
+        // Note : `est_actuelle` n'est pas mass-assignable (et ne doit pas l'être, sous peine
+        // de devenir obsolète avec le temps). Elle est recalculée dynamiquement ci-dessous
+        // à partir de la date du jour, comme le fait le contrôleur après chaque écriture.
         $annees = [
             [
                 'annee_debut' => 2023,
                 'annee_fin' => 2024,
                 'date_debut' => '2023-10-01',
                 'date_fin' => '2024-09-30',
-                'est_actuelle' => false,
             ],
             [
                 'annee_debut' => 2024,
                 'annee_fin' => 2025,
                 'date_debut' => '2024-10-01',
                 'date_fin' => '2025-09-30',
-                'est_actuelle' => false,
             ],
             [
                 'annee_debut' => 2025,
                 'annee_fin' => 2026,
                 'date_debut' => '2025-10-01',
                 'date_fin' => '2026-09-30',
-                'est_actuelle' => true, // Année actuelle
             ],
             [
                 'annee_debut' => 2026,
                 'annee_fin' => 2027,
                 'date_debut' => '2026-10-01',
                 'date_fin' => '2027-09-30',
-                'est_actuelle' => false,
             ],
         ];
 
@@ -47,6 +46,8 @@ class AnneeAcademiqueSeeder extends Seeder
             AnneeAcademique::create($annee);
         }
 
-        $this->command->info('✅ 4 années académiques créées (2025-2026 est l\'année actuelle)');
+        AnneeAcademique::recalculerAnneeActuelle();
+
+        $this->command->info('✅ 4 années académiques créées (année actuelle recalculée d\'après la date du jour)');
     }
 }

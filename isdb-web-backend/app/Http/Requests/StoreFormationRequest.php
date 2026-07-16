@@ -37,8 +37,20 @@ class StoreFormationRequest extends FormRequest
             
             'diplome' => [
                 'nullable',
-                Rule::in(['LICENCE_PROFESSIONNELLE', 'LICENCE_FONDAMENTALE', 'MASTER', 'CERTIFICAT_MODULE'])
+                Rule::in([
+                    'LICENCE_PROFESSIONNELLE',
+                    'LICENCE_FONDAMENTALE',
+                    'MASTER',
+                    'CERTIFICAT_MODULE',
+                ])
             ],
+            
+            'numero_module' => ['nullable', 'integer', 'min:1', 'max:99'],
+            'contenu' => ['nullable', 'string'],
+            'objectif_general' => ['nullable', 'string'],
+            'objectif_specifique' => ['nullable', 'string'],
+            'competences_visees' => ['nullable', 'string'],
+            'debouches' => ['nullable', 'string'],
             
             // Informations pédagogiques
             'condition_admission' => ['nullable', 'string'],
@@ -52,6 +64,8 @@ class StoreFormationRequest extends FormRequest
             
             // Informations pratiques
             'duree_formation' => ['nullable', 'string', 'max:50'],
+            'duree_heures' => ['nullable', 'integer', 'min:1'],
+            'programme_image' => ['nullable', 'string', 'max:255'],
             'frais_scolarite' => ['nullable', 'string'],
             
             'statut_formation' => [
@@ -78,7 +92,7 @@ class StoreFormationRequest extends FormRequest
             'mention_id.required_if' => 'La mention est obligatoire pour une formation principale.',
             'mention_id.exists' => 'La mention sélectionnée n\'existe pas.',
             
-            'diplome.in' => 'Le diplôme doit être LICENCE_PROFESSIONNELLE, LICENCE_FONDAMENTALE ou MASTER.',
+            'diplome.in' => 'Le diplôme sélectionné n\'est pas valide.',
             
             'programme_pdf.file' => 'Le programme doit être un fichier.',
             'programme_pdf.mimes' => 'Le programme doit être un fichier PDF.',

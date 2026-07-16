@@ -57,4 +57,24 @@ class AnneeAcademique extends Model
         return $this->annee_debut . '-' . $this->annee_fin;
     }
 
+    /**
+     * Recalcule quelle année académique est "actuelle" en se basant sur la date du jour.
+     * Source unique de vérité : appelée par le contrôleur (après création/modification/
+     * suppression) et par le seeder, pour éviter que le flag est_actuelle ne devienne obsolète.
+     */
+    public static function recalculerAnneeActuelle(): void
+    {
+        $now = \Carbon\Carbon::today();
+
+        static::where('est_actuelle', true)->update(['est_actuelle' => false]);
+
+        $anneeActuelle = static::whereDate('date_debut', '<=', $now)
+            ->whereDate('date_fin', '>=', $now)
+            ->orderBy('date_debut')
+            ->first();
+
+        if ($anneeActuelle) {
+            $anneeActuelle->forceFill(['est_actuelle' => true])->save();
+        }
+    }
 }

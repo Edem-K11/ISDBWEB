@@ -102,7 +102,7 @@ export const Footer = () => {
 
   return (
     <footer className="bg-slate-200 py-16"> 
-      <div className="container mx-auto px-4 max-w-6xl">
+      <div className="container mx-auto max-w-6xl px-6">
         {/* Newsletter Section */}
         <div className="bg-gradient-to-r from-teal-800 to-teal-700 rounded-3xl p-8 md:p-12 mb-16">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">

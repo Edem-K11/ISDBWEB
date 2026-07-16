@@ -18,6 +18,7 @@ class TagResource extends JsonResource
             'id' => $this->id,
             'nom' => $this->nom,
             'slug' => $this->slug,
+            'couleur' => $this->couleur,
             'blogsCount' => $this->when($request->route()->named('*.index'), $this->blogs_count),
         ];
     }

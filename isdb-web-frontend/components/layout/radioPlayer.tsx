@@ -28,51 +28,55 @@ export default function RadioPlayer({
 }: RadioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Initialiser l'audio
+  // Créer/mettre à jour la source audio (sans jamais couper une lecture en cours)
   useEffect(() => {
     if (!radio?.urlStream) return;
 
-    // Créer l'élément audio s'il n'existe pas
     if (!audioRef.current) {
-      audioRef.current = new Audio(radio.urlStream);
-    } else {
+      audioRef.current = new Audio();
+      audioRef.current.preload = 'none';
+    }
+    if (audioRef.current.src !== radio.urlStream) {
       audioRef.current.src = radio.urlStream;
     }
 
-    // Configurer l'audio
-    audioRef.current.preload = 'none';
-    audioRef.current.volume = isMuted ? 0 : volume / 100;
+    const audio = audioRef.current;
+    const handleAudioError = () => {
+      console.error('Erreur de lecture audio');
+    };
+    audio.addEventListener('error', handleAudioError);
 
-    // Nettoyer à la destruction
+    return () => {
+      audio.removeEventListener('error', handleAudioError);
+    };
+  }, [radio?.urlStream]);
+
+  // Ne couper le flux qu'au véritable démontage du lecteur (fermeture, pas juste un re-render)
+  useEffect(() => {
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.src = '';
+        audioRef.current = null;
       }
     };
-  }, [radio?.urlStream]);
+  }, []);
 
   // Gérer lecture/pause
   useEffect(() => {
     if (!audioRef.current || !radio?.urlStream) return;
 
-    const handleAudioError = () => {
-      console.error('Erreur de lecture audio');
-    };
-
-    audioRef.current.addEventListener('error', handleAudioError);
-
     if (isPlaying) {
       audioRef.current.play().catch(error => {
-        console.error('Erreur de lecture:', error);
+        // AbortError : lecture interrompue par un pause()/changement de source
+        // qui a suivi de très près l'appel à play() — comportement attendu, pas une vraie erreur.
+        if (error.name !== 'AbortError') {
+          console.error('Erreur de lecture:', error);
+        }
       });
     } else {
       audioRef.current.pause();
     }
-
-    return () => {
-      audioRef.current?.removeEventListener('error', handleAudioError);
-    };
   }, [isPlaying, radio?.urlStream]);
 
   // Mettre à jour le volume

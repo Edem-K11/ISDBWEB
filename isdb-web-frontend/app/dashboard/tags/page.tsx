@@ -86,16 +86,17 @@ export default function TagsPage() {
         {tags.map((tag) => (
           <div
             key={tag.id}
-            className="bg-white border border-slate-300 rounded-xl border-2 hover:shadow-lg transition-all p-6 group"
-            // style={{ borderColor: tag.couleur }}
+            className="bg-white rounded-xl border-2 hover:shadow-lg transition-all p-6 group"
+            style={{ borderColor: `${tag.couleur}4D` }}
           >
             <div className="flex items-start justify-between mb-4">
               <div
-                className="px-4 py-2 rounded-full text-sm font-semibold border border-slate-300 bg-slate-100"
-                // style={{
-                //   backgroundColor: `${tag.couleur}20`,
-                //   color: tag.couleur,
-                // }}
+                className="px-4 py-2 rounded-full text-sm font-semibold border"
+                style={{
+                  backgroundColor: `${tag.couleur}20`,
+                  color: tag.couleur,
+                  borderColor: `${tag.couleur}4D`,
+                }}
               >
                 {tag.nom}
               </div>
@@ -119,7 +120,14 @@ export default function TagsPage() {
             </div>
             <div className="space-y-2 text-sm text-gray-600">
               <p>Slug: <span className="font-mono">{tag.slug}</span></p>
-              <p>Couleur: <span className="font-mono">{"tag.couleur"}</span></p>
+              <p className="flex items-center gap-2">
+                Couleur:
+                <span className="font-mono">{tag.couleur}</span>
+                <span
+                  className="inline-block w-3 h-3 rounded-full border border-black/10"
+                  style={{ backgroundColor: tag.couleur }}
+                />
+              </p>
               {tag.blogsCount !== undefined && (
                 <p className="text-indigo-600 font-medium">
                   {tag.blogsCount} article{tag.blogsCount > 1 ? 's' : ''}

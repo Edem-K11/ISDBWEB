@@ -50,38 +50,29 @@ class Formation extends Model
         'titre',
         'slug',
         'type_formation',
+        'numero_module',
         'description',
+        'contenu',
         'mention_id',
         'diplome',
         'condition_admission',
         'profile_intree',
         'specialite',
         'objectifs',
+        'objectif_general',
+        'objectif_specifique',
+        'competences_visees',
+        'debouches',
         'profile_sortie',
         'evaluation',
         'programme',
         'programme_pdf',
+        'programme_image',
         'duree_formation',
+        'duree_heures',
         'frais_scolarite',
         'statut_formation',
     ];
-
-    protected static function booted()
-{
-    static::creating(function ($formation) {
-        if (empty($formation->slug)) {
-            $baseSlug = Str::slug($formation->titre);
-            $slug = $baseSlug;
-            $counter = 1;
-
-            while (self::withTrashed()->where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter++;
-            }
-
-            $formation->slug = $slug;
-        }
-    });
-}
 
     /**
      * The attributes that should be cast.
@@ -89,6 +80,8 @@ class Formation extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'numero_module' => 'integer',
+        'duree_heures' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
@@ -203,23 +196,29 @@ class Formation extends Model
             });
     }
 
-    /**
-     * Boot method pour gérer les événements du modèle.
-     */
-    protected static function boot()
+    protected static function booted(): void
     {
-        parent::boot();
+        static::creating(function (Formation $formation) {
+            if (empty($formation->slug)) {
+                $baseSlug = Str::slug($formation->titre);
+                $slug = $baseSlug;
+                $counter = 1;
 
-        // Validation avant sauvegarde
-        static::saving(function ($formation) {
-            // Une formation principale DOIT avoir une mention
+                while (self::withTrashed()->where('slug', $slug)->exists()) {
+                    $slug = $baseSlug . '-' . $counter++;
+                }
+
+                $formation->slug = $slug;
+            }
+        });
+
+        static::saving(function (Formation $formation) {
             if ($formation->type_formation === self::TYPE_PRINCIPALE && !$formation->mention_id) {
                 throw new \InvalidArgumentException(
                     'Une formation principale doit avoir une mention associée.'
                 );
             }
 
-            // Une formation modulaire NE DOIT PAS avoir de mention
             if ($formation->type_formation === self::TYPE_MODULAIRE && $formation->mention_id) {
                 $formation->mention_id = null;
             }

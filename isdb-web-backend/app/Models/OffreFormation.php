@@ -32,6 +32,7 @@ class OffreFormation extends Model
         'date_fin',
         'place_limited',
         'prix',
+        'frais_inscription',
         'est_dispensee',
     ];
 
@@ -47,6 +48,7 @@ class OffreFormation extends Model
         'date_fin' => 'date',
         'place_limited' => 'integer',
         'prix' => 'decimal:2',
+        'frais_inscription' => 'decimal:2',
         'est_dispensee' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

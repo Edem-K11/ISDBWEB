@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, Check } from 'lucide-react';
 import { tagService } from '@/lib/api/services/tagService';
 import toast from 'react-hot-toast';
 
@@ -102,22 +102,25 @@ export default function TagFormModal({ isOpen, onClose, tag, onSuccess }: TagFor
                 Couleur
               </label>
               <div className="grid grid-cols-5 gap-3">
-                {colors.map((color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, couleur: color })}
-                    className={`w-12 h-12 rounded-lg transition-all  border border-slate-300  bg-slate-100 ${
-                      formData.couleur === color
-                        ? 'ring-4 ring-offset-2 scale-110'
-                        : 'hover:scale-105'
-                    }`}
-                    // style={{
-                    //   backgroundColor: color,
-                    //   ringColor: color,
-                    // }}
-                  />
-                ))}
+                {colors.map((color) => {
+                  const isSelected = formData.couleur === color;
+                  return (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, couleur: color })}
+                      className={`relative w-12 h-12 rounded-lg transition-all flex items-center justify-center ${
+                        isSelected ? 'scale-110 shadow-md' : 'hover:scale-105'
+                      }`}
+                      style={{
+                        backgroundColor: color,
+                        boxShadow: isSelected ? `0 0 0 3px white, 0 0 0 5px ${color}` : undefined,
+                      }}
+                    >
+                      {isSelected && <Check className="w-5 h-5 text-white drop-shadow" />}
+                    </button>
+                  );
+                })}
               </div>
               <input
                 type="color"

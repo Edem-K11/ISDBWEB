@@ -4,12 +4,11 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/lib/api/services/authService';
-import { User, AuthState, LoginCredentials, RegisterData } from '@/lib/types/user';
+import { User, AuthState, LoginCredentials } from '@/lib/types/user';
 import toast from 'react-hot-toast';
 
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
   isAdmin: () => boolean;
@@ -31,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loadUser = async () => {
     try {
       const token = localStorage.getItem('token');
-      
+
       if (!token) {
         setIsLoading(false);
         return;
@@ -50,32 +49,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (credentials: LoginCredentials) => {
     try {
       const response = await authService.login(credentials);
-      
+
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
       setUser(response.user);
-      
+
       toast.success('Connexion réussie !');
       router.push('/dashboard');
     } catch (error: any) {
       const message = error.response?.data?.message || 'Erreur de connexion';
-      toast.error(message);
-      throw error;
-    }
-  };
-
-  const register = async (data: RegisterData) => {
-    try {
-      const response = await authService.register(data);
-      
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      setUser(response.user);
-      
-      toast.success('Inscription réussie !');
-      router.push('/dashboard');
-    } catch (error: any) {
-      const message = error.response?.data?.message || 'Erreur d\'inscription';
       toast.error(message);
       throw error;
     }
@@ -90,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       setUser(null);
-      
+
       toast.success('Déconnexion réussie');
       router.push('/login');
     }
@@ -117,7 +99,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: !!user,
     isLoading,
     login,
-    register,
     logout,
     updateUser,
     isAdmin,

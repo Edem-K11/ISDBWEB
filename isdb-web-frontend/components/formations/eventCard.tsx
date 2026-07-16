@@ -5,34 +5,28 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { getMentionThemePalette } from "@/lib/utils/mentionTheme";
 
 interface EventCardProps {
   title: string;
   link: string;
-  index: number;
+  theme?: string;
 }
 
 export default function EventCard({
   title,
   link,
-  index,
-}: EventCardProps) {
+  theme,
+}: Readonly<EventCardProps>) {
   const [isHovered, setIsHovered] = useState(false);
 
-//   Couleurs aléatoires pour les cartes
-  const colors = [
-    { bg: "from-isdb-green-50 to-isdb-green-100", accent: "bg-isdb-green-600", hover: "group-hover:bg-isdb-green-700", border: " border-isdb-green-200" },
-    { bg: "from-isdb-orange-50 to-isdb-orange-100", accent: "bg-isdb-orange-600", hover: "group-hover:bg-isdb-orange-700", border: " border-isdb-orange-200" },
-    { bg: "from-isdb-red-50 to-isdb-red-100", accent: "bg-isdb-red-600", hover: "group-hover:bg-isdb-red-700", border: " border-isdb-red-200" },
-    { bg: "from-isdb-gold-50 to-isdb-gold-100", accent: "bg-isdb-gold-600", hover: "group-hover:bg-isdb-gold-700", border: " border-isdb-gold-200" }
-  ];
-
-  const color = colors[index % colors.length];
+  // Couleur alignée sur le thème de la mention (identique à sa page de détail)
+  const color = getMentionThemePalette(theme);
 
   return (
     <Link
       href={link}
-      className= {`group relative block p-8 border bg-gradient-to-br ${color.bg} ${color.hover} ${color.border} hover:-translate-y-[2px] hover:shadow-lg transition-shadow duration-300`}
+      className= {`group relative block p-8 border bg-gradient-to-br ${color.cardGradient} ${color.cardHover} ${color.borderStrong} hover:-translate-y-[2px] hover:shadow-lg transition-shadow duration-300`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

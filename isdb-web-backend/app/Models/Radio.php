@@ -27,6 +27,9 @@ class Radio extends Model
         'image',
         'en_direct',
         'description',
+        'message_app_mobile',
+        'app_store_url',
+        'play_store_url',
     ];
 
     /**

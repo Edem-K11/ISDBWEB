@@ -9,15 +9,15 @@ export default function HeroSection({
   color = "blue",
   image_url,
   breadcrumbs = []
-}: {
+}: Readonly<{
   title?: string;
   description?: string;
   color?: string;
   image_url?: string;
   breadcrumbs?: { label: string; href: string, active?: boolean }[];
-}) {
+}>) {
   return (
-    <header className="relative text-white py-32 overflow-hidden">
+    <header className="relative text-white py-30 overflow-hidden">
       {/* Background - Image ou Couleur */}
       {image_url ? (
         <>
@@ -34,8 +34,8 @@ export default function HeroSection({
         </>
       ) : (
         /* Fond de couleur si pas d'image */
-        <div 
-          className="absolute inset-0" 
+        <div
+          className="absolute inset-0"
           style={{
             background: `linear-gradient(to right, rgb(30 41 59), ${getColorValue(color)})`
           }}
@@ -43,7 +43,7 @@ export default function HeroSection({
       )}
 
       {/* Contenu */}
-      <div className="container px-12 text-left relative z-10">
+      <div className="container mx-auto max-w-6xl px-6 text-left relative z-10">
         <h1 className={`${lexendDeca.className} text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight`}>
           {title}
         </h1>
@@ -53,8 +53,10 @@ export default function HeroSection({
       </div>
 
       {/* Breadcrumbs */}
-      <div className="absolute bottom-5 left-12 z-10">
-        <Breadcrumbs breadcrumbs={breadcrumbs} />
+      <div className="absolute bottom-5 left-0 right-0 z-10">
+        <div className="container mx-auto max-w-6xl px-6">
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        </div>
       </div>
     </header>
   );

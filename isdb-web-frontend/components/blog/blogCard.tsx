@@ -26,7 +26,12 @@ export default function BlogCard({ article }: { article: Blog }) {
               {article.tags.slice(0, 2).map(tag => (
                 <span
                   key={tag.id}
-                  className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium border border-slate-400 text-slate-700 bg-slate-50"
+                  className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium border"
+                  style={{
+                    backgroundColor: `${tag.couleur || '#6366F1'}1A`,
+                    color: tag.couleur || '#6366F1',
+                    borderColor: `${tag.couleur || '#6366F1'}4D`,
+                  }}
                 >
                   {tag.nom}
                 </span>

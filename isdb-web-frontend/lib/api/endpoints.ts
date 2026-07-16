@@ -27,7 +27,7 @@ export const ENDPOINTS = {
   // Tags
   TAGS: '/blogs/tags',
   TAG_BY_SLUG: (slug: string) => `/blogs/tags/${slug}`,
-  ADMIN_TAGS: '/admin/tags',
+  ADMIN_TAGS: '/dashboard/tags',
 
   // Dashboard Domaines
   DASHBOARD_DOMAINES: '/dashboard/domaines',
@@ -45,6 +45,10 @@ export const ENDPOINTS = {
   DASHBOARD_FORMATION_MODULAIRE_EDIT: (id: number) => `/dashboard/formations/${id}/edit-modulaire`,
   DASHBOARD_FORMATION_PRINCIPALE_EDIT: (id: number) => `/dashboard/formations/${id}/edit`,
   DASHBOARD_FORMATION_OFFRES: (id: number) => `/dashboard/formations/${id}/offres`,
+
+  // Dashboard Formations modulaires (table formation_modulaires)
+  DASHBOARD_FORMATIONS_MODULAIRES: '/dashboard/formations-modulaires',
+  DASHBOARD_FORMATION_MODULAIRE_BY_ID: (id: number) => `/dashboard/formations-modulaires/${id}`,
 
   // Dashboard Années Académiques
   DASHBOARD_ANNEES_ACADEMIQUES: '/dashboard/annees-academiques',
@@ -67,6 +71,22 @@ export const ENDPOINTS = {
   RADIO: '/radio',
   DASHBOARD_RADIO: '/dashboard/radio',
   DASHBOARD_RADIO_TOGGLE_LIVE: '/dashboard/radio/toggle-live',
+
+  // Formations modulaires (public)
+  FORMATIONS_MODULAIRES: '/formations-modulaires',
+  FORMATION_MODULAIRE_BY_SLUG: (slug: string) => `/formations-modulaires/${slug}`,
+
+  // Studios (public)
+  STUDIOS: '/studios',
+  STUDIO_BY_SLUG: (slug: string) => `/studios/${slug}`,
+
+  // Page d'accueil (CMS)
+  HOMEPAGE: '/homepage',
+  DASHBOARD_HOMEPAGE: '/dashboard/homepage',
+
+  // Dashboard Studios
+  DASHBOARD_STUDIOS: '/dashboard/studios',
+  DASHBOARD_STUDIO_BY_ID: (id: number) => `/dashboard/studios/${id}`,
 
   // Images
   UPLOAD_IMAGE: '/images/upload',

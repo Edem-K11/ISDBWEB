@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Head from 'next/head';
 import HeroSection from '@/components/layout/hero';
 import BlogCard from '@/components/blog/blogCard';
@@ -28,33 +28,22 @@ export default function BlogsPage() {
   // Debounce la recherche pour éviter trop de requêtes
   const debouncedSearch = useDebounce(filters.motCle, 500);
 
-  // Récupérer les blogs depuis l'API
+  // Récupérer les blogs depuis l'API (filtre année appliqué côté serveur)
   const { blogs, meta, isLoading, isError } = useBlogs({
     page: currentPage,
     tag: filters.tag,
     search: debouncedSearch,
+    annee: filters.annee,
   });
 
   // Récupérer les tags disponibles
   const { tags, isLoading: isLoadingTags } = useTags();
 
-  // Filtrer par année côté client (car pas dans l'API)
-  const filteredBlogs = useMemo(() => {
-    if (!filters.annee) return blogs;
-    
-    return blogs.filter(blog => {
-      const blogYear = new Date(blog.dateCreation).getFullYear().toString();
-      return blogYear === filters.annee;
-    });
-  }, [blogs, filters.annee]);
-
-  // Années disponibles (extraites des blogs)
+  // Années disponibles (toutes les années de publication, indépendamment des filtres actifs)
   const annees = useMemo(() => {
-    const years = blogs.map(blog => 
-      new Date(blog.dateCreation).getFullYear().toString()
-    );
-    return ['Toutes', ...Array.from(new Set(years)).sort().reverse()];
-  }, [blogs]);
+    const years = meta?.available_years?.map(String) || [];
+    return ['Toutes', ...years];
+  }, [meta?.available_years]);
 
   const handleFilterChange = (filterName: string, value: string) => {
     setFilters(prev => ({
@@ -88,7 +77,7 @@ export default function BlogsPage() {
           breadcrumbs={breadcrumbs}
         />
         
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto max-w-6xl px-6 py-8">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar avec filtres */}
             <div className="lg:w-1/4">
@@ -128,7 +117,7 @@ export default function BlogsPage() {
 
               {isLoading ? (
                 <BlogsSkeleton count={3} />
-              ) : filteredBlogs.length === 0 ? (
+              ) : blogs.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-gray-500 text-lg">Aucun article trouvé avec ces critères.</p>
                   <button
@@ -141,7 +130,7 @@ export default function BlogsPage() {
               ) : (
                 <>
                   <div className="space-y-6">
-                    {filteredBlogs.map(blog => (
+                    {blogs.map(blog => (
                       <BlogCard key={blog.id} article={blog} />
                     ))}
                   </div>

@@ -30,6 +30,7 @@ class StoreOffreFormationRequest extends FormRequest
             'date_fin' => ['nullable', 'date', 'after:date_debut'],
             'place_limited' => ['nullable', 'integer', 'min:0'],
             'prix' => ['nullable', 'numeric', 'min:0'],
+            'frais_inscription' => ['nullable', 'numeric', 'min:0'],
             'est_dispensee' => ['boolean'],
         ];
     }

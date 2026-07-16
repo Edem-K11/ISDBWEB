@@ -26,7 +26,11 @@ class OffreFormationResource extends JsonResource
             'date_fin' => $this->date_fin?->toDateString(),
             'place_limited' => $this->place_limited,
             'prix' => $this->prix ? number_format($this->prix, 0, ',', ' ') . ' FCFA' : null,
-            'prix_brut' => $this->prix, // Pour les calculs
+            'prix_brut' => $this->prix,
+            'frais_inscription' => $this->frais_inscription,
+            'frais_inscription_formate' => $this->frais_inscription
+                ? number_format($this->frais_inscription, 0, ',', ' ') . ' FCFA'
+                : null,
             'est_dispensee' => $this->est_dispensee,
             
             // Accessors

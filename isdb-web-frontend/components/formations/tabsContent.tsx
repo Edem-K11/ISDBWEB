@@ -26,12 +26,12 @@ export default function TabsContent({ formation, offre, colors }: TabsContentPro
   return (
     <div className="flex-1 bg-white rounded-xl shadow-lg overflow-hidden">
       {/* Tabs Header */}
-      <div className="flex flex-wrap border-b border-gray-200">
+      <div className="flex flex-nowrap overflow-x-auto border-b border-gray-200">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-6 py-4 font-medium transition-all ${
+            className={`shrink-0 whitespace-nowrap px-4 py-4 font-medium transition-all ${
               activeTab === tab.id
                 ? `border-b-3 ${colors.text} ${colors.border} bg-gray-50`
                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'

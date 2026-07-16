@@ -43,7 +43,7 @@ class MentionPageContentController extends Controller
 
     public function indexPublic(): JsonResponse
     {
-        $mentions = Mention::with('domaine')
+        $mentions = Mention::with(['domaine', 'mentionPageContent'])
             ->whereHas('formations', function ($query) {
                 $query->where('statut_formation', Formation::STATUT_ACTIVE);
             })
@@ -58,6 +58,7 @@ class MentionPageContentController extends Controller
                     'titre' => $mention->titre,
                     'slug' => $mention->slug,
                     'description' => $mention->description,
+                    'theme' => $mention->mentionPageContent->theme ?? 'green',
                 ];
             }),
         ]);
@@ -90,9 +91,8 @@ class MentionPageContentController extends Controller
             ])
             ->firstOrFail();
 
-        // Autres mentions du même domaine (max 3)
-        $relatedMentions = Mention::where('domaine_id', $mention->domaine_id)
-            ->where('id', '!=', $mention->id)
+        // Autres mentions (toutes, indépendamment du domaine ; max 3)
+        $relatedMentions = Mention::where('id', '!=', $mention->id)
             ->avecFormationsActives()
             ->limit(3)
             ->get()
@@ -322,7 +322,7 @@ class MentionPageContentController extends Controller
         // Sinon retourner une valeur par défaut selon le diplôme
         return match($formation->diplome) {
             'LICENCE_PROFESSIONNELLE', 'LICENCE_FONDAMENTALE' => 180,
-            'MASTER_RECHERCHE', 'MASTER_PROFESSIONNEL', 'MASTER' => 120,
+            'MASTER' => 120,
             'CERTIFICAT_MODULE' => 60,
             default => null,
         };

@@ -23,6 +23,7 @@ class UpdateTagRequest extends FormRequest
     {
         return [
             'nom' => 'sometimes|string|max:100|unique:tags,nom,' . $this->route('id'),
+            'couleur' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
         ];
     }
 }

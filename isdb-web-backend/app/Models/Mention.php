@@ -119,6 +119,16 @@ class Mention extends Model
     }
 
     /**
+     * Scope pour obtenir les mentions avec formations actives (alias).
+     */
+    public function scopeWithActiveFormations($query)
+    {
+        return $query->whereHas('formations', function ($q) {
+            $q->where('statut_formation', Formation::STATUT_ACTIVE);
+        });
+    }
+
+    /**
      * Accessor pour compter le nombre de formations.
      */
     public function getNombreFormationsAttribute(): int

@@ -10,12 +10,17 @@ import { Blog } from '@/lib/types/blog';
     tag?: string;
     redacteur_id?: number;
     search?: string;
+    annee?: string;
   }
 
+  type BlogsPaginatedResponse = PaginatedResponse<Blog> & {
+    meta: PaginatedResponse<Blog>['meta'] & { available_years?: number[] };
+  };
+
   export function useBlogs(params?: UseBlogsParams) {
-    const { data, error, isLoading, mutate } = useSWR<PaginatedResponse<Blog>>(
+    const { data, error, isLoading, mutate } = useSWR<BlogsPaginatedResponse>(
       ['blogs', params],
-      () => blogService.getAll(params),
+      () => blogService.getAll(params) as Promise<BlogsPaginatedResponse>,
       {
         revalidateOnFocus: false,
         dedupingInterval: 60000, // 1 minute

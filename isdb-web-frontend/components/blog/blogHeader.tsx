@@ -28,12 +28,12 @@ export default function BlogHeader({ titre, coverImage, tags }: BlogHeaderProps)
         />
       </div>
       
-      {/* Overlay gradient amélioré */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black" />
+      {/* Overlay gradient (assure la lisibilité du texte sans trop assombrir l'image) */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/70" />
 
       {/* Contenu par-dessus */}
       <div className="absolute inset-0 flex flex-col justify-end">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 md:pb-16 w-full">
+        <div className="max-w-6xl mx-auto px-6 pb-12 md:pb-16 w-full">
           
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-sm text-white/80 mb-6" aria-label="Breadcrumb">
@@ -61,10 +61,11 @@ export default function BlogHeader({ titre, coverImage, tags }: BlogHeaderProps)
                 <Link
                   key={tag.id}
                   href={`${ENDPOINTS.BLOGS}/tag?tag=${tag.slug}`}
-                  className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-md 
-                    border border-white/20 text-white text-sm font-medium
-                    hover:bg-white/20 hover:border-white/30 
+                  className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-md
+                    border text-white text-sm font-medium
+                    hover:bg-white/20
                     transition-all duration-300 hover:scale-105"
+                  style={{ borderColor: `${tag.couleur || '#ffffff'}80` }}
                 >
                   #{tag.nom}
                 </Link>

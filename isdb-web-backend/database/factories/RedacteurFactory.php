@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\redacteur>
  */
-class redacteurFactory extends Factory
+class RedacteurFactory extends Factory
 {
     /**
      * Define the model's default state.

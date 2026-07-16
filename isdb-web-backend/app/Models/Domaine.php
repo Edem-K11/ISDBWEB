@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Domaine extends Model
 {
@@ -25,6 +26,7 @@ class Domaine extends Model
      */
     protected $fillable = [
         'nom',
+        'slug',
     ];
 
     /**
@@ -35,7 +37,25 @@ class Domaine extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Domaine $domaine) {
+            if (empty($domaine->slug)) {
+                $baseSlug = Str::slug($domaine->nom);
+                $slug = $baseSlug;
+                $counter = 1;
+
+                while (self::withTrashed()->where('slug', $slug)->exists()) {
+                    $slug = $baseSlug . '-' . $counter++;
+                }
+
+                $domaine->slug = $slug;
+            }
+        });
+    }
 
     /**
      * Get the mentions for the domaine.

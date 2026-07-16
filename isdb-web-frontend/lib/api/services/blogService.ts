@@ -11,6 +11,7 @@ export const blogService = {
     page?: number;
     tag?: string;
     search?: string;
+    annee?: string;
   }) => {
     const { data } = await apiClient.get<PaginatedResponse<Blog>>(
       ENDPOINTS.BLOGS,

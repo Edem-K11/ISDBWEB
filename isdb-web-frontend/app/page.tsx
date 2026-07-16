@@ -15,7 +15,7 @@ export default function HomePage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-isdb-green-50 via-white to-slate-50 pt-28 pb-20">
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]" />
         
-        <div className="container relative mx-auto px-6">
+        <div className="container relative mx-auto max-w-6xl px-6">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-4xl md:text-6xl font-bold text-slate-900 mb-6 leading-tight">
@@ -79,7 +79,7 @@ export default function HomePage() {
 
       {/* Trusted Section */}
       <section className="py-12 bg-slate-50">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto max-w-6xl px-6">
           <p className="text-center text-slate-600">
             Lancer au TOGO depuis 1975
           </p>
@@ -88,7 +88,7 @@ export default function HomePage() {
 
       {/* Features Section */}
       <section className="py-20">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto max-w-6xl px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
               Tout ce dont vous avez besoin pour réussir
@@ -161,7 +161,7 @@ export default function HomePage() {
 
       {/* Study Modes Section
       <section className="py-20 bg-slate-50">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto max-w-6xl px-6">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
@@ -247,7 +247,7 @@ export default function HomePage() {
 
       {/* Programs Section */}
       <section className="py-20">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto max-w-6xl px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
               Nos domaines de formation
@@ -284,7 +284,7 @@ export default function HomePage() {
                 un acteur du changement éducatif.
               </p>
               <Link 
-                href="/formations/science-education" 
+                href="/formations/sciences-de-leducation"
                 className="inline-flex items-center text-blue-600 font-semibold relative z-10"
               >
                 Explorer
@@ -302,7 +302,7 @@ export default function HomePage() {
                 votre influence dans un monde connecté.
               </p>
               <Link 
-                href="/formations/communication" 
+                href="/formations/sciences-et-techniques-de-la-communication"
                 className="inline-flex items-center text-green-600 font-semibold relative z-10"
               >
                 Explorer
@@ -329,7 +329,7 @@ export default function HomePage() {
 
       {/* Testimonials
       <section className="py-20 bg-gradient-to-br from-slate-900 to-slate-800">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto max-w-6xl px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
               Ils témoignent de leur expérience
@@ -390,7 +390,7 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <section className="py-20">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto max-w-6xl px-6">
           <div className="max-w-4xl mx-auto text-center bg-gradient-to-r from-isdb-green-600 to-isdb-green-700 rounded-3xl p-12 shadow-2xl">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
               Prêt à transformer votre avenir ?
@@ -419,7 +419,7 @@ export default function HomePage() {
 
       {/* Blog Preview */}
       <section className="py-20 bg-slate-50">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto max-w-6xl px-6">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">

@@ -17,9 +17,9 @@ async function getModule(slug: string) {
 
 export default async function FormationModulaireDetailPage({
   params,
-}: {
+}: Readonly<{
   params: Promise<{ slug: string }>;
-}) {
+}>) {
   const { slug } = await params;
   const formation = await getModule(slug);
 
@@ -28,9 +28,9 @@ export default async function FormationModulaireDetailPage({
   return (
     <div>
       <HeroSection
-        title="Formation modulaire"
-        description={formation.titre}
-        color="orange"
+        title={formation.titre}
+        description="Formation modulaire"
+        color="green"
         breadcrumbs={[
           { label: 'Accueil', href: '/' },
           { label: 'Formations modulaires', href: '/formations-modulaires' },

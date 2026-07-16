@@ -17,8 +17,11 @@ class FormationResource extends JsonResource
         return [
             'id' => $this->id,
             'titre' => $this->titre,
+            'slug' => $this->slug,
             'type_formation' => $this->type_formation,
+            'numero_module' => $this->numero_module,
             'description' => $this->description,
+            'contenu' => $this->contenu,
             'mention_id' => $this->mention_id,
             'diplome' => $this->diplome,
             
@@ -27,13 +30,19 @@ class FormationResource extends JsonResource
             'profile_intree' => $this->profile_intree,
             'specialite' => $this->specialite,
             'objectifs' => $this->objectifs,
+            'objectif_general' => $this->objectif_general,
+            'objectif_specifique' => $this->objectif_specifique,
+            'competences_visees' => $this->competences_visees,
+            'debouches' => $this->debouches,
             'profile_sortie' => $this->profile_sortie,
             'evaluation' => $this->evaluation,
             'programme' => $this->programme,
             'programme_pdf' => $this->programme_pdf,
+            'programme_image' => $this->programme_image,
             
             // Informations pratiques
             'duree_formation' => $this->duree_formation,
+            'duree_heures' => $this->duree_heures,
             'frais_scolarite' => $this->frais_scolarite,
             'statut_formation' => $this->statut_formation,
             

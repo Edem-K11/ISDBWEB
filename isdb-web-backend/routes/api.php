@@ -14,6 +14,9 @@ use App\Http\Controllers\Api\AnneeAcademiqueController;
 use App\Http\Controllers\Api\OffreFormationController;
 use App\Http\Controllers\Api\RadioController;
 use App\Http\Controllers\Api\MentionPageContentController;
+use App\Http\Controllers\Api\FormationModulaireController;
+use App\Http\Controllers\Api\StudioController;
+use App\Http\Controllers\Api\HomepageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,17 +25,26 @@ use App\Http\Controllers\Api\MentionPageContentController;
 */
 
 // Routes d'authentification (publiques)
-Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 
 // Routes publiques - Radio en direct
 Route::get('/radio', [RadioController::class, 'show']);
 
-// Récupérer les mentions et leur contenu pour la page /formations
+// Page d'accueil (CMS)
+Route::get('/homepage', [HomepageController::class, 'show']);
+
+// Formations modulaires (parcours séparé, sans domaine/mention)
+Route::get('/formations-modulaires', [FormationModulaireController::class, 'index']);
+Route::get('/formations-modulaires/{slug}', [FormationModulaireController::class, 'show']);
+
+// Studios de l'institut
+Route::get('/studios', [StudioController::class, 'indexPublic']);
+Route::get('/studios/{slug}', [StudioController::class, 'showPublic']);
+
+// Formations principales (domaine → mention → formation)
 Route::get('/formations', [MentionPageContentController::class, 'indexPublic']);
 Route::get('/formations/{mentionSlug}', [MentionPageContentController::class, 'show']);
-// Détails d'une offre de formation
 Route::get('/formations/{mentionSlug}/{formationSlug}', [MentionPageContentController::class, 'showOffre']);
 
 
@@ -83,6 +95,13 @@ Route::middleware('auth:sanctum')->group(function () {
             // Formations
             Route::resource('formations', FormationController::class);
 
+            // Formations modulaires (table séparée formation_modulaires)
+            Route::get('formations-modulaires', [FormationModulaireController::class, 'indexDashboard']);
+            Route::post('formations-modulaires', [FormationModulaireController::class, 'store']);
+            Route::get('formations-modulaires/{formationModulaire}', [FormationModulaireController::class, 'showAdmin']);
+            Route::put('formations-modulaires/{formationModulaire}', [FormationModulaireController::class, 'update']);
+            Route::delete('formations-modulaires/{formationModulaire}', [FormationModulaireController::class, 'destroy']);
+
             // Années académiques
             Route::get('annees-academiques', [AnneeAcademiqueController::class, 'index']);
             Route::post('annees-academiques', [AnneeAcademiqueController::class, 'store']);
@@ -102,6 +121,12 @@ Route::middleware('auth:sanctum')->group(function () {
             // Radio (une seule)
             Route::put('radio', [RadioController::class, 'update']);
             Route::post('radio/toggle-live', [RadioController::class, 'toggleLive']);
+
+            // Page d'accueil (CMS)
+            Route::put('homepage', [HomepageController::class, 'update']);
+
+            // Studios
+            Route::resource('studios', StudioController::class)->except(['create', 'edit']);
 
         });
     });

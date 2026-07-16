@@ -11,7 +11,6 @@ use App\Http\Resources\AnneeAcademiqueResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 
 class AnneeAcademiqueController extends Controller
@@ -82,7 +81,7 @@ class AnneeAcademiqueController extends Controller
         $annee = AnneeAcademique::create($data);
 
         // Déterminer automatiquement si cette année doit être actuelle
-        $this->updateAnneeActuelle();
+        AnneeAcademique::recalculerAnneeActuelle();
 
         return response()->json([
             'success' => true,
@@ -136,7 +135,7 @@ class AnneeAcademiqueController extends Controller
         $anneeAcademique->update($data);
 
         // Recalculer automatiquement quelle année doit être actuelle
-        $this->updateAnneeActuelle();
+        AnneeAcademique::recalculerAnneeActuelle();
 
         return response()->json([
             'success' => true,
@@ -170,7 +169,7 @@ class AnneeAcademiqueController extends Controller
         $anneeAcademique->delete();
 
         // Recalculer l'année actuelle après suppression
-        $this->updateAnneeActuelle();
+        AnneeAcademique::recalculerAnneeActuelle();
 
         return response()->json([
             'success' => true,
@@ -368,31 +367,6 @@ class AnneeAcademiqueController extends Controller
         ]);
     }
 
-    /**
-     * Méthode privée pour déterminer automatiquement l'année actuelle.
-     */
-    private function updateAnneeActuelle(): void
-    {
-        $now = Carbon::today();
-
-        // 1. Désactiver uniquement l'année actuellement marquée
-        AnneeAcademique::where('est_actuelle', true)
-            ->update(['est_actuelle' => false]);
-
-        // 2. Trouver l'année correspondant à la date actuelle
-        $anneeActuelle = AnneeAcademique::whereDate('date_debut', '<=', $now)
-            ->whereDate('date_fin', '>=', $now)
-            ->orderBy('date_debut')
-            ->first();
-
-        // 3. Marquer comme actuelle
-        if ($anneeActuelle) {
-            $anneeActuelle->forceFill([
-                'est_actuelle' => true
-            ])->save();
-        }
-    }
-
 
     /**
      * Vérifier si une année académique est terminée.
@@ -423,7 +397,7 @@ class AnneeAcademiqueController extends Controller
         $annee->restore();
 
         // Recalculer l'année actuelle
-        $this->updateAnneeActuelle();
+        AnneeAcademique::recalculerAnneeActuelle();
 
         return response()->json([
             'success' => true,

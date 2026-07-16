@@ -27,6 +27,11 @@ class BlogController extends Controller
             $query->where('redacteur_id', $request->redacteur_id);
         }
 
+        // Filtrage par année de publication
+        if ($request->filled('annee')) {
+            $query->whereYear('date_creation', $request->annee);
+        }
+
         // Recherche
         if ($request->filled('search')) {
             $search = $request->search;
@@ -37,8 +42,16 @@ class BlogController extends Controller
         }
 
         $blogs = $query->paginate(10);
-        
-        return BlogResource::collection($blogs);
+
+        // Années disponibles (toutes les années de publication, indépendamment des filtres actifs)
+        $availableYears = Blog::publie()
+            ->selectRaw('DISTINCT YEAR(date_creation) as annee')
+            ->orderByDesc('annee')
+            ->pluck('annee');
+
+        return BlogResource::collection($blogs)->additional([
+            'meta' => ['available_years' => $availableYears],
+        ]);
     }
 
 

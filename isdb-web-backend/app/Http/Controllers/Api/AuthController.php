@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
-use App\Http\Requests\RegisterRequest;
 use App\Models\Redacteur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -12,33 +11,6 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    /**
-     * Inscription d'un nouvel redacteur
-     */
-    public function register(RegisterRequest $request)
-    {
-        $redacteur = Redacteur::create([
-            'nom' => $request->nom,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'redacteur', // Par défaut
-        ]);
-
-        $token = $redacteur->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'Inscription réussie',
-            'user' => [
-                'id' => $redacteur->id,
-                'nom' => $redacteur->nom,
-                'email' => $redacteur->email,
-                'avatar' => $redacteur->avatar,
-                'role' => $redacteur->role,
-            ],
-            'token' => $token,
-        ], 201);
-    }
-
     /**
      * Connexion
      */

@@ -32,7 +32,7 @@ export default function BlogForm({ blog }: BlogFormProps) {
   const [selectedTags, setSelectedTags] = useState<number[]>(
     blog?.tags?.map((t: any) => t.id) || []
   );
-  const [cover_image, setcover_image] = useState(blog?.cover_image || '');
+  const [cover_image, setcover_image] = useState(blog?.coverImage || '');
 
   const {
     register,
@@ -45,7 +45,7 @@ export default function BlogForm({ blog }: BlogFormProps) {
       titre: blog?.titre || '',
       resume: blog?.resume || '',
       contenu: blog?.contenu || '',
-      cover_image: blog?.cover_image || '',
+      cover_image: blog?.coverImage || '',
       redacteur_id: blog?.redacteur?.id || user?.id,
       tags: blog?.tags?.map((t: any) => t.id) || [],
       statut: blog?.statut || 'brouillon',

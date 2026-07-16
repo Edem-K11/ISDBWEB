@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -8,29 +8,36 @@ import {
   Search,
   Filter,
   Edit,
-  Eye,
+  Trash2,
   GraduationCap,
   BookOpen,
-  Building,
+  Bookmark,
+  Clock,
   Download,
-  Archive,
   RefreshCw,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useFormationsInfinite } from '@/lib/hooks/useFormation';
+import { useFormationModulaires } from '@/lib/hooks/useFormationModulaire';
 import { useDomaines } from '@/lib/hooks/useDomaine';
 import { useMentions } from '@/lib/hooks/useMention';
 import { formationService } from '@/lib/api/services/formationService';
+import { formationModulaireService } from '@/lib/api/services/formationModulaireService';
 import { mutate as globalMutate } from 'swr';
 import ConfirmModal from '@/components/ui/confirmModal';
-import { Badge } from '@/components/ui/badge';
 import { SelectWithSearch } from '@/components/ui/selectWithSearch';
 import { cn } from '@/lib/utils/cn';
+import { ActionsMenu } from '@/components/ui/actionsMenu';
 import { StatutFormation } from '@/lib/types/Formation';
-import type { FormationFilters } from '@/lib/types/Formation';
+import type { Formation, FormationFilters } from '@/lib/types/Formation';
+import type { FormationModulaire } from '@/lib/types/FormationModulaire';
 import { ENDPOINTS } from '@/lib/api/endpoints';
+
+type FormationRow =
+  | { kind: 'formation'; id: number; data: Formation }
+  | { kind: 'modulaire'; id: number; data: FormationModulaire };
 
 export default function FormationsPage() {
   const router = useRouter();
@@ -42,21 +49,35 @@ export default function FormationsPage() {
     diplome: '',
     statut: StatutFormation.ACTIVE,
   });
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; kind: 'formation' | 'modulaire' } | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [formationToDelete, setFormationToDelete] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [expandedFormation, setExpandedFormation] = useState<number | null>(null);
 
   const { formations, isLoading, isLoadingMore, isReachingEnd, setSize, mutate } = useFormationsInfinite(filters);
+
+  // Les formations modulaires vivent dans une table séparée (formation_modulaires),
+  // indépendante des domaines/mentions. Elles correspondent au diplôme "Certificat Module".
+  const modulairesApplicables = !filters.domaine_id && !filters.mention_id
+    && (filters.diplome === '' || filters.diplome === 'CERTIFICAT_MODULE')
+    && filters.type !== 'PRINCIPALE';
+  const {
+    formationsModulaires,
+    isLoading: isLoadingModulaires,
+    mutate: mutateModulaires,
+  } = useFormationModulaires(
+    { search: filters.search, statut: filters.statut },
+    modulairesApplicables
+  );
+
   const { domaine: domaines } = useDomaines();
   const { mentions } = useMentions();
 
   // ✅ Revalider les données à chaque montage du composant
   useEffect(() => {
-    // Forcer la revalidation des formations
     mutate();
-    
-    // Revalider aussi toutes les clés liées aux formations
+    mutateModulaires();
+
     globalMutate(
       key => typeof key === 'string' && key.startsWith('formations'),
       undefined,
@@ -64,40 +85,52 @@ export default function FormationsPage() {
     );
   }, []); // Se déclenche uniquement au montage
 
+  // Fusionne les formations (table `formations`) et les formations modulaires (table `formation_modulaires`)
+  const rows: FormationRow[] = useMemo(() => {
+    const formationRows: FormationRow[] = formations.map((f) => ({ kind: 'formation', id: f.id, data: f }));
+    const modulaireRows: FormationRow[] = modulairesApplicables
+      ? formationsModulaires.map((m) => ({ kind: 'modulaire', id: m.id, data: m }))
+      : [];
+
+    return [...modulaireRows, ...formationRows].sort((a, b) => a.data.titre.localeCompare(b.data.titre));
+  }, [formations, formationsModulaires, modulairesApplicables]);
+
   // Filtrer les mentions par domaine sélectionné
   const filteredMentions = filters.domaine_id
     ? mentions.filter(m => m.domaine_id === filters.domaine_id)
     : mentions;
 
   const handleDelete = async () => {
-    if (!formationToDelete) return;
+    if (!deleteTarget) return;
 
     try {
-      await formationService.delete(formationToDelete);
+      if (deleteTarget.kind === 'modulaire') {
+        await formationModulaireService.delete(deleteTarget.id);
+        await mutateModulaires();
+      } else {
+        await formationService.delete(deleteTarget.id);
+        await mutate();
+      }
+
       toast.success('Formation archivée avec succès');
-      
-      // Revalider les données
-      await mutate();
-      await globalMutate('formations');
-      
       setDeleteModalOpen(false);
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Erreur lors de la suppression';
       toast.error(errorMessage);
     } finally {
-      setFormationToDelete(null);
+      setDeleteTarget(null);
     }
   };
 
   const handleFilterChange = (field: keyof FormationFilters, value: any) => {
     setFilters(prev => {
       const newFilters = { ...prev, [field]: value };
-      
+
       // Si on change le domaine, réinitialiser la mention
       if (field === 'domaine_id') {
         newFilters.mention_id = '';
       }
-      
+
       return newFilters;
     });
   };
@@ -119,28 +152,15 @@ export default function FormationsPage() {
     });
   };
 
-  const getDiplomeColor = (diplome?: string) => {
-    switch (diplome) {
-      case 'LICENCE_PROFESSIONNELLE':
-        return 'bg-gradient-to-r from-blue-100 to-blue-50 text-blue-800 border border-blue-200';
-      case 'LICENCE_FONDAMENTALE':
-        return 'bg-gradient-to-r from-green-100 to-green-50 text-green-800 border border-green-200';
-      case 'MASTER':
-        return 'bg-gradient-to-r from-purple-100 to-purple-50 text-purple-800 border border-purple-200';
-      case 'CERTIFICAT_MODULE':
-        return 'bg-gradient-to-r from-yellow-100 to-yellow-50 text-yellow-800 border border-yellow-200';
-      default:
-        return 'bg-gradient-to-r from-gray-100 to-gray-50 text-gray-800 border border-gray-200';
-    }
-  };
-
-    const formatDiplome = (diplome?: string) => {
+  const formatDiplome = (diplome?: string | null) => {
     if (!diplome) return '';
     return diplome.replace(/_/g, ' ').toLowerCase()
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   };
+
+  const loading = isLoading || (modulairesApplicables && isLoadingModulaires);
 
   return (
     <div className="space-y-6">
@@ -152,7 +172,7 @@ export default function FormationsPage() {
             Gérez les formations principales et modulaires de l'institut
           </p>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowFilters(!showFilters)}
@@ -167,7 +187,7 @@ export default function FormationsPage() {
             Filtres
             {showFilters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
-          
+
           <Link
             href="/dashboard/formations/create"
             className="px-4 py-2 bg-isdb-green-500 text-white rounded-lg hover:bg-isdb-green-600 transition-colors flex items-center gap-2"
@@ -298,7 +318,7 @@ export default function FormationsPage() {
 
       {/* Liste des formations */}
       <div className="space-y-4">
-        {isLoading ? (
+        {loading ? (
           // Squelette de chargement
           Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="bg-white rounded-xl border border-gray-200 p-6 animate-pulse">
@@ -314,204 +334,230 @@ export default function FormationsPage() {
               </div>
             </div>
           ))
-        ) : formations.length > 0 ? (
+        ) : rows.length > 0 ? (
           <>
-            {formations.map((formation) => (
-              <div
-                key={formation.id}
-                className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-              >
-                {/* En-tête de la formation */}
-                <div className="p-6">
-                  <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-                    <div className="flex items-start gap-4 flex-1">
+            {rows.map((row) => {
+              const isModulaire = row.kind === 'modulaire';
+              const titre = row.data.titre;
+              const description = row.data.description;
+              const statut = row.data.statut_formation;
+
+              const editHref = isModulaire
+                ? ENDPOINTS.DASHBOARD_FORMATION_MODULAIRE_EDIT(row.id)
+                : (row.data as Formation).type_formation === 'MODULAIRE'
+                  ? ENDPOINTS.DASHBOARD_FORMATION_MODULAIRE_EDIT(row.id)
+                  : ENDPOINTS.DASHBOARD_FORMATION_PRINCIPALE_EDIT(row.id);
+
+              return (
+                <div
+                  key={`${row.kind}-${row.id}`}
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                >
+                  {/* En-tête de la formation */}
+                  <div className="p-6">
+                    <div className="flex items-start gap-4">
                       <div className={cn(
-                        "p-3 rounded-lg shrink-0",
-                        formation.type_formation === 'PRINCIPALE'
+                        "w-14 h-14 shrink-0 rounded-2xl flex items-center justify-center",
+                        !isModulaire && (row.data as Formation).type_formation === 'PRINCIPALE'
                           ? 'bg-blue-50'
-                          : 'bg-green-50'
+                          : 'bg-isdb-green-50'
                       )}>
-                        {formation.type_formation === 'PRINCIPALE' ? (
+                        {!isModulaire && (row.data as Formation).type_formation === 'PRINCIPALE' ? (
                           <GraduationCap className="h-6 w-6 text-blue-600" />
                         ) : (
-                          <BookOpen className="h-6 w-6 text-green-600" />
+                          <BookOpen className="h-6 w-6 text-isdb-green-600" />
                         )}
                       </div>
-                      
+
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 flex-wrap mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {formation.titre}
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <h3 className="text-lg font-bold text-gray-900">
+                            {titre}
                           </h3>
-                          <Badge variant={
-                            formation.type_formation === 'PRINCIPALE' ? 'info' : 'success'
-                          }>
-                            {formation.type_formation === 'PRINCIPALE' ? 'Principale' : 'Modulaire'}
-                          </Badge>
-                          
-                          {formation.diplome && (
-                            <span className={cn(
-                              "px-2 py-1 rounded-full text-xs font-medium",
-                              getDiplomeColor(formation.diplome)
-                            )}>
-                              {formatDiplome(formation.diplome)}
+                          <span className={cn(
+                            "px-3 py-1 rounded-full text-xs font-medium",
+                            !isModulaire && (row.data as Formation).type_formation === 'PRINCIPALE'
+                              ? 'bg-blue-50 text-blue-700'
+                              : 'bg-isdb-green-50 text-isdb-green-700'
+                          )}>
+                            {!isModulaire && (row.data as Formation).type_formation === 'PRINCIPALE' ? 'Principale' : 'Modulaire'}
+                          </span>
+
+                          {!isModulaire && (row.data as Formation).diplome && (
+                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-white border border-gray-200 text-gray-600">
+                              {formatDiplome((row.data as Formation).diplome)}
+                            </span>
+                          )}
+
+                          {isModulaire && (
+                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-white border border-gray-200 text-gray-600">
+                              Certificat Module
                             </span>
                           )}
                         </div>
-                        
-                        <div className="flex items-center gap-4 flex-wrap text-sm text-gray-500 mb-3">
-                          {formation.domaine && (
-                            <div className="flex items-center gap-1">
-                              <Building size={14} />
-                              <span>{formation.domaine.nom}</span>
-                            </div>
-                          )}
-                          
-                          {formation.mention && (
-                            <div className="flex items-center gap-1">
-                              <BookOpen size={14} />
-                              <span>{formation.mention.titre}</span>
-                            </div>
-                          )}
-                          
-                          {formation.duree_formation && (
-                            <div className="flex items-center gap-1">
-                              <span>⏱️ {formation.duree_formation}</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {formation.description && (
-                          <p className="text-gray-600 text-sm line-clamp-2">
-                            {formation.description}
+
+                        {description && (
+                          <p className="mt-3 text-sm text-gray-500 leading-relaxed line-clamp-2">
+                            {description}
                           </p>
                         )}
                       </div>
+
+                      <ActionsMenu
+                        items={[
+                          {
+                            label: 'Modifier',
+                            icon: <Edit size={16} />,
+                            onClick: () => router.push(editHref),
+                          },
+                          {
+                            label: 'Supprimer',
+                            icon: <Trash2 size={16} />,
+                            variant: 'danger',
+                            onClick: () => {
+                              setDeleteTarget({ id: row.id, kind: row.kind });
+                              setDeleteModalOpen(true);
+                            },
+                          },
+                        ]}
+                      />
                     </div>
-                    
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+
+                    {/* Métadonnées */}
+                    <div className="mt-5 border-t border-gray-100" />
+                    <div className="mt-4 space-y-2.5">
+                      {!isModulaire && (row.data as Formation).domaine && (
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <BookOpen size={15} className="text-gray-400" />
+                          <span>{(row.data as Formation).domaine!.nom}</span>
+                        </div>
+                      )}
+
+                      {!isModulaire && (row.data as Formation).mention && (
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <Bookmark size={15} className="text-gray-400" />
+                          <span>{(row.data as Formation).mention!.titre}</span>
+                        </div>
+                      )}
+
+                      {!isModulaire && (row.data as Formation).duree_formation && (
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <Clock size={15} className="text-gray-400" />
+                          <span>{(row.data as Formation).duree_formation}</span>
+                        </div>
+                      )}
+
+                      {isModulaire && (row.data as FormationModulaire).duree_heures != null && (
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <Clock size={15} className="text-gray-400" />
+                          <span>{(row.data as FormationModulaire).duree_heures} heures</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-5 flex items-center justify-between flex-wrap gap-3">
+                      {/* Bouton pour voir plus (formations principales uniquement) */}
+                      {!isModulaire && (row.data as Formation).type_formation === 'PRINCIPALE' ? (
+                        <button
+                          onClick={() => setExpandedFormation(
+                            expandedFormation === row.id ? null : row.id
+                          )}
+                          className="text-sm text-isdb-green-600 hover:text-isdb-green-700 flex items-center gap-1 font-medium"
+                        >
+                          {expandedFormation === row.id ? (
+                            <>
+                              <ChevronUp size={16} />
+                              Voir moins
+                            </>
+                          ) : (
+                            <>
+                              <ChevronDown size={16} />
+                              Voir plus d'informations
+                            </>
+                          )}
+                        </button>
+                      ) : <span />}
+
                       <div className="flex items-center gap-2">
-                        <Badge variant="default" size="sm">
-                          {formation.offresFormations?.length || 0} offre(s)
-                        </Badge>
-                        <Badge variant={
-                          formation.statut_formation === StatutFormation.ACTIVE ? 'success' : 'warning'
-                        } size="sm">
-                          {formation.statut_formation === StatutFormation.ACTIVE ? 'Active' : 'Archivée'}
-                        </Badge>
-                      </div>
-                      
-                      <div className="flex items-center gap-1">
+                        {!isModulaire && (
+                          <span className="px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
+                            {(row.data as Formation).offresFormations?.length || 0} offre(s)
+                          </span>
+                        )}
+                        <span className={cn(
+                          "px-3 py-1.5 rounded-full text-xs font-medium",
+                          statut === StatutFormation.ACTIVE
+                            ? 'bg-green-50 text-green-700'
+                            : 'bg-yellow-50 text-yellow-700'
+                        )}>
+                          {statut === StatutFormation.ACTIVE ? 'Active' : 'Archivée'}
+                        </span>
                         <button
-                          onClick={() => router.push(`/dashboard/formations/${formation.id}`)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Voir détails"
+                          onClick={() => router.push(editHref)}
+                          className="px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors"
                         >
-                          <Eye size={18} />
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (formation.type_formation === 'MODULAIRE') {
-                              router.push(ENDPOINTS.DASHBOARD_FORMATION_MODULAIRE_EDIT(formation.id));
-                            } else {
-                              router.push(ENDPOINTS.DASHBOARD_FORMATION_PRINCIPALE_EDIT(formation.id));
-                            }
-                          }}
-                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                          title="Modifier"
-                        >
-                          <Edit size={18} />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setFormationToDelete(formation.id);
-                            setDeleteModalOpen(true);
-                          }}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Archiver"
-                        >
-                          <Archive size={18} />
+                          Voir
                         </button>
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Bouton pour voir plus */}         
-                  {formation.type_formation === 'PRINCIPALE' && (<button
-                    onClick={() => setExpandedFormation(
-                      expandedFormation === formation.id ? null : formation.id
-                    )}
-                    className="mt-4 text-sm text-isdb-green-600 hover:text-isdb-green-700 flex items-center gap-1 font-medium"
-                  >
-                    {expandedFormation === formation.id ? (
-                      <>
-                        <ChevronUp size={16} />
-                        Voir moins
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown size={16} />
-                        Voir plus d'informations
-                      </>
-                    )}
-                  </button>)}
-                </div>
-                
-                {/* Section étendue */}
-                {expandedFormation === formation.id && (
-                  <div className="border-t border-gray-200 p-6 bg-gray-50">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      <div>
-                        <h4 className="font-medium text-gray-900 mb-3">Objectifs</h4>
-                        <div className="prose prose-sm max-w-none text-gray-600">
-                          {formation.objectifs ? (
-                            <div dangerouslySetInnerHTML={{ __html: formation.objectifs }} />
-                          ) : (
-                            <p className="text-gray-400 italic">Non spécifié</p>
-                          )}
+
+                  {/* Section étendue (formations principales uniquement) */}
+                  {!isModulaire && expandedFormation === row.id && (
+                    <div className="border-t border-gray-200 p-6 bg-gray-50">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div>
+                          <h4 className="font-medium text-gray-900 mb-3">Objectifs</h4>
+                          <div className="prose prose-sm max-w-none text-gray-600">
+                            {(row.data as Formation).objectifs ? (
+                              <div dangerouslySetInnerHTML={{ __html: (row.data as Formation).objectifs! }} />
+                            ) : (
+                              <p className="text-gray-400 italic">Non spécifié</p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium text-gray-900 mb-3">Profil de sortie</h4>
-                        <div className="prose prose-sm max-w-none text-gray-600">
-                          {formation.profile_sortie ? (
-                            <div dangerouslySetInnerHTML={{ __html: formation.profile_sortie }} />
-                          ) : (
-                            <p className="text-gray-400 italic">Non spécifié</p>
-                          )}
+
+                        <div>
+                          <h4 className="font-medium text-gray-900 mb-3">Profil de sortie</h4>
+                          <div className="prose prose-sm max-w-none text-gray-600">
+                            {(row.data as Formation).profile_sortie ? (
+                              <div dangerouslySetInnerHTML={{ __html: (row.data as Formation).profile_sortie! }} />
+                            ) : (
+                              <p className="text-gray-400 italic">Non spécifié</p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium text-gray-900 mb-3">Actions</h4>
-                        <div className="space-y-2">
-                          <Link
-                            href={`/dashboard/formations/${formation.id}/offres`}
-                            className="block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-center transition-colors"
-                          >
-                            Gérer les offres
-                          </Link>
-                          {formation.programme_pdf && (
-                            <a
-                              href={formation.programme_pdf}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-center flex items-center justify-center gap-2 transition-colors"
+
+                        <div>
+                          <h4 className="font-medium text-gray-900 mb-3">Actions</h4>
+                          <div className="space-y-2">
+                            <Link
+                              href={`/dashboard/formations/${row.id}/offres`}
+                              className="block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-center transition-colors"
                             >
-                              <Download size={16} />
-                              Télécharger le programme
-                            </a>
-                          )}
+                              Gérer les offres
+                            </Link>
+                            {(row.data as Formation).programme_pdf && (
+                              <a
+                                href={(row.data as Formation).programme_pdf!}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-center flex items-center justify-center gap-2 transition-colors"
+                              >
+                                <Download size={16} />
+                                Télécharger le programme
+                              </a>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))}
-            
-            {/* Bouton "Voir plus" pour la pagination infinie */}
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Bouton "Voir plus" pour la pagination infinie (formations principales) */}
             {!isReachingEnd && (
               <div className="text-center pt-6">
                 <button
@@ -542,7 +588,7 @@ export default function FormationsPage() {
             </h3>
             <p className="text-gray-500 mb-6">
               {filters.search || Object.values(filters).some(v => v !== '' && v !== StatutFormation.ACTIVE)
-                ? 'Aucun résultat pour votre recherche. Essayez de modifier vos filtres.' 
+                ? 'Aucun résultat pour votre recherche. Essayez de modifier vos filtres.'
                 : 'Commencez par créer votre première formation.'}
             </p>
             {!filters.search && Object.values(filters).every(v => v === '' || v === StatutFormation.ACTIVE) && (
@@ -563,7 +609,7 @@ export default function FormationsPage() {
         isOpen={deleteModalOpen}
         onClose={() => {
           setDeleteModalOpen(false);
-          setFormationToDelete(null);
+          setDeleteTarget(null);
         }}
         onConfirm={handleDelete}
         title="Archiver la formation"

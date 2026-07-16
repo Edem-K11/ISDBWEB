@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { AuthProvider } from '@/lib/auth/authContext';
+import { RadioPlayerProvider } from '@/lib/radio/radioPlayerContext';
 import { Toaster } from 'react-hot-toast';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -12,8 +13,8 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "ISDB - Institut Supérieur de Développement",
-  description: "Votre formation d'excellence",
+  title: "ISDB - Institut Supérieur Don Bosco",
+  description: "Institut Supérieur Don Bosco — formations, studios, radio et actualités",
 };
 
 export default function RootLayout({
@@ -25,7 +26,9 @@ export default function RootLayout({
     <html lang="fr" className={plusJakartaSans.variable}>
       <body className={`${plusJakartaSans.className} antialiased`}>
         <AuthProvider>
-          {children}
+          <RadioPlayerProvider>
+            {children}
+          </RadioPlayerProvider>
           <Toaster
             position="top-right"
             toastOptions={{

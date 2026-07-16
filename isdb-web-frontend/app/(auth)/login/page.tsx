@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -100,20 +100,11 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-600">
-              Pas encore de compte ?{' '}
-              <Link href="/register" className="text-indigo-600 hover:text-indigo-800 font-semibold">
-                S'inscrire
-              </Link>
-            </p>
+            <Link href="/" className="text-gray-600 hover:text-gray-900 text-sm">
+              ← Retour à l'accueil
+            </Link>
           </div>
-        </div>
-
-        <div className="mt-6 text-center">
-          <Link href="/" className="text-gray-600 hover:text-gray-900">
-            ← Retour à l'accueil
-          </Link>
-        </div>
+        </div>  
       </div>
     </div>
   );

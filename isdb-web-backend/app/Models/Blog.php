@@ -49,7 +49,7 @@ class Blog extends Model
     // Relations
     public function redacteur()
     {
-        return $this->belongsTo(redacteur::class);
+        return $this->belongsTo(Redacteur::class);
     }
 
     public function tags()

@@ -2,32 +2,24 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Domaine;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DomaineSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $domaines = [
-            [
-                'nom' => 'Sciences et Technologies',
-            ],
-            [
-                'nom' => 'Économie et Gestion',
-            ],
-            [
-                'nom' => 'Sciences Humaines et Sociales',
-            ],
+            ['nom' => 'Sciences de l\'Homme et de la Société'],
+            ['nom' => 'Sciences de l\'Education et de la Formation'],
         ];
 
         foreach ($domaines as $domaine) {
+            $domaine['slug'] = Str::slug($domaine['nom']);
             Domaine::create($domaine);
         }
 
-        $this->command->info('✅ 3 domaines créés');
+        $this->command->info('✅ 2 domaines créés');
     }
 }

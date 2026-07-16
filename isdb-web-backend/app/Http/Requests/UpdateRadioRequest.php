@@ -27,6 +27,9 @@ class UpdateRadioRequest extends FormRequest
             'image' => ['nullable', 'string'], // URL de l'image
             'en_direct' => ['boolean'],
             'description' => ['nullable', 'string'],
+            'message_app_mobile' => ['nullable', 'string'],
+            'app_store_url' => ['nullable', 'url', 'max:500'],
+            'play_store_url' => ['nullable', 'url', 'max:500'],
         ];
     }
 

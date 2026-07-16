@@ -25,21 +25,20 @@ export default function TagSelector({ tags, selectedTags, onChange }: TagSelecto
       <div className="flex flex-wrap gap-3">
         {tags.map((tag) => {
           const isSelected = selectedTags.includes(tag.id);
+          const couleur = tag.couleur || '#6366F1';
           return (
             <button
               key={tag.id}
               type="button"
               onClick={() => toggleTag(tag.id)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                isSelected
-                  ? 'ring-2 ring-offset-2 scale-105'
-                  : 'hover:scale-105'
+              className={`px-4 py-2 rounded-full text-sm font-medium border transition-all ${
+                isSelected ? 'scale-105 shadow-sm' : 'hover:scale-105'
               }`}
-              // style={{
-              //   backgroundColor: isSelected ? tag.couleur : `${tag.couleur}20`,
-              //   color: isSelected ? 'white' : tag.couleur,
-              //   ringColor: tag.couleur,
-              // }}
+              style={{
+                backgroundColor: isSelected ? couleur : `${couleur}1A`,
+                color: isSelected ? '#fff' : couleur,
+                borderColor: couleur,
+              }}
             >
               {tag.nom}
             </button>

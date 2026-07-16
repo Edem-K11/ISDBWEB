@@ -15,7 +15,6 @@ import {
   CheckCircle,
   XCircle,
   Star,
-  BarChart3,
   RefreshCw,
   ChevronDown
 } from 'lucide-react';
@@ -297,14 +296,6 @@ export default function AnneesAcademiquesPage() {
                           <Eye size={18} />
                         </button>
 
-                        <button
-                          onClick={() => router.push(`/dashboard/annees-academiques/${annee.id}/statistiques`)}
-                          className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                          title="Statistiques"
-                        >
-                          <BarChart3 size={18} />
-                        </button>
-                        
                         <button
                           onClick={() => router.push(ENDPOINTS.DASHBOARD_ANNEE_ACADEMIQUE_EDIT(annee.id))}
                           disabled={estTerminee}

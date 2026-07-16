@@ -53,8 +53,8 @@ export default function FilterSidebar({
       {/* Sidebar */}
       <div
         className={`
-          fixed lg:sticky top-0 left-0 h-full lg:h-auto
-          w-80 lg:w-full z-40 lg:z-0
+          fixed lg:sticky top-0 lg:top-24 left-0 h-full lg:h-auto
+          w-80 lg:w-full z-40 lg:z-30
           bg-white rounded-2xl shadow-xl lg:shadow-md
           transition-transform duration-300 ease-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}

@@ -44,7 +44,7 @@ export default function RadioDashboardPage() {
     image: ''
   });
 
-  // Charger les données de la radio
+  // Charger les données de la radio dans le formulaire
   useEffect(() => {
     if (radio) {
       setFormData({
@@ -53,28 +53,30 @@ export default function RadioDashboardPage() {
         description: radio.description || '',
         image: radio.image || ''
       });
-      
-      // Configurer l'audio pour le preview
-      if (audio && radio.urlStream) {
-        audio.src = radio.urlStream;
-        audio.volume = volume;
-        audio.preload = 'none';
-        
-        audio.onplaying = () => setIsPlaying(true);
-        audio.onpause = () => setIsPlaying(false);
-        audio.onended = () => setIsPlaying(false);
-        audio.onerror = () => {
-          setIsPlaying(false);
-          toast.error('Erreur de lecture du flux radio');
-        };
-      }
     }
-  }, [radio, audio, volume]);
+  }, [radio]);
 
-  // Gérer la lecture audio
+  // Configurer l'audio de preview (uniquement quand l'URL du flux change réellement,
+  // sinon réassigner .src coupe la lecture en cours — notamment au moindre changement de volume)
+  useEffect(() => {
+    if (!audio || !radio?.urlStream) return;
+
+    audio.src = radio.urlStream;
+    audio.preload = 'none';
+
+    audio.onplaying = () => setIsPlaying(true);
+    audio.onpause = () => setIsPlaying(false);
+    audio.onended = () => setIsPlaying(false);
+    audio.onerror = () => {
+      setIsPlaying(false);
+      toast.error('Erreur de lecture du flux radio');
+    };
+  }, [audio, radio?.urlStream]);
+
+  // Gérer le volume indépendamment (ne touche jamais à .src)
   useEffect(() => {
     if (!audio) return;
-    
+
     audio.volume = volume;
   }, [volume, audio]);
 
@@ -170,25 +172,44 @@ export default function RadioDashboardPage() {
       toast.error('Veuillez d\'abord saisir une URL de flux');
       return;
     }
-    
+
     const testAudio = new Audio();
-    testAudio.src = formData.urlStream;
     testAudio.volume = 0.1;
-    testAudio.preload = 'none';
-    
-    testAudio.oncanplaythrough = () => {
+    testAudio.preload = 'auto'; // 'none' empêche souvent le navigateur de charger le flux, donc canplay ne se déclenche jamais
+
+    let settled = false;
+
+    const timeout = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      testAudio.pause();
+      testAudio.src = '';
+      toast.error('Le flux met trop de temps à répondre. Vérifiez l\'URL.');
+    }, 8000);
+
+    testAudio.oncanplay = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
       toast.success('Flux radio testé avec succès !');
       testAudio.play().then(() => {
-        setTimeout(() => testAudio.pause(), 2000);
+        setTimeout(() => {
+          testAudio.pause();
+          testAudio.src = '';
+        }, 2000);
       }).catch(() => {
         toast.error('Flux détecté mais erreur de lecture');
       });
     };
-    
+
     testAudio.onerror = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
       toast.error('Impossible de se connecter au flux radio');
     };
-    
+
+    testAudio.src = formData.urlStream;
     testAudio.load();
   };
 
@@ -542,34 +563,6 @@ export default function RadioDashboardPage() {
               </div>
             </div>
           </div> */}
-
-          {/* Liens rapides */}
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
-            <h3 className="font-medium text-gray-900 mb-4">Liens rapides</h3>
-            <div className="space-y-2">
-              <a
-                href={ENDPOINTS.RADIO}
-                target="_blank"
-                className="block w-full px-4 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-center transition-colors text-sm"
-              >
-                Voir la page publique
-              </a>
-              <a
-                href="https://icecast.org/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full px-4 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-center transition-colors text-sm"
-              >
-                Documentation Icecast
-              </a>
-              <button
-                onClick={() => window.open('https://www.streamsolutions.co.uk/resources/free-radio-streaming-servers/', '_blank')}
-                className="block w-full px-4 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-center transition-colors text-sm"
-              >
-                Serveurs de streaming gratuits
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 

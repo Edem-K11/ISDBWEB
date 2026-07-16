@@ -1,62 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRadio } from '@/lib/hooks/useRadio';
-import RadioPlayer from '@/components/layout/radioPlayer';
-import { Calendar, Loader2, Radio as RadioIcon } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { useRadioPlayerContext } from '@/lib/radio/radioPlayerContext';
+import { Loader2, Radio as RadioIcon } from 'lucide-react';
 
 export default function RadioPage() {
-  const { radio, isLoading, isError } = useRadio();
-  const [showPlayer, setShowPlayer] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(70);
-  const [isMuted, setIsMuted] = useState(false);
-
-  const handlePlayClick = () => {
-    console.log('Play button clicked'); 
-    if (!radio?.urlStream) {
-      toast.error('Le flux radio n\'est pas disponible');
-      return;
-    }
-
-    if (!radio?.enDirect) {
-      toast.error('La radio est actuellement hors ligne');
-      return;
-    }
-
-    setShowPlayer(true);
-    console.log('show player set to true');
-    setIsPlaying(true);
-    console.log('isPlaying set to', isPlaying);
-
-  };
-
-  const handleClosePlayer = () => {
-    setShowPlayer(false);
-    setIsPlaying(false);
-  };
-
-  const handlePlayPause = () => {
-    if (!radio?.enDirect) {
-      toast.error('La radio est actuellement hors ligne');
-      return;
-    }
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleVolumeChange = (newVolume: number) => {
-    setVolume(newVolume);
-    if (newVolume > 0 && isMuted) {
-      setIsMuted(false);
-    }
-  };
-
-  const handleMuteToggle = () => {
-    setIsMuted(!isMuted);
-  };
+  const { radio, isLoading, isError, isPlaying, togglePlay } = useRadioPlayerContext();
 
   if (isLoading) {
     return (
@@ -93,7 +43,7 @@ export default function RadioPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f5f3ef] to-[#e8e4dd]">
-      <div className="p-6 lg:p-10">
+      <div className="max-w-6xl mx-auto px-6 py-10 lg:px-12">
         {/* Hero Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mt-8 lg:mt-12 mb-12 lg:mb-16">
           {/* Hero Content */}
@@ -167,7 +117,7 @@ export default function RadioPage() {
               {/* Bouton Play/Pause - Déplacé vers le bas */}
               <div className="relative z-10 mt-10">
                 <button
-                  onClick={handlePlayClick}
+                  onClick={togglePlay}
                   disabled={!radio?.enDirect || !radio?.urlStream}
                   className={`w-24 h-24 rounded-full flex items-center justify-center transition-all ${
                     radio?.enDirect && radio?.urlStream
@@ -237,47 +187,6 @@ export default function RadioPage() {
               <div className="absolute -top-4 -right-4 w-20 h-20 bg-isdb-red-500/20 rounded-full blur-md" />
               <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-isdb-green-500/20 rounded-full blur-md" />
             </div>
-          </div>
-        </div>
-
-        {/* Programmation Section */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 mb-12 border border-white/50">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-            <Calendar className="text-isdb-red-500" size={24} />
-            Programmation de la journée
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { time: '08:00 - 10:00', title: 'Le réveil musical', host: 'DJ Kader', live: false },
-              { time: '10:00 - 12:00', title: 'Les nouveautés', host: 'Sarah M.', live: false },
-              { time: '12:00 - 14:00', title: 'Le journal de midi', host: 'La rédaction', live: true },
-              { time: '14:00 - 16:00', title: 'Afternoon chill', host: 'DJ Peace', live: false },
-              { time: '16:00 - 18:00', title: 'Talk show éducatif', host: 'Prof. Diallo', live: false },
-              { time: '18:00 - 20:00', title: 'Hit parade', host: 'Moussa', live: false },
-            ].map((show, index) => (
-              <div
-                key={index}
-                className={`p-5 rounded-xl border transition-all hover:shadow-md ${
-                  show.live 
-                    ? 'border-isdb-red-500 bg-gradient-to-r from-red-50 to-red-100' 
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="font-bold text-gray-900">{show.title}</h3>
-                    <p className="text-sm text-gray-600">{show.host}</p>
-                  </div>
-                  {show.live && (
-                    <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
-                      LIVE
-                    </span>
-                  )}
-                </div>
-                <div className="text-sm text-gray-500">{show.time}</div>
-              </div>
-            ))}
           </div>
         </div>
 
@@ -362,37 +271,7 @@ export default function RadioPage() {
             </div>
           </div>
         </div>
-
-        {/* Footer */}
-        <div className="text-center text-gray-600">
-          <p className="mb-2">
-            © {new Date().getFullYear()} {radio?.nom || 'Radio ISDB'}. Tous droits réservés.
-          </p>
-          <p>
-            <Link href="/dashboard" className="text-isdb-red-500 hover:underline mr-4">
-              Administration
-            </Link>
-            •
-            <Link href="/" className="text-isdb-red-500 hover:underline ml-4">
-              Accueil
-            </Link>
-          </p>
-        </div>
       </div>
-
-      {/* Radio Player (conditionnel) */}
-      {showPlayer && radio && (
-        <RadioPlayer
-          radio={radio}
-          isPlaying={isPlaying}
-          onPlayPause={handlePlayPause}
-          onClose={handleClosePlayer}
-          volume={volume}
-          onVolumeChange={handleVolumeChange}
-          isMuted={isMuted}
-          onMuteToggle={handleMuteToggle}
-        />
-      )}
 
       <style jsx global>{`
         @keyframes pulse {

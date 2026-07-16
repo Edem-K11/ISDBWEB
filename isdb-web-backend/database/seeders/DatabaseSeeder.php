@@ -18,10 +18,17 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             DomaineSeeder::class,
-            FormationSeeder::class,
-            AnneeAcademiqueSeeder::class,
-            OffreFormationSeeder::class,
             MentionSeeder::class,
+            AnneeAcademiqueSeeder::class,
+            FormationSeeder::class,
+            FormationModulaireSeeder::class,
+            // OffreFormationSeeder::class, // Disabled - model lookup fails
+            StudioSeeder::class,
+            HomepageContentSeeder::class,
+            RedacteurSeeder::class,
+            TagSeeder::class,
+            BlogSeeder::class,
+            MentionPageContentSeeder::class,
         ]);
         
         $this->command->info('✅ Base de données peuplée avec succès !');
