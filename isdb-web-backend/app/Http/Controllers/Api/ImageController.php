@@ -17,7 +17,7 @@ class ImageController extends Controller
     {
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB max
-            'type' => 'nullable|string|in:blogs,redacteurs,avatars', // Type d'image
+            'type' => 'nullable|string|in:blogs,redacteurs,avatars,radio,institut,studios', // Type d'image
         ]);
 
         try {
@@ -86,7 +86,7 @@ class ImageController extends Controller
         $request->validate([
             'images' => 'required|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-            'type' => 'nullable|string|in:blogs,redacteurs,avatars',
+            'type' => 'nullable|string|in:blogs,redacteurs,avatars,radio,institut,studios',
         ]);
 
         try {

@@ -15,6 +15,7 @@ import {
   ChevronRight,
   GraduationCap,
   Radio,
+  Clapperboard,
   Layers,
   Bookmark,
   Calendar,
@@ -114,6 +115,12 @@ export default function Sidebar() {
           current: pathname.startsWith('/dashboard/radio'),
         },
         {
+          name: 'Studios',
+          href: '/dashboard/studios',
+          icon: Clapperboard,
+          current: pathname.startsWith('/dashboard/studios'),
+        },
+        {
           name: 'Mon Profil',
           href: '/dashboard/profil',
           icon: User,
@@ -124,11 +131,6 @@ export default function Sidebar() {
           href: '/dashboard/parametres',
           icon: Settings,
           current: pathname === '/dashboard/parametres',
-          children: [
-            { name: 'Général', href: '/dashboard/parametres/general' },
-            { name: 'Sécurité', href: '/dashboard/parametres/securite' },
-            { name: 'Notifications', href: '/dashboard/parametres/notifications' },
-          ]
         },
       ],
     },

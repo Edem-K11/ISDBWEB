@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             // OffreFormationSeeder::class, // Disabled - model lookup fails
             StudioSeeder::class,
             HomepageContentSeeder::class,
+            InstitutSettingSeeder::class,
             RedacteurSeeder::class,
             TagSeeder::class,
             BlogSeeder::class,

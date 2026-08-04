@@ -3,7 +3,7 @@ import apiClient from '../axios';
 import { ENDPOINTS } from '../endpoints';
 
 
-export type ImageType = 'blogs' | 'redacteurs' | 'avatars' | 'radio';
+export type ImageType = 'blogs' | 'redacteurs' | 'avatars' | 'radio' | 'institut' | 'studios';
 
 export const imageService = {
   /**

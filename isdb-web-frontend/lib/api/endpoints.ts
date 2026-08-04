@@ -88,6 +88,10 @@ export const ENDPOINTS = {
   DASHBOARD_STUDIOS: '/dashboard/studios',
   DASHBOARD_STUDIO_BY_ID: (id: number) => `/dashboard/studios/${id}`,
 
+  // Informations de l'institut (contacts, réseaux sociaux)
+  INSTITUT: '/institut',
+  DASHBOARD_INSTITUT: '/dashboard/institut',
+
   // Images
   UPLOAD_IMAGE: '/images/upload',
   UPLOAD_MULTIPLE_IMAGES: '/images/upload-multiple',

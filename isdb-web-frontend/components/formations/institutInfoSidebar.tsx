@@ -1,0 +1,88 @@
+import Image from 'next/image';
+import { MapPin, Phone, Mail, Printer, Globe, Building2 } from 'lucide-react';
+import { InstitutSettings } from '@/lib/types/institut';
+import { SOCIAL_LINKS, getSocialHref } from '@/lib/utils/socialLinks';
+
+export default function InstitutInfoSidebar({
+  institut,
+}: {
+  institut: InstitutSettings | null;
+}) {
+  if (!institut) return null;
+
+  const contacts = [
+    { icon: MapPin, value: institut.adresse },
+    { icon: Phone, value: institut.telephone },
+    { icon: Mail, value: institut.email },
+    { icon: Printer, value: institut.fax },
+    { icon: Globe, value: institut.site_web },
+  ].filter((c) => c.value);
+
+  const socials = SOCIAL_LINKS.filter((s) => institut.reseaux_sociaux[s.key]);
+
+  return (
+    <aside className="lg:sticky lg:top-24 h-fit">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-isdb-green-600 px-6 py-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-isdb-green-100 mb-3">
+            Fournisseur de la formation
+          </p>
+          <div className="flex items-center gap-3">
+            {institut.logo ? (
+              <div className="relative w-12 h-12 rounded-lg bg-white flex-shrink-0 overflow-hidden">
+                <Image
+                  src={institut.logo}
+                  alt={institut.nom}
+                  fill
+                  className="object-contain p-1"
+                />
+              </div>
+            ) : (
+              <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                <Building2 className="text-white" size={22} />
+              </div>
+            )}
+            <h3 className="text-white font-bold leading-tight">{institut.nom}</h3>
+          </div>
+        </div>
+
+        {contacts.length > 0 && (
+          <div className="px-6 py-5 space-y-4 border-b border-slate-100">
+            {contacts.map(({ icon: Icon, value }) => (
+              <div key={value} className="flex items-start gap-3 text-sm">
+                <Icon size={18} className="text-isdb-green-600 flex-shrink-0 mt-0.5" />
+                <span className="text-slate-700 break-words">{value}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {socials.length > 0 && (
+          <div className="px-6 py-5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">
+              Suivez-nous
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {socials.map(({ key, icon: Icon, label }) => {
+                const url = institut.reseaux_sociaux[key]!;
+                return (
+                  <a
+                    key={key}
+                    href={getSocialHref(key, url)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    title={label}
+                    className="w-9 h-9 rounded-full bg-isdb-green-50 text-isdb-green-700 flex items-center justify-center hover:bg-isdb-green-600 hover:text-white transition-colors"
+                  >
+                    <Icon size={16} />
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </aside>
+  );
+}

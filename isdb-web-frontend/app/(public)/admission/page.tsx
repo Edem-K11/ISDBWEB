@@ -183,7 +183,7 @@ export default function AdmissionPage() {
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-isdb-green-600 via-isdb-green-700 to-isdb-green-800 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/20" />
-        <div className="container relative mx-auto max-w-6xl px-6 py-20 lg:py-28">
+        <div className="container relative mx-auto px-6 md:px-12 py-20 lg:py-28">
           <div className="max-w-4xl">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
               Rejoignez l'excellence académique
@@ -206,7 +206,7 @@ export default function AdmissionPage() {
 
       {/* Stats Section */}
       <section className="py-12 bg-gradient-to-r from-isdb-green-50 to-white">
-        <div className="container mx-auto max-w-6xl px-6">
+        <div className="container mx-auto px-6 md:px-12">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
@@ -220,7 +220,7 @@ export default function AdmissionPage() {
 
       {/* Process Section */}
       <section className="py-20">
-        <div className="container mx-auto max-w-6xl px-6">
+        <div className="container mx-auto px-6 md:px-12">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
               Comment s'inscrire à l'ISDB ?
@@ -287,7 +287,7 @@ export default function AdmissionPage() {
 
       {/* Fees Section with Accordion */}
       <section className="py-20 bg-gray-50">
-        <div className="container mx-auto max-w-6xl px-6">
+        <div className="container mx-auto px-6 md:px-12">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
               Frais de scolarité
@@ -361,7 +361,7 @@ export default function AdmissionPage() {
 
       {/* Success Stories */}
       <section className="py-20">
-        <div className="container mx-auto max-w-6xl px-6">
+        <div className="container mx-auto px-6 md:px-12">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
               Success Stories
@@ -393,7 +393,7 @@ export default function AdmissionPage() {
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-slate-900 to-slate-800">
-        <div className="container mx-auto max-w-6xl px-6">
+        <div className="container mx-auto px-6 md:px-12">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
               Prêt à écrire votre propre success story ?
@@ -425,7 +425,7 @@ export default function AdmissionPage() {
 
       {/* Info Section */}
       <section className="py-12 bg-isdb-green-50">
-        <div className="container mx-auto max-w-6xl px-6">
+        <div className="container mx-auto px-6 md:px-12">
           <div className="grid md:grid-cols-2 gap-8">
             <div className="bg-white rounded-2xl p-8 shadow-lg">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Dates importantes</h3>

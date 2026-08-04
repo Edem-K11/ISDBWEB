@@ -13,7 +13,7 @@ const DESCRIPTION_MAX_LENGTH = 140;
 
 export default function ModuleCard({ titre, description, dureeHeures, link }: ModuleCardProps) {
   return (
-    <article className="flex h-full w-full max-w-[720px] flex-col rounded-2xl bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+    <article className="flex h-full w-full max-w-[720px] flex-col rounded-2xl border border-slate-300 bg-slate-50 p-6 transition-all duration-300 hover:border-isdb-green-600 hover:shadow-[0_10px_18px_-10px_rgba(15,23,42,0.28)]">
       <h3 className="line-clamp-2 text-[22px] font-bold leading-7 text-slate-900">{titre}</h3>
 
       {/* Hauteur réservée fixe : la description est tronquée, toutes les cards s'alignent pareil */}

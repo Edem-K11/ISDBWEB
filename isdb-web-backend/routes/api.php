@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\MentionPageContentController;
 use App\Http\Controllers\Api\FormationModulaireController;
 use App\Http\Controllers\Api\StudioController;
 use App\Http\Controllers\Api\HomepageController;
+use App\Http\Controllers\Api\InstitutSettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +34,9 @@ Route::get('/radio', [RadioController::class, 'show']);
 
 // Page d'accueil (CMS)
 Route::get('/homepage', [HomepageController::class, 'show']);
+
+// Informations de l'institut (contacts, réseaux sociaux)
+Route::get('/institut', [InstitutSettingController::class, 'show']);
 
 // Formations modulaires (parcours séparé, sans domaine/mention)
 Route::get('/formations-modulaires', [FormationModulaireController::class, 'index']);
@@ -124,6 +128,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
             // Page d'accueil (CMS)
             Route::put('homepage', [HomepageController::class, 'update']);
+
+            // Informations de l'institut
+            Route::put('institut', [InstitutSettingController::class, 'update']);
 
             // Studios
             Route::resource('studios', StudioController::class)->except(['create', 'edit']);

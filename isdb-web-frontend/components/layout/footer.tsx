@@ -1,10 +1,8 @@
-'use client';
-
-import { useState } from 'react';
 import Image from 'next/image';
-import { DynamicIcon } from 'lucide-react/dynamic';
+import Link from 'next/link';
+import { getInstitutSettings } from '@/lib/api/institut';
+import { SOCIAL_LINKS, getSocialHref } from '@/lib/utils/socialLinks';
 
-// Fonction utilitaire pour afficher une colonne de footer
 interface FooterColumn {
   title: string;
   items: {
@@ -13,159 +11,126 @@ interface FooterColumn {
   }[];
 }
 
-const FooterColumn = ({ title, items }: FooterColumn) => {
-  return (
-    <div>
-      <h3 className="text-sm font-semibold text-slate-600 mb-3">{title}</h3>
-      <ul className="space-y-2">
-        {items.map((item, index) => (
-          <li key={index}>
-            <a href={item.href} className="text-sm text-slate-500 hover:text-slate-700 transition">
-              {item.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
+const footerData: FooterColumn[] = [
+  {
+    title: 'Formations',
+    items: [
+      { href: '/formations/philosophie', label: 'Philosophie' },
+      { href: '/formations/sciences-de-leducation', label: "Sciences de l'éducation" },
+      { href: '/formations/sciences-et-techniques-de-la-communication', label: 'Communication' },
+      { href: '/formations-modulaires', label: 'Formations modulaires' },
+    ],
+  },
+  {
+    title: 'Découvrir',
+    items: [
+      { href: '/studios', label: 'Studios' },
+      { href: '/blogs', label: 'Blog' },
+      { href: '/radio', label: 'Radio ISDB' },
+      { href: '/admission', label: 'Admission' },
+    ],
+  },
+  {
+    title: 'Institut',
+    items: [
+      { href: '/', label: 'Accueil' },
+      { href: '/about', label: 'À propos' },
+      { href: '/contact', label: 'Contact' },
+    ],
+  },
+];
 
-// Variante plus grande
-const SocialMediasLarge = () => {
-  const socialMediaItems = [
-    { href: 'https://facebook.com', label: 'Facebook', icon: 'facebook' },
-    { href: 'https://twitter.com', label: 'Twitter', icon: 'twitter' },
-    { href: 'https://linkedin.com', label: 'LinkedIn', icon: 'linkedin' },
-    { href: 'https://instagram.com', label: 'Instagram', icon: 'instagram' },
-    { href: 'https://youtube.com', label: 'YouTube', icon: 'youtube' },
-  ];
-
-  return (
-    <div className="flex space-x-6">
-      {socialMediaItems.map((item, index) => (
-        <a
-          key={index}
-          href={item.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-full bg-teal-800 hover:bg-lime-400 p-4 transition-all duration-300 group"
-          aria-label={item.label}
-        >
-          <DynamicIcon 
-            name={item.icon as any} 
-            size={20} 
-            className="text-white group-hover:text-teal-900 transition-colors duration-300 max-w-[24px] sm:max-w-[32px] md:max-w-[40px] h-auto"
-          />
-        </a>
+const FooterColumn = ({ title, items }: FooterColumn) => (
+  <div>
+    <h3 className="text-sm font-semibold text-slate-600 mb-3">{title}</h3>
+    <ul className="space-y-2">
+      {items.map((item) => (
+        <li key={item.href}>
+          <Link href={item.href} className="text-sm text-slate-500 hover:text-teal-700 transition">
+            {item.label}
+          </Link>
+        </li>
       ))}
-    </div>
-  );
-};
+    </ul>
+  </div>
+);
 
-// Footer Component
-export const Footer = () => {
-  const [email, setEmail] = useState('');
+export default async function Footer() {
+  const institut = await getInstitutSettings();
 
-  const footerData: FooterColumn[] = [
-    {
-      title: 'Formations',
-      items: [
-        { href: '#Philosophie', label: 'Philosophie' },
-        { href: '#Science de l\'éducation', label: 'Science de l\'éducation' },
-        { href: '#Communication', label: 'Communication' }
-      ]
-    },
-    {
-      title: 'Support',
-      items: [
-        { href: '#help', label: 'Help' },
-        { href: '#faq', label: 'FAQ' },
-        { href: '#contact', label: 'Contact' }
-      ]
-    },
-    {
-      title: 'Legal',
-      items: [
-        { href: '#privacy', label: 'Privacy Policy' },
-        { href: '#terms', label: 'Terms of Services' },
-        { href: '#cookies', label: 'Cookies' }
-      ]
-    }
-  ];
-
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Subscribed with email:', email);
-    // Logique d'inscription à la newsletter
-  };
+  const nom = institut?.nom || 'Institut Supérieur Don Bosco';
+  const description =
+    institut?.description ||
+    "Institution d'excellence dédiée à l'éducation, la recherche et l'innovation.";
+  const logo = institut?.logo || '/logo_isdb.png';
+  const socials = institut ? SOCIAL_LINKS.filter((s) => institut.reseaux_sociaux[s.key]) : [];
 
   return (
-    <footer className="bg-slate-200 py-16"> 
-      <div className="container mx-auto max-w-6xl px-6">
-        {/* Newsletter Section */}
-        <div className="bg-gradient-to-r from-teal-800 to-teal-700 rounded-3xl p-8 md:p-12 mb-16">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="text-white max-w-md">
-              <h2 className="text-2xl md:text-3xl font-bold mb-3">
-                Inscrivez-vous à notre newsletter
-              </h2>
-              <p className="text-teal-100 text-sm">
-                Pour ne rien manquer des dernières actualités.
-              </p>
-            </div>
-            
-            <div className="w-full md:w-auto gap-4">
-              <form onSubmit={handleSubscribe} className="flex flex-col md:flex-row items-center gap-2">
-                <input
-                  type="email"
-                  placeholder="Entrez votre email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="px-4 py-3 rounded-lg bg-teal-900/50 text-white placeholder-teal-300 border border-teal-600 focus:outline-none focus:border-teal-400 min-w-[250px]"
-                />
-                <button
-                  type="submit"
-                  className="px-6 py-3 bg-lime-400 text-teal-900 font-semibold rounded-lg hover:bg-lime-300 transition whitespace-nowrap"
-                >
-                  M'inscrire
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer Links */}
-        <div className='flex flex-col md:flex-row justify-between items-center gap-20 md:items-start'>
-          {/* Logo Section */}
-          <div>
-            <div className="flex items-center gap-2 mb-8">
+    <footer className="bg-slate-200 py-16">
+      <div className="container mx-auto px-6 md:px-12">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-12 md:items-start">
+          {/* Logo, description & réseaux sociaux */}
+          <div className="max-w-sm text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
               <Image
-                src="/logo_isdb.png"
-                alt="Mini logo de ISDB"
-                width={32}
-                height={32}
+                src={logo}
+                alt={nom}
+                width={36}
+                height={36}
+                className="rounded object-contain"
               />
-              <span className="font-bold text-xl text-slate-800">Institut Supérieur Don Bosco</span>
+              <span className="font-bold text-xl text-slate-800">{nom}</span>
             </div>
-            <SocialMediasLarge />
+            <p className="text-sm text-slate-500 mb-6">{description}</p>
+
+            {socials.length > 0 && (
+              <div className="flex justify-center md:justify-start gap-4">
+                {socials.map(({ key, icon: Icon, label }) => {
+                  const url = institut!.reseaux_sociaux[key]!;
+                  return (
+                    <a
+                      key={key}
+                      href={getSocialHref(key, url)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      title={label}
+                      className="rounded-full bg-teal-800 hover:bg-lime-400 p-3 transition-all duration-300 group"
+                    >
+                      <Icon
+                        size={18}
+                        className="text-white group-hover:text-teal-900 transition-colors duration-300"
+                      />
+                    </a>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
-          {/* Dynamic Footer Columns */}
-          <div className="flex flex-wrap md:grid md:grid-cols-3 gap-12 mb-12">
-            {footerData.map((column, index) => (
-              <FooterColumn key={index} title={column.title} items={column.items} />
+          {/* Colonnes de navigation */}
+          <div className="flex flex-wrap justify-center gap-10 sm:grid sm:grid-cols-3 sm:gap-12">
+            {footerData.map((column) => (
+              <FooterColumn key={column.title} title={column.title} items={column.items} />
             ))}
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="text-center text-sm text-slate-500 border-t pt-6">
-          <p>&copy; 2025 isdb - Tous droits réservés</p>
+        {/* Bas de page */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-3 text-sm text-slate-500 border-t mt-12 pt-6">
+          <p>
+            &copy; {new Date().getFullYear()} {nom} — Tous droits réservés
+          </p>
+          <div className="flex gap-6">
+            <Link href="/politique-de-confidentialite" className="hover:text-teal-700 transition">
+              Politique de confidentialité
+            </Link>
+            <Link href="/cgu" className="hover:text-teal-700 transition">
+              CGU
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

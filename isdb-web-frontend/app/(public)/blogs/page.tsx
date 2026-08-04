@@ -77,7 +77,7 @@ export default function BlogsPage() {
           breadcrumbs={breadcrumbs}
         />
         
-        <div className="container mx-auto max-w-6xl px-6 py-8">
+        <div className="container mx-auto px-6 md:px-12 py-8">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar avec filtres */}
             <div className="lg:w-1/4">

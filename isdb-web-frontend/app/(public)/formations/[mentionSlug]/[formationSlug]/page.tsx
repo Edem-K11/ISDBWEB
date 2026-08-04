@@ -78,11 +78,11 @@ export default async function FormationDetailPage({ params }: PageProps) {
   return (
     <div className={`min-h-screen bg-gray-50 theme-${theme}`}>
       {/* Hero Section */}
-      <div className={`relative bg-gradient-to-br ${colors.gradient} text-white py-20 px-6 overflow-hidden`}>
+      <div className={`relative bg-gradient-to-br ${colors.gradient} text-white py-20 px-6 md:px-12 overflow-hidden`}>
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32" />
 
-        <div className="container mx-auto max-w-6xl relative z-10">
+        <div className="container mx-auto relative z-10">
           <div className="mt-6">
             <div className="flex items-center gap-3 mb-4">
               <span className="px-4 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
@@ -111,7 +111,7 @@ export default async function FormationDetailPage({ params }: PageProps) {
       </div>
 
       {/* Contenu principal */}
-      <div className="container mx-auto max-w-6xl px-6 py-8">
+      <div className="container mx-auto px-6 md:px-12 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Info */}
           <InfoCard 

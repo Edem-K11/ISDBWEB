@@ -36,14 +36,12 @@ export default function HeroSection({
         /* Fond de couleur si pas d'image */
         <div
           className="absolute inset-0"
-          style={{
-            background: `linear-gradient(to right, rgb(30 41 59), ${getColorValue(color)})`
-          }}
+          style={{ background: getBackground(color) }}
         />
       )}
 
       {/* Contenu */}
-      <div className="container mx-auto max-w-6xl px-6 text-left relative z-10">
+      <div className="container mx-auto px-6 md:px-12 text-left relative z-10">
         <h1 className={`${lexendDeca.className} text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight`}>
           {title}
         </h1>
@@ -54,7 +52,7 @@ export default function HeroSection({
 
       {/* Breadcrumbs */}
       <div className="absolute bottom-5 left-0 right-0 z-10">
-        <div className="container mx-auto max-w-6xl px-6">
+        <div className="container mx-auto px-6 md:px-12">
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </div>
       </div>
@@ -75,6 +73,16 @@ function getColorValue(color: string): string {
     orange: 'rgb(254 215 170)',     // orange-200
     indigo: 'rgb(199 210 254)',     // indigo-200
   };
-  
+
   return colors[color] || colors.blue;
+}
+
+// Fonction helper pour obtenir le fond complet (dégradé) selon la couleur
+function getBackground(color: string): string {
+  // Couleur de marque ISDB : dégradé subtil, entièrement dans la famille du vert
+  if (color === 'brand') {
+    return 'linear-gradient(to right, var(--color-isdb-green-800), var(--color-isdb-green-500))';
+  }
+
+  return `linear-gradient(to right, rgb(30 41 59), ${getColorValue(color)})`;
 }

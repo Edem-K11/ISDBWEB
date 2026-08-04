@@ -15,11 +15,11 @@ export default async function FormationsModulairesPage() {
       <HeroSection
         title="Formations modulaires en cours du soir"
         description="Des modules professionnalisants en audiovisuel, communication, journalisme et création musicale, accessibles en parallèle de votre activité."
-        color="orange"
+        color="brand"
         breadcrumbs={breadcrumbs}
       />
 
-      <div className="container mx-auto max-w-6xl px-6 py-12">
+      <div className="container mx-auto px-6 md:px-12 py-12">
         <p className="text-lg text-gray-600 mb-10 max-w-3xl">
           Chaque module est indépendant. Les frais comprennent une inscription et des frais de formation.
         </p>

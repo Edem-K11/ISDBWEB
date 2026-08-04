@@ -43,7 +43,7 @@ export default async function FormationsPage() {
         breadcrumbs={breadcrumbs}
       />
 
-      <div className="container mx-auto max-w-6xl px-6 py-8">
+      <div className="container mx-auto px-6 md:px-12 py-8">
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
           Nos domaines de formation
         </h2>

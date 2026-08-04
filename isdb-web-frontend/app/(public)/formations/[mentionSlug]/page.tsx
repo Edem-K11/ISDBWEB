@@ -63,12 +63,12 @@ export default async function MentionPage({ params }: PageProps) {
     return (
         <div className={`min-h-screen theme-${theme}`}>
         {/* Header Section */}
-        <div className={`relative bg-gradient-to-br ${colors.gradient} text-white py-20 px-6 overflow-hidden`}>
+        <div className={`relative bg-gradient-to-br ${colors.gradient} text-white py-20 px-6 md:px-12 overflow-hidden`}>
             <div className="absolute inset-0 bg-black/20" />
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full -translate-x-64 translate-y-64" />
             
-            <div className="container mx-auto max-w-6xl relative z-10">
+            <div className="container mx-auto relative z-10">
             <div className="mt-2">
                 <Breadcrumbs breadcrumbs={breadcrumbItems} />
             </div>
@@ -145,11 +145,11 @@ export default async function MentionPage({ params }: PageProps) {
                 </div>
             </div>
 
-            <div className={`relative py-20 px-6 bg-gradient-to-b ${colors.bg} via-white ${colors.bg} w-full border ${colors.border} shadow-lg`}>
+            <div className={`relative py-20 px-6 md:px-12 bg-gradient-to-b ${colors.bg} via-white ${colors.bg} w-full border ${colors.border} shadow-lg`}>
                 <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--theme-500)] to-transparent`} />
                 <div className={`absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--theme-500)] to-transparent`} />
                 
-                <div className="container mx-auto max-w-6xl relative">
+                <div className="container mx-auto relative">
                 {offres.length > 0 ? (
                     <div className="space-y-16">
                     {offres.map((offreData: any, index: number) => {
@@ -217,7 +217,7 @@ export default async function MentionPage({ params }: PageProps) {
 
             {/* Découvrir aussi */}
             {related_mentions.length > 0 && (
-                <div className="mb-20 mx-auto max-w-6xl px-6 mt-20">
+                <div className="mb-20 mx-auto px-6 md:px-12 mt-20">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl font-bold text-slate-800 mb-4">
                     Découvrez aussi

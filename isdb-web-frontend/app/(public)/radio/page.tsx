@@ -43,7 +43,7 @@ export default function RadioPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f5f3ef] to-[#e8e4dd]">
-      <div className="max-w-6xl mx-auto px-6 py-10 lg:px-12">
+      <div className="mx-auto px-6 py-10 md:px-12">
         {/* Hero Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mt-8 lg:mt-12 mb-12 lg:mb-16">
           {/* Hero Content */}
