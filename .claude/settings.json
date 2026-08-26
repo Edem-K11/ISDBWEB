@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -m 5 http://localhost:8000/api/formations)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const j=JSON.parse\\(d\\);j.data.forEach\\(m=>console.log\\(m.titre,'->',m.slug\\)\\)}\\)\")",
+      "Bash(npx tsc *)"
+    ]
+  }
+}
