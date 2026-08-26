@@ -10,7 +10,7 @@ export default function RadioPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#f5f3ef] to-[#e8e4dd] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-12 w-12 text-isdb-red-500 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Chargement de la radio...</p>
@@ -21,7 +21,7 @@ export default function RadioPage() {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#f5f3ef] to-[#e8e4dd] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-8">
           <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <RadioIcon className="text-red-600" size={40} />
@@ -42,10 +42,10 @@ export default function RadioPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#f5f3ef] to-[#e8e4dd]">
-      <div className="mx-auto px-6 py-10 md:px-12">
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-6 md:px-12 py-16 md:py-20">
         {/* Hero Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mt-8 lg:mt-12 mb-12 lg:mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mt-8 lg:mt-12 mb-18 lg:mb-25">
           {/* Hero Content */}
           <div className="order-2 lg:order-1">
             <div className="flex items-center gap-3 mb-4">
@@ -117,6 +117,7 @@ export default function RadioPage() {
               {/* Bouton Play/Pause - Déplacé vers le bas */}
               <div className="relative z-10 mt-10">
                 <button
+                  type="button"
                   onClick={togglePlay}
                   disabled={!radio?.enDirect || !radio?.urlStream}
                   className={`w-24 h-24 rounded-full flex items-center justify-center transition-all ${
@@ -260,12 +261,6 @@ export default function RadioPage() {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Compatibilité:</span>
                   <span className="font-semibold">Tous les navigateurs modernes</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Support:</span>
-                  <a href="mailto:tech@isdb.local" className="text-isdb-red-500 hover:underline">
-                    tech@isdb.local
-                  </a>
                 </div>
               </div>
             </div>

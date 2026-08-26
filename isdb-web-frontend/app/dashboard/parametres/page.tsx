@@ -6,7 +6,6 @@ import { useInstitutSettings } from '@/lib/hooks/useInstitut';
 import { institutService } from '@/lib/api/services/institutService';
 import { InstitutSettingsFormData } from '@/lib/types/institut';
 import ImageUpload from '@/components/ui/imageUpload';
-import GalleryUpload from '@/components/ui/galleryUpload';
 import { LoadingSpinner } from '@/components/ui/loadingSpinner';
 import {
   Save,
@@ -15,7 +14,6 @@ import {
   Building2,
   Phone,
   Share2,
-  Images,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -25,6 +23,7 @@ const emptyForm: InstitutSettingsFormData = {
   galerie: [],
   description: '',
   adresse: '',
+  maps_url: '',
   telephone: '',
   email: '',
   fax: '',
@@ -52,6 +51,7 @@ export default function ParametresPage() {
         galerie: settings.galerie || [],
         description: settings.description || '',
         adresse: settings.adresse || '',
+        maps_url: settings.maps_url || '',
         telephone: settings.telephone || '',
         email: settings.email || '',
         fax: settings.fax || '',
@@ -183,24 +183,6 @@ export default function ParametresPage() {
           </div>
         </div>
 
-        {/* Galerie Studios */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center gap-2 mb-2">
-            <Images className="text-isdb-green-600" size={20} />
-            <h2 className="text-lg font-semibold text-gray-900">Galerie Studios</h2>
-          </div>
-          <p className="text-sm text-gray-500 mb-6">
-            Ces images illustrent la page publique « Nos studios » (galerie sous le texte de présentation).
-            Pour les photos propres à chaque studio, gérez-les depuis l'onglet Studios.
-          </p>
-
-          <GalleryUpload
-            value={formData.galerie}
-            onChange={(galerie) => setFormData((prev) => ({ ...prev, galerie }))}
-            type="institut"
-          />
-        </div>
-
         {/* Coordonnées */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-6">
@@ -220,6 +202,24 @@ export default function ParametresPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent"
                 placeholder="Ex: GTA, 322 R.P.T., Lomé"
               />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Lien Google Maps
+              </label>
+              <input
+                type="text"
+                value={formData.maps_url}
+                onChange={(e) => handleChange('maps_url', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent"
+                placeholder="https://www.google.com/maps/place/..."
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                Sur Google Maps, cherchez l'emplacement, cliquez sur « Partager » et copiez le lien,
+                puis collez-le ici. Sur la page publique « Contact », il apparaît sous forme de
+                bouton « Voir l'ISDB sur Google Maps » qui ouvre la position dans un nouvel onglet.
+              </p>
             </div>
 
             <div>

@@ -92,6 +92,11 @@ export const ENDPOINTS = {
   INSTITUT: '/institut',
   DASHBOARD_INSTITUT: '/dashboard/institut',
 
+  // Formulaire de contact
+  CONTACT: '/contact',
+  DASHBOARD_MESSAGES: '/dashboard/messages',
+  DASHBOARD_MESSAGE_BY_ID: (id: number) => `/dashboard/messages/${id}`,
+
   // Images
   UPLOAD_IMAGE: '/images/upload',
   UPLOAD_MULTIPLE_IMAGES: '/images/upload-multiple',

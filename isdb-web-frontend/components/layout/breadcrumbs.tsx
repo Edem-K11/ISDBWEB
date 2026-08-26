@@ -23,10 +23,16 @@ export default function Breadcrumbs({
             key={index}
             aria-current={breadcrumb.active}
             className={clsx(
-              breadcrumb.active ? 'underline underline-offset-4' : 'hover:text-blue-900 text-lg',
+              breadcrumb.active ? 'underline underline-offset-4' : 'hover:text-isdb-green-200 text-lg transition-colors duration-200',
             )}
           >
-            <Link href={breadcrumb.href}>{breadcrumb.label}</Link>
+            <Link
+              href={breadcrumb.href}
+              title={breadcrumb.label}
+              className="inline-block max-w-[140px] sm:max-w-[220px] md:max-w-xs truncate align-bottom"
+            >
+              {breadcrumb.label}
+            </Link>
             {index < breadcrumbs.length - 1 ? (
               <span className="mx-2 inline-block">
                 <ChevronRight size={16}/>

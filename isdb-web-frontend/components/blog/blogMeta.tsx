@@ -46,7 +46,7 @@ export default function BlogMeta({
     <div className="mb-12 pb-8 border-b border-gray-200">
       {/* Container principal avec flex responsive */}
       <div className="flex flex-col md:flex-row md:items-center gap-6">
-        
+
         {/* Section redacteur */}
         <div className="flex items-center gap-4">
           {redacteur?.avatar ? (
@@ -58,7 +58,7 @@ export default function BlogMeta({
               className="rounded-full ring-2 ring-gray-200 object-cover"
             />
           ) : (
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl ring-2 ring-gray-200 flex-shrink-0">
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-isdb-green-500 to-isdb-green-700 flex items-center justify-center text-white font-bold text-xl ring-2 ring-gray-200 flex-shrink-0">
               {redacteur?.nom.charAt(0).toUpperCase()}
             </div>
           )}
@@ -78,7 +78,7 @@ export default function BlogMeta({
           {/* Date de publication */}
           <div className="flex items-start gap-3">
             <div className="mt-1">
-              <Calendar className="w-5 h-5 text-indigo-600" />
+              <Calendar className="w-5 h-5 text-isdb-green-600" />
             </div>
             <div>
               <p className="text-xs font-medium text-gray-500 mb-1">Publié le</p>
@@ -96,7 +96,7 @@ export default function BlogMeta({
               
               <div className="flex items-start gap-3">
                 <div className="mt-1">
-                  <Clock className="w-5 h-5 text-purple-600" />
+                  <Clock className="w-5 h-5 text-isdb-green-800" />
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-500 mb-1">Modifié le</p>

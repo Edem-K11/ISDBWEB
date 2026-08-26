@@ -198,7 +198,7 @@ input[type='number']::-webkit-outer-spin-button {
 
 .prose ul {
   list-style-type: disc;
-  list-style-position: inside;
+  padding-left: 1.5rem;
   margin-bottom: 1.5rem;
 }
 .prose ul li {
@@ -207,11 +207,19 @@ input[type='number']::-webkit-outer-spin-button {
 
 .prose ol {
   list-style-type: decimal;
-  list-style-position: inside;
+  padding-left: 1.5rem;
   margin-bottom: 1.5rem;
 }
 .prose ol li {
   margin-bottom: 0.5rem;
+}
+
+/* TipTap enveloppe toujours le contenu d'un <li> dans un <p> (structure du
+   schéma ProseMirror), qui hériterait sinon de la marge de `.prose p`
+   ci-dessus : le texte se retrouvait poussé sous la puce au lieu de rester
+   sur la même ligne, et chaque élément de liste avait un espace excessif. */
+.prose li p {
+  margin: 0;
 }
 
 .prose strong {
@@ -236,4 +244,128 @@ input[type='number']::-webkit-outer-spin-button {
 
 .animate-slideUp {
   animation: slideUp 0.3s ease-out forwards;
+}
+
+/* Séquence d'entrée du hero de l'accueil : l'image se floute/assombrit très
+   vite, le titre arrive d'en haut, le logo en verre monte d'en bas et vient se
+   poser, puis les blocs de texte gauche/droite apparaissent en dernier. */
+@keyframes heroImageSettle {
+  from { filter: blur(0px) brightness(1) saturate(1); }
+  to { filter: blur(3px) brightness(0.55) saturate(1.15); }
+}
+.animate-hero-image {
+  animation: heroImageSettle 0.9s ease-out both;
+}
+
+@keyframes heroOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-hero-overlay {
+  animation: heroOverlayIn 0.9s ease-out both;
+}
+
+@keyframes heroDropIn {
+  from { transform: translateY(-48px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-hero-drop {
+  animation: heroDropIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+@keyframes heroLogoRise {
+  from { transform: translateY(calc(16vh + 90px)); opacity: 0; }
+  to { transform: translateY(16vh); opacity: 1; }
+}
+.animate-hero-logo {
+  animation: heroLogoRise 1s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+}
+
+@keyframes heroFadeUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-hero-fade-left {
+  animation: heroFadeUp 0.7s ease-out 1.1s both;
+}
+.animate-hero-fade-right {
+  animation: heroFadeUp 0.7s ease-out 1.25s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-hero-image,
+  .animate-hero-overlay,
+  .animate-hero-drop,
+  .animate-hero-logo,
+  .animate-hero-fade-left,
+  .animate-hero-fade-right {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: blur(3px) brightness(0.55) saturate(1.15) !important;
+  }
+}
+
+/* Reflet lumineux du logo en verre du hero (mouse tracking glassmorphic
+   shine) : --mouse-x/--mouse-y sont mises à jour en JS (HeroGlassLogo), le
+   ::before porte la lumière et se confine à la silhouette du logo via un
+   masque CSS sur le même asset. --shine-size / --shine-intensity sont
+   volontairement exposées en variables globales pour un réglage facile. */
+:root {
+  --shine-size: 300px;
+  --shine-intensity: 0.15;
+}
+
+.hero-glass-logo {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+}
+
+.hero-glass-logo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(
+    circle var(--shine-size) at var(--mouse-x) var(--mouse-y),
+    rgba(255, 255, 255, var(--shine-intensity)) 0%,
+    transparent 70%
+  );
+  -webkit-mask-image: url('/isdb-en-verre.png');
+  mask-image: url('/isdb-en-verre.png');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  pointer-events: none;
+}
+
+.hero-glass-logo:hover::before {
+  opacity: 1;
+}
+
+/* Apparition au scroll (RevealOnScroll) : fondu + léger déplacement vers le
+   haut dès qu'un bloc entre dans le viewport. Le délai (transition-delay) est
+   fixé au cas par cas en JS pour créer un effet en cascade sur les grilles. */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.reveal-on-scroll-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }

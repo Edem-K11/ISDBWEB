@@ -11,6 +11,8 @@ interface GalleryUploadProps {
   onChange: (urls: string[]) => void;
   label?: string;
   type?: ImageType;
+  /** Vignettes plus petites et plus nombreuses par ligne (ex: galerie générale dans le dashboard). */
+  compact?: boolean;
 }
 
 export default function GalleryUpload({
@@ -18,6 +20,7 @@ export default function GalleryUpload({
   onChange,
   label,
   type = 'blogs',
+  compact = false,
 }: GalleryUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
 
@@ -57,11 +60,19 @@ export default function GalleryUpload({
         <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div
+        className={
+          compact
+            ? 'grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2'
+            : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4'
+        }
+      >
         {value.map((url, index) => (
           <div
             key={url}
-            className="group relative aspect-square overflow-hidden rounded-xl border-2 border-gray-200"
+            className={`group relative aspect-square overflow-hidden border-gray-200 ${
+              compact ? 'rounded-lg border' : 'rounded-xl border-2'
+            }`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -72,16 +83,20 @@ export default function GalleryUpload({
             <button
               type="button"
               onClick={() => removeImage(index)}
-              className="absolute top-2 right-2 rounded-full bg-red-600 p-1.5 text-white opacity-0 transition-opacity hover:bg-red-700 group-hover:opacity-100"
+              className={`absolute top-1 right-1 rounded-full bg-red-600 text-white opacity-0 transition-opacity hover:bg-red-700 group-hover:opacity-100 ${
+                compact ? 'p-1' : 'p-1.5'
+              }`}
             >
-              <X className="h-4 w-4" />
+              <X className={compact ? 'h-3 w-3' : 'h-4 w-4'} />
             </button>
           </div>
         ))}
 
         <div
           {...getRootProps()}
-          className={`flex aspect-square flex-col items-center justify-center rounded-xl border-2 border-dashed transition-all ${
+          className={`flex aspect-square flex-col items-center justify-center border-dashed transition-all ${
+            compact ? 'rounded-lg border' : 'rounded-xl border-2'
+          } ${
             isDragActive
               ? 'border-indigo-500 bg-indigo-50 cursor-pointer'
               : isUploading
@@ -91,11 +106,11 @@ export default function GalleryUpload({
         >
           <input {...getInputProps()} />
           {isUploading ? (
-            <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
+            <Loader2 className={compact ? 'h-4 w-4 animate-spin text-indigo-600' : 'h-6 w-6 animate-spin text-indigo-600'} />
           ) : (
             <>
-              <ImagePlus className="mb-1 h-6 w-6 text-indigo-600" />
-              <span className="px-2 text-center text-xs text-gray-500">Ajouter</span>
+              <ImagePlus className={compact ? 'h-4 w-4 text-indigo-600' : 'mb-1 h-6 w-6 text-indigo-600'} />
+              {!compact && <span className="px-2 text-center text-xs text-gray-500">Ajouter</span>}
             </>
           )}
         </div>

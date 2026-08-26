@@ -19,15 +19,18 @@ import {
   Layers,
   Bookmark,
   Calendar,
-  ClipboardList
+  ClipboardList,
+  Mail
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useState } from 'react';
+import { useContactMessages } from '@/lib/hooks/useContactMessages';
 
 export default function Sidebar() {
   const { user, isAdmin, logout } = useAuth();
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const { unreadCount } = useContactMessages();
 
   // Groupes de navigation : `title` sert d'en-tête de section (aucun en-tête si null),
   // les entrées de chaque groupe sont des liens directs (pas de sous-menu à déplier).
@@ -121,6 +124,13 @@ export default function Sidebar() {
           current: pathname.startsWith('/dashboard/studios'),
         },
         {
+          name: 'Messages',
+          href: '/dashboard/messages',
+          icon: Mail,
+          current: pathname.startsWith('/dashboard/messages'),
+          badge: unreadCount > 0 ? unreadCount : undefined,
+        },
+        {
           name: 'Mon Profil',
           href: '/dashboard/profil',
           icon: User,
@@ -177,7 +187,7 @@ export default function Sidebar() {
             title={item.name}
           >
             <div className={cn(
-              'p-2 bg-white/20 rounded-lg flex-shrink-0',
+              'relative p-2 bg-white/20 rounded-lg flex-shrink-0',
               'lg:mr-3'
             )}>
               <Icon
@@ -186,10 +196,21 @@ export default function Sidebar() {
                   isActive ? 'text-white' : 'text-white/60 group-hover:text-white'
                 )}
               />
+              {!!item.badge && (
+                <span className="lg:hidden absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-isdb-red-500 text-[9px] font-bold text-white">
+                  {item.badge > 9 ? '9+' : item.badge}
+                </span>
+              )}
             </div>
-            
+
             {/* Texte caché sur mobile */}
             <span className="hidden lg:block truncate flex-1">{item.name}</span>
+
+            {!!item.badge && (
+              <span className="hidden lg:flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-isdb-red-500 text-[11px] font-bold text-white flex-shrink-0">
+                {item.badge > 99 ? '99+' : item.badge}
+              </span>
+            )}
 
             {/* Flèche pour les sous-menus (seulement sur desktop) */}
             {hasChildren && (

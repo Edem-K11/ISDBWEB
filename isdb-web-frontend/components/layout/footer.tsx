@@ -1,7 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { MapPin } from 'lucide-react';
 import { getInstitutSettings } from '@/lib/api/institut';
 import { SOCIAL_LINKS, getSocialHref } from '@/lib/utils/socialLinks';
+import { boldonse } from '@/components/ui/fonts';
 
 interface FooterColumn {
   title: string;
@@ -46,7 +48,7 @@ const FooterColumn = ({ title, items }: FooterColumn) => (
     <ul className="space-y-2">
       {items.map((item) => (
         <li key={item.href}>
-          <Link href={item.href} className="text-sm text-slate-500 hover:text-teal-700 transition">
+          <Link href={item.href} className="text-sm text-slate-500 hover:text-isdb-green-600 transition-colors duration-200">
             {item.label}
           </Link>
         </li>
@@ -79,7 +81,7 @@ export default async function Footer() {
                 height={36}
                 className="rounded object-contain"
               />
-              <span className="font-bold text-xl text-slate-800">{nom}</span>
+              <span className={`${boldonse.className} text-xl text-slate-800`}>{nom}</span>
             </div>
             <p className="text-sm text-slate-500 mb-6">{description}</p>
 
@@ -95,12 +97,9 @@ export default async function Footer() {
                       rel="noopener noreferrer"
                       aria-label={label}
                       title={label}
-                      className="rounded-full bg-teal-800 hover:bg-lime-400 p-3 transition-all duration-300 group"
+                      className="rounded-full bg-isdb-green-700 hover:bg-isdb-green-600 p-3 transition-colors duration-300"
                     >
-                      <Icon
-                        size={18}
-                        className="text-white group-hover:text-teal-900 transition-colors duration-300"
-                      />
+                      <Icon size={18} className="text-white" />
                     </a>
                   );
                 })}
@@ -109,10 +108,35 @@ export default async function Footer() {
           </div>
 
           {/* Colonnes de navigation */}
-          <div className="flex flex-wrap justify-center gap-10 sm:grid sm:grid-cols-3 sm:gap-12">
+          <div
+            className={`flex flex-wrap justify-center gap-10 sm:grid sm:gap-12 ${
+              institut?.adresse ? 'sm:grid-cols-4' : 'sm:grid-cols-3'
+            }`}
+          >
             {footerData.map((column) => (
               <FooterColumn key={column.title} title={column.title} items={column.items} />
             ))}
+
+            {institut?.adresse && (
+              <div>
+                <h3 className="text-sm font-semibold text-slate-600 mb-3">Adresse</h3>
+                <div className="flex items-start gap-2 text-sm text-slate-500">
+                  <MapPin size={16} className="flex-shrink-0 mt-0.5 text-isdb-green-600" />
+                  {institut.maps_url ? (
+                    <a
+                      href={institut.maps_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-isdb-green-600 transition-colors duration-200"
+                    >
+                      {institut.adresse}
+                    </a>
+                  ) : (
+                    <span>{institut.adresse}</span>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -122,10 +146,10 @@ export default async function Footer() {
             &copy; {new Date().getFullYear()} {nom} — Tous droits réservés
           </p>
           <div className="flex gap-6">
-            <Link href="/politique-de-confidentialite" className="hover:text-teal-700 transition">
+            <Link href="/politique-de-confidentialite" className="hover:text-isdb-green-600 transition-colors duration-200">
               Politique de confidentialité
             </Link>
-            <Link href="/cgu" className="hover:text-teal-700 transition">
+            <Link href="/cgu" className="hover:text-isdb-green-600 transition-colors duration-200">
               CGU
             </Link>
           </div>

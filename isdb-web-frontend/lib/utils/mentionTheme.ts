@@ -37,6 +37,10 @@ interface MentionThemePalette {
   cardHover: string;
   /** Dégradé plus soutenu (from-X-400 to-X-300), pour les tuiles "Découvrez aussi" */
   tileGradient: string;
+  /** Fond plein pastel (bg-X-200), pour les cartes pleine couleur (ex: accueil) */
+  solidBg: string;
+  /** Couleur du motif décoratif (cauris) en filigrane sur fond plein (text-X-500) */
+  decorative: string;
 }
 
 export const MENTION_THEME_PALETTE: Record<MentionTheme, MentionThemePalette> = {
@@ -53,6 +57,8 @@ export const MENTION_THEME_PALETTE: Record<MentionTheme, MentionThemePalette> = 
     cardGradient: 'from-isdb-green-50 to-isdb-green-100',
     cardHover: 'group-hover:bg-isdb-green-700',
     tileGradient: 'from-isdb-green-400 to-isdb-green-300',
+    solidBg: 'bg-isdb-green-200',
+    decorative: 'text-isdb-green-500',
   },
   red: {
     gradient: 'from-isdb-red-800 via-isdb-red-600 to-isdb-red-500',
@@ -67,6 +73,8 @@ export const MENTION_THEME_PALETTE: Record<MentionTheme, MentionThemePalette> = 
     cardGradient: 'from-isdb-red-50 to-isdb-red-100',
     cardHover: 'group-hover:bg-isdb-red-700',
     tileGradient: 'from-isdb-red-400 to-isdb-red-300',
+    solidBg: 'bg-isdb-red-200',
+    decorative: 'text-isdb-red-500',
   },
   gold: {
     gradient: 'from-isdb-gold-800 via-isdb-gold-600 to-isdb-gold-500',
@@ -81,6 +89,8 @@ export const MENTION_THEME_PALETTE: Record<MentionTheme, MentionThemePalette> = 
     cardGradient: 'from-isdb-gold-50 to-isdb-gold-100',
     cardHover: 'group-hover:bg-isdb-gold-700',
     tileGradient: 'from-isdb-gold-400 to-isdb-gold-300',
+    solidBg: 'bg-isdb-gold-200',
+    decorative: 'text-isdb-gold-500',
   },
   orange: {
     gradient: 'from-isdb-orange-800 via-isdb-orange-600 to-isdb-orange-500',
@@ -95,6 +105,8 @@ export const MENTION_THEME_PALETTE: Record<MentionTheme, MentionThemePalette> = 
     cardGradient: 'from-isdb-orange-50 to-isdb-orange-100',
     cardHover: 'group-hover:bg-isdb-orange-700',
     tileGradient: 'from-isdb-orange-400 to-isdb-orange-300',
+    solidBg: 'bg-isdb-orange-200',
+    decorative: 'text-isdb-orange-500',
   },
 };
 

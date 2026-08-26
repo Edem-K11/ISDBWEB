@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\FormationModulaireController;
 use App\Http\Controllers\Api\StudioController;
 use App\Http\Controllers\Api\HomepageController;
 use App\Http\Controllers\Api\InstitutSettingController;
+use App\Http\Controllers\Api\ContactMessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,9 @@ Route::get('/homepage', [HomepageController::class, 'show']);
 
 // Informations de l'institut (contacts, réseaux sociaux)
 Route::get('/institut', [InstitutSettingController::class, 'show']);
+
+// Formulaire de contact (public)
+Route::post('/contact', [ContactMessageController::class, 'store']);
 
 // Formations modulaires (parcours séparé, sans domaine/mention)
 Route::get('/formations-modulaires', [FormationModulaireController::class, 'index']);
@@ -134,6 +138,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
             // Studios
             Route::resource('studios', StudioController::class)->except(['create', 'edit']);
+
+            // Messages de contact
+            Route::get('messages', [ContactMessageController::class, 'index']);
+            Route::get('messages/{message}', [ContactMessageController::class, 'show']);
+            Route::delete('messages/{message}', [ContactMessageController::class, 'destroy']);
 
         });
     });

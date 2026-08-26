@@ -1,23 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth/useAuth';
 import { useStudios } from '@/lib/hooks/useStudios';
+import { useInstitutSettings } from '@/lib/hooks/useInstitut';
 import { studioService } from '@/lib/api/services/studioService';
+import { institutService } from '@/lib/api/services/institutService';
 import { Studio } from '@/lib/api/studios';
 import { imageService } from '@/lib/api/services/imageService';
-import { Plus, Edit, Trash2, ShieldAlert, Radio, EyeOff, ImageOff } from 'lucide-react';
+import { Plus, Edit, Trash2, ShieldAlert, Radio, EyeOff, ImageOff, Images, Loader2 } from 'lucide-react';
 import ConfirmModal from '@/components/ui/confirmModal';
 import StudioFormModal from '@/components/dashboard/studios/studioFormModal';
+import GalleryUpload from '@/components/ui/galleryUpload';
 import toast from 'react-hot-toast';
 
 export default function StudiosPage() {
   const { isAdmin } = useAuth();
   const { studios, mutate, isLoading } = useStudios();
+  const { settings: institutSettings, mutate: mutateInstitut } = useInstitutSettings();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [studioToDelete, setStudioToDelete] = useState<number | null>(null);
   const [studioToEdit, setStudioToEdit] = useState<Studio | null>(null);
+  const [galerie, setGalerie] = useState<string[]>([]);
+  const [isSavingGalerie, setIsSavingGalerie] = useState(false);
+
+  useEffect(() => {
+    if (institutSettings) {
+      setGalerie(institutSettings.galerie || []);
+    }
+  }, [institutSettings]);
 
   if (!isAdmin()) {
     return (
@@ -50,6 +62,19 @@ export default function StudiosPage() {
   const handleCreate = () => {
     setStudioToEdit(null);
     setFormModalOpen(true);
+  };
+
+  const handleGalerieChange = async (images: string[]) => {
+    setGalerie(images);
+    setIsSavingGalerie(true);
+    try {
+      await institutService.update({ galerie: images });
+      await mutateInstitut();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Erreur lors de la mise à jour de la galerie');
+    } finally {
+      setIsSavingGalerie(false);
+    }
   };
 
   if (isLoading) {
@@ -141,6 +166,21 @@ export default function StudiosPage() {
         {studios.length === 0 && (
           <p className="text-gray-500 col-span-2 text-center py-12">Aucun studio pour le moment.</p>
         )}
+      </div>
+
+      {/* Galerie Studios */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center gap-2 mb-2">
+          <Images className="text-isdb-green-600" size={20} />
+          <h2 className="text-lg font-semibold text-gray-900">Galerie Studios</h2>
+          {isSavingGalerie && <Loader2 className="w-4 h-4 animate-spin text-gray-400" />}
+        </div>
+        <p className="text-sm text-gray-500 mb-6">
+          Ces images illustrent la page publique « Nos studios » (galerie sous le texte de présentation).
+          Pour les photos propres à un studio en particulier, ajoutez-les depuis sa fiche ci-dessus.
+        </p>
+
+        <GalleryUpload value={galerie} onChange={handleGalerieChange} type="institut" compact />
       </div>
 
       <ConfirmModal

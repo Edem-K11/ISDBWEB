@@ -18,16 +18,16 @@ export default function BlogContent({ contenu }: BlogContentProps) {
       prose-h2:text-3xl prose-h2:mb-4 prose-h2:mt-6
       prose-h3:text-2xl prose-h3:mb-3 prose-h3:mt-5
       prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4
-      prose-a:text-indigo-600 prose-a:no-underline hover:prose-a:underline
+      prose-a:text-isdb-green-600 prose-a:no-underline hover:prose-a:underline
       prose-strong:text-gray-900 prose-strong:font-semibold
       prose-ul:my-6 prose-ul:list-disc prose-ul:pl-6
       prose-ol:my-6 prose-ol:list-decimal prose-ol:pl-6
       prose-li:mb-2
-      prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 
-      prose-blockquote:pl-6 prose-blockquote:py-2 
-      prose-blockquote:bg-indigo-50 prose-blockquote:rounded-r-lg
-      prose-code:bg-gray-100 prose-code:text-indigo-600 
-      prose-code:px-2 prose-code:py-1 prose-code:rounded 
+      prose-blockquote:border-l-4 prose-blockquote:border-isdb-green-500
+      prose-blockquote:pl-6 prose-blockquote:py-2
+      prose-blockquote:bg-isdb-green-50 prose-blockquote:rounded-r-lg
+      prose-code:bg-gray-100 prose-code:text-isdb-green-600
+      prose-code:px-2 prose-code:py-1 prose-code:rounded
       prose-code:text-sm prose-code:font-mono
       prose-pre:bg-gray-900 prose-pre:text-gray-100 
       prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-x-auto
@@ -58,7 +58,7 @@ export default function BlogContent({ contenu }: BlogContentProps) {
           a: ({ href, children }) => (
             <a
               href={href}
-              className="text-indigo-600 hover:text-indigo-800 hover:underline transition-colors"
+              className="text-isdb-green-600 hover:text-isdb-green-800 hover:underline transition-colors"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -109,15 +109,15 @@ export default function BlogContent({ contenu }: BlogContentProps) {
           
           // Personnaliser les blockquotes
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-indigo-500 pl-6 py-3 my-6 bg-indigo-50 rounded-r-lg italic">
+            <blockquote className="border-l-4 border-isdb-green-500 pl-6 py-3 my-6 bg-isdb-green-50 rounded-r-lg italic">
               {children}
             </blockquote>
           ),
-          
+
           // Personnaliser le code inline
           code: ({ inline, children, ...props }: any) => {
             return inline ? (
-              <code className="bg-gray-100 text-indigo-600 px-2 py-1 rounded text-sm font-mono" {...props}>
+              <code className="bg-gray-100 text-isdb-green-600 px-2 py-1 rounded text-sm font-mono" {...props}>
                 {children}
               </code>
             ) : (

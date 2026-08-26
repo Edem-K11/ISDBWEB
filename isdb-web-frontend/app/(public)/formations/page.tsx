@@ -3,28 +3,7 @@
 // app/(public)/formations/page.tsx
 import EventCard from "@/components/formations/eventCard";
 import HeroSection from "@/components/layout/hero";
-import { Mention } from "@/lib/types/Mention";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-async function getMentions(): Promise<Mention[]> {
-  try {
-    const res = await fetch(`${API_URL}/formations`, {
-      next: { revalidate: 3600 } // Cache 1 heure
-    });
-
-    
-    if (!res.ok) {
-        throw new Error('Failed to fetch mentions');
-    }
-    
-    const data = await res.json();
-    return data.data || [];
-  } catch (error) {
-    console.error('Error fetching mentions:', error);
-    return [];
-  }
-}
+import { getMentions } from "@/lib/api/mentions";
 
 const breadcrumbs = [
   { label: "Accueil", href: "/" },

@@ -153,26 +153,6 @@ export default function AdmissionPage() {
     { value: '7856', label: 'Apprenants satisfaits' }
   ];
 
-  const successStories = [
-    {
-      name: 'Marie Kaboré',
-      role: 'Diplômée en Communication 2022',
-      quote: 'L\'ISDB m\'a donné toutes les clés pour réussir dans le monde professionnel. Aujourd\'hui, je dirige ma propre agence de communication.',
-      color: 'from-purple-500 to-pink-500'
-    },
-    {
-      name: 'Abdoulaye Traoré',
-      role: 'Diplômé en Philosophie 2021',
-      quote: 'La formation en philosophie à l\'ISDB a transformé ma vision du monde. Je suis maintenant enseignant-chercheur à l\'université.',
-      color: 'from-blue-500 to-cyan-500'
-    },
-    {
-      name: 'Aïcha Diallo',
-      role: 'Diplômée en Sciences de l\'Éducation 2023',
-      quote: 'Grâce à l\'accompagnement personnalisé, j\'ai pu développer un projet éducatif innovant qui bénéficie maintenant à des centaines d\'enfants.',
-      color: 'from-green-500 to-emerald-500'
-    }
-  ];
 
   const toggleFaq = (id: number) => {
     setOpenFaq(openFaq === id ? null : id);
@@ -275,12 +255,6 @@ export default function AdmissionPage() {
                 </div>
               ))}
             </div>
-            <div className="mt-8 p-4 bg-white rounded-lg border border-isdb-green-200">
-              <p className="text-gray-600">
-                <strong>Note :</strong> Tous les documents doivent être présentés en original pour vérification. 
-                Les copies doivent être certifiées conformes aux originaux.
-              </p>
-            </div>
           </div>
         </div>
       </section>
@@ -305,6 +279,7 @@ export default function AdmissionPage() {
                   className="bg-white rounded-xl shadow-lg overflow-hidden"
                 >
                   <button
+                    type="button"
                     onClick={() => toggleFaq(item.id)}
                     className="w-full px-6 py-5 text-left flex justify-between items-center hover:bg-gray-50 transition-colors duration-200"
                   >
@@ -359,69 +334,7 @@ export default function AdmissionPage() {
         </div>
       </section>
 
-      {/* Success Stories */}
-      <section className="py-20">
-        <div className="container mx-auto px-6 md:px-12">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-              Success Stories
-            </h2>
-            <p className="text-xl text-gray-600">
-              Découvrez les parcours inspirants de nos anciens étudiants
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {successStories.map((story, index) => (
-              <div key={index} className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className={`absolute inset-0 bg-gradient-to-br ${story.color} opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
-                <div className="relative p-8">
-                  <div className="mb-6">
-                    <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${story.color} mb-4`} />
-                    <h3 className="text-xl font-bold text-gray-900">{story.name}</h3>
-                    <p className="text-isdb-green-600 font-medium">{story.role}</p>
-                  </div>
-                  <blockquote className="text-gray-600 italic border-l-4 border-isdb-green-300 pl-4">
-                    "{story.quote}"
-                  </blockquote>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-slate-900 to-slate-800">
-        <div className="container mx-auto px-6 md:px-12">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Prêt à écrire votre propre success story ?
-            </h2>
-            <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-              Rejoignez notre communauté d'apprenants et bénéficiez d'un accompagnement d'excellence 
-              tout au long de votre parcours académique.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/contact"
-                className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-isdb-green-600 to-isdb-green-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-isdb-green-700 hover:to-isdb-green-800 transition-all duration-300"
-              >
-                Commencer mon inscription
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-              <Link
-                href="/formations"
-                className="inline-flex items-center justify-center px-8 py-4 bg-transparent text-white font-semibold rounded-xl border-2 border-white hover:bg-white/10 transition-all duration-300"
-              >
-                Explorer nos formations
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      
 
       {/* Info Section */}
       <section className="py-12 bg-isdb-green-50">

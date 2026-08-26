@@ -131,19 +131,19 @@ export default function BlogForm({ blog }: BlogFormProps) {
               {...register('resume', {
                 required: 'Le résumé est obligatoire',
                 maxLength: {
-                  value: 300,
-                  message: 'Le résumé ne doit pas dépasser 300 caractères',
+                  value: 500,
+                  message: 'Le résumé ne doit pas dépasser 500 caractères',
                 },
               })}
               rows={3}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-              placeholder="Un court résumé de votre article (150-300 caractères)"
+              placeholder="Un court résumé de votre article (150-500 caractères)"
             />
             {errors.resume && (
               <p className="text-red-500 text-sm mt-1">{errors.resume.message}</p>
             )}
             <p className="text-sm text-gray-500 mt-1">
-              {watch('resume')?.length || 0} / 300 caractères
+              {watch('resume')?.length || 0} / 500 caractères
             </p>
           </div>
 

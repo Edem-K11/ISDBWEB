@@ -93,7 +93,6 @@ export default function MyNavFloating() {
     {
       name: 'Admission',
       href: '/admission',
-      highlight: true
     },
     {
       name: 'À propos',
@@ -108,6 +107,19 @@ export default function MyNavFloating() {
   const handleSubmenu = (index: number) => {
     setOpenSubmenu(openSubmenu === index ? null : index);
   };
+
+  // Un item à sous-menu (ex: "Formations") doit apparaître actif dès que la
+  // page courante correspond à l'un de ses liens (ou à une route imbriquée,
+  // ex: /formations/philosophie/un-master), pas seulement en correspondance
+  // exacte comme pour les liens simples.
+  const isSubmenuItemActive = (item: (typeof menuItems)[number]) =>
+    Boolean(
+      item.submenu?.some((subItem: any) =>
+        subItem.isGroup
+          ? subItem.children?.some((child: any) => pathname?.startsWith(child.href))
+          : pathname?.startsWith(subItem.href)
+      )
+    );
 
   // Ne pas afficher la navbar sur login et dashboard
   if (pathname?.startsWith('/login') || pathname?.startsWith('/dashboard')) {
@@ -139,7 +151,7 @@ export default function MyNavFloating() {
             }
             transition-all duration-300 ease-out
           `}>
-            <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-7xl mx-auto px-6 md:px-12">
               <div className="flex justify-between items-center h-16">
                 {/* Logo */}
                 <div className="flex-shrink-0">
@@ -164,10 +176,7 @@ export default function MyNavFloating() {
                           href={item.href}
                           className={`
                             flex items-center px-4 py-2 rounded-xl font-medium transition-all duration-200
-                            ${item.highlight 
-                              ? 'bg-gradient-to-r from-isdb-green-600 to-isdb-green-700 text-white shadow-lg hover:from-isdb-green-700 hover:to-isdb-green-800' 
-                              : 'text-slate-700 hover:text-isdb-green-600 hover:bg-slate-50'
-                            }
+                            text-slate-700 hover:text-isdb-green-600 hover:bg-slate-50
                             ${pathname === item.href ? 'text-isdb-green-600 bg-isdb-green-50' : ''}
                           `}
                         >
@@ -178,7 +187,13 @@ export default function MyNavFloating() {
                         <>
                           <button
                             onClick={() => handleSubmenu(index)}
-                            className="flex items-center px-4 py-2 rounded-xl font-medium text-slate-700 hover:text-isdb-green-600 hover:bg-slate-50 transition-all duration-200"
+                            className={`
+                              flex items-center px-4 py-2 rounded-xl font-medium transition-all duration-200
+                              ${isSubmenuItemActive(item)
+                                ? 'text-isdb-green-600 bg-isdb-green-50'
+                                : 'text-slate-700 hover:text-isdb-green-600 hover:bg-slate-50'
+                              }
+                            `}
                           >
                             {item.name}
                             <svg
@@ -263,13 +278,7 @@ export default function MyNavFloating() {
                       ) : (
                         <Link
                           href={item.href || '#'}
-                          className={`
-                            flex items-center px-4 py-2 rounded-xl font-medium transition-all duration-200
-                            ${item.highlight 
-                              ? 'bg-gradient-to-r from-isdb-green-600 to-isdb-green-700 text-white shadow-lg hover:from-isdb-green-700 hover:to-isdb-green-800' 
-                              : 'text-slate-700 hover:text-isdb-green-600 hover:bg-slate-50'
-                            }
-                          `}
+                          className="flex items-center px-4 py-2 rounded-xl font-medium transition-all duration-200 text-slate-700 hover:text-isdb-green-600 hover:bg-slate-50"
                         >
                           {item.icon}
                           {item.name}
@@ -308,10 +317,7 @@ export default function MyNavFloating() {
                       href={item.href}
                       className={`
                         flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-300
-                        ${item.highlight 
-                          ? 'bg-gradient-to-r from-isdb-green-600 to-isdb-green-700 text-white' 
-                          : 'text-slate-700 hover:bg-slate-50/80'
-                        }
+                        text-slate-700 hover:bg-slate-50/80
                         ${pathname === item.href ? 'text-isdb-green-600 bg-isdb-green-50' : ''}
                       `}
                       onClick={() => setIsOpen(false)}
@@ -323,7 +329,11 @@ export default function MyNavFloating() {
                     <div>
                       <button
                         onClick={() => handleSubmenu(index)}
-                        className="flex justify-between items-center w-full px-4 py-3 text-slate-700 hover:bg-slate-50/80 rounded-xl font-medium transition-all duration-300"
+                        className={`flex justify-between items-center w-full px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                          isSubmenuItemActive(item)
+                            ? 'text-isdb-green-600 bg-isdb-green-50'
+                            : 'text-slate-700 hover:bg-slate-50/80'
+                        }`}
                       >
                         <span>{item.name}</span>
                         <svg

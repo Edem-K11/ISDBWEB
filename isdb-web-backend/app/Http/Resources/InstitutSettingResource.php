@@ -18,6 +18,7 @@ class InstitutSettingResource extends JsonResource
             )->values(),
             'description' => $this->description,
             'adresse' => $this->adresse,
+            'maps_url' => $this->maps_url,
             'telephone' => $this->telephone,
             'email' => $this->email,
             'fax' => $this->fax,

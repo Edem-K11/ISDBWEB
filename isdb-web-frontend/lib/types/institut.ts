@@ -15,6 +15,7 @@ export interface InstitutSettings {
   galerie: string[];
   description: string | null;
   adresse: string | null;
+  maps_url: string | null;
   telephone: string | null;
   email: string | null;
   fax: string | null;
@@ -29,6 +30,7 @@ export interface InstitutSettingsFormData {
   galerie: string[];
   description: string;
   adresse: string;
+  maps_url: string;
   telephone: string;
   email: string;
   fax: string;

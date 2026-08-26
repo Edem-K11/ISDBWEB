@@ -20,6 +20,7 @@ class UpdateInstitutSettingRequest extends FormRequest
             'galerie.*' => ['string', 'max:2048'],
             'description' => ['nullable', 'string'],
             'adresse' => ['nullable', 'string', 'max:500'],
+            'maps_url' => ['nullable', 'string', 'max:5000'],
             'telephone' => ['nullable', 'string', 'max:50'],
             'email' => ['nullable', 'email', 'max:255'],
             'fax' => ['nullable', 'string', 'max:50'],

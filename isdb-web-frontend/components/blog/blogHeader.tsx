@@ -1,85 +1,69 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
 import { Tag } from '@/lib/types/tag';
-import { ENDPOINTS } from '@/lib/api/endpoints';
 
 interface BlogHeaderProps {
   titre: string;
   coverImage: string;
   tags: Tag[];
+  dateCreation?: string;
 }
 
-export default function BlogHeader({ titre, coverImage, tags }: BlogHeaderProps) {
+function formatDate(dateStr?: string): string {
+  if (!dateStr) return '';
+
+  try {
+    if (dateStr.includes('/')) return dateStr;
+
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
+
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+  } catch {
+    return '';
+  }
+}
+
+export default function BlogHeader({ titre, coverImage, tags, dateCreation }: BlogHeaderProps) {
   return (
-    <div className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] bg-gray-900">
-      {/* Image de fond */}
-      <div className="absolute inset-0">
+    <div>
+      {tags && tags.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {tags.slice(0, 2).map((tag) => (
+            <span
+              key={tag.id}
+              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
+              style={{
+                backgroundColor: `${tag.couleur || '#206b38'}1A`,
+                color: tag.couleur || '#206b38',
+              }}
+            >
+              {tag.nom}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {dateCreation && <p className="text-sm text-slate-500 mb-3">{formatDate(dateCreation)}</p>}
+
+      <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 leading-tight mb-8">
+        {titre}
+      </h1>
+
+      <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-slate-100">
         <Image
           src={coverImage}
           alt={titre}
           fill
           className="object-cover"
           priority
-          sizes="100vw"
-          quality={90}
+          sizes="(max-width: 768px) 100vw, 896px"
         />
-      </div>
-      
-      {/* Overlay gradient (assure la lisibilité du texte sans trop assombrir l'image) */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/70" />
-
-      {/* Contenu par-dessus */}
-      <div className="absolute inset-0 flex flex-col justify-end">
-        <div className="max-w-6xl mx-auto px-6 pb-12 md:pb-16 w-full">
-          
-          {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm text-white/80 mb-6" aria-label="Breadcrumb">
-            <Link 
-              href="/" 
-              className="hover:text-white transition-colors duration-200"
-            >
-              Accueil
-            </Link>
-            <ChevronRight className="w-4 h-4" />
-            <Link 
-              href={ENDPOINTS.BLOGS}
-              className="hover:text-white transition-colors duration-200"
-            >
-              Blog
-            </Link>
-            <ChevronRight className="w-4 h-4" />
-            <span className="text-white font-medium">Article</span>
-          </nav>
-
-          {/* Tags */}
-          {tags && tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
-              {tags.map(tag => (
-                <Link
-                  key={tag.id}
-                  href={`${ENDPOINTS.BLOGS}/tag?tag=${tag.slug}`}
-                  className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-md
-                    border text-white text-sm font-medium
-                    hover:bg-white/20
-                    transition-all duration-300 hover:scale-105"
-                  style={{ borderColor: `${tag.couleur || '#ffffff'}80` }}
-                >
-                  #{tag.nom}
-                </Link>
-              ))}
-            </div>
-          )}
-
-          {/* Titre */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl 
-            font-bold text-white leading-tight 
-            drop-shadow-2xl max-w-4xl">
-            {titre}
-          </h1>
-        </div>
       </div>
     </div>
   );
