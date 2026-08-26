@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: isdb-web-backend
+    runtime: php
+    repo: https://github.com
+    rootDir: isdb-web-backend
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php artisan serve --host 0.0.0.0 --port $PORT
