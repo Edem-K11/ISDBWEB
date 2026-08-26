@@ -2,5 +2,5 @@ services:
   - type: web
     name: isdb-web-backend
     runtime: docker
-    repo: https://github.com
+    plan: free
     rootDir: isdb-web-backend
