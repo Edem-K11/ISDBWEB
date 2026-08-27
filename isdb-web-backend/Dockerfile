@@ -23,14 +23,19 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.
 WORKDIR /var/www/html
 COPY . .
 
-# CRUCIAL : Créer les dossiers nécessaires et appliquer les droits AVANT le composer install
-RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache \
+# CRUCIAL : Créer TOUTE l'arborescence storage/ (y compris les sous-dossiers
+# que Git ne versionne pas) et appliquer les droits AVANT le composer install
+RUN mkdir -p /var/www/html/storage/framework/sessions \
+    /var/www/html/storage/framework/views \
+    /var/www/html/storage/framework/cache/data \
+    /var/www/html/storage/logs \
+    /var/www/html/storage/app/public \
+    /var/www/html/bootstrap/cache \
     && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Installer Composer et les dépendances PHP de production (sans exécuter les scripts dev)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader --no-scripts
-
 
 EXPOSE 80
