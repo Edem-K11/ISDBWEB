@@ -11,6 +11,9 @@ class InstitutSetting extends Model
 
     protected $casts = [
         'galerie' => 'array',
+        'date_ouverture_inscriptions' => 'date',
+        'date_cloture_inscriptions' => 'date',
+        'date_rentree' => 'date',
     ];
 
     protected $fillable = [
@@ -21,9 +24,14 @@ class InstitutSetting extends Model
         'adresse',
         'maps_url',
         'telephone',
+        'telephone_2',
         'email',
+        'email_2',
         'fax',
         'site_web',
+        'date_ouverture_inscriptions',
+        'date_cloture_inscriptions',
+        'date_rentree',
         'facebook_url',
         'twitter_url',
         'linkedin_url',
@@ -48,9 +56,14 @@ class InstitutSetting extends Model
             'adresse' => 'Ouagadougou, Burkina Faso',
             'maps_url' => null,
             'telephone' => null,
+            'telephone_2' => null,
             'email' => 'admission@isdb.edu',
+            'email_2' => null,
             'fax' => null,
             'site_web' => null,
+            'date_ouverture_inscriptions' => null,
+            'date_cloture_inscriptions' => null,
+            'date_rentree' => null,
             'facebook_url' => null,
             'twitter_url' => null,
             'linkedin_url' => null,

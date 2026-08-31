@@ -173,8 +173,13 @@ class FormationController extends Controller
      */
     public function destroy(Formation $formation): JsonResponse
     {
-        // Changer le statut à SUPPRIMEE
-        $formation->update(['statut_formation' => Formation::STATUT_SUPPRIMEE]);
+        // Le slug reste unique en base même après soft delete (la ligne existe
+        // toujours physiquement) : on le libère ici pour qu'un titre identique
+        // puisse être recréé plus tard sans provoquer une erreur d'unicité.
+        $formation->update([
+            'statut_formation' => Formation::STATUT_SUPPRIMEE,
+            'slug' => $formation->slug . '-supprime-' . $formation->id,
+        ]);
         $formation->delete();
 
         return response()->json([
@@ -208,6 +213,32 @@ class FormationController extends Controller
             'success' => true,
             'message' => 'Formation activée avec succès.',
             'data' => new FormationResource($formation->fresh(['mention.domaine']))
+        ]);
+    }
+
+    /**
+     * Liste des formations (principales et modulaires confondues n'est PAS
+     * géré ici : ce endpoint ne couvre que les formations "principales")
+     * soft-supprimées, pour la vue Corbeille du dashboard.
+     */
+    public function trashed(Request $request): JsonResponse
+    {
+        $query = Formation::onlyTrashed()->with(['mention.domaine']);
+
+        if ($request->has('type')) {
+            $type = strtoupper($request->input('type'));
+            if ($type === 'PRINCIPALE') {
+                $query->principales();
+            } elseif ($type === 'MODULAIRE') {
+                $query->modulaires();
+            }
+        }
+
+        $formations = $query->orderBy('deleted_at', 'desc')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => FormationResource::collection($formations),
         ]);
     }
 

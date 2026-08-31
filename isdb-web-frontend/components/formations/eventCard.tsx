@@ -35,7 +35,7 @@ export default function EventCard({
 
         {/* Titre avec animation de soulignement */}
         <div className="relative">
-          <h3 className="text-3xl font-bold text-gray-900 mb-10 transition-all duration-300 group-hover:text-black">
+          <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-5 sm:mb-10 transition-all duration-300 group-hover:text-black">
             {title}
           </h3>
           <div
@@ -45,7 +45,7 @@ export default function EventCard({
           />
         </div>
 
-        <p className="text-sm font-medium">Découvrez les offres de formations</p>
+        <p className="text-[12px] sm:text-sm font-medium">Découvrez les offres de formations</p>
 
       </div>
 

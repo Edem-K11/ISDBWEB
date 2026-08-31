@@ -246,6 +246,16 @@ input[type='number']::-webkit-outer-spin-button {
   animation: slideUp 0.3s ease-out forwards;
 }
 
+/* Lightbox des images d'articles de blog */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-lightbox-in {
+  animation: fadeIn 0.2s ease-out both;
+}
+
 /* Séquence d'entrée du hero de l'accueil : l'image se floute/assombrit très
    vite, le titre arrive d'en haut, le logo en verre monte d'en bas et vient se
    poser, puis les blocs de texte gauche/droite apparaissent en dernier. */

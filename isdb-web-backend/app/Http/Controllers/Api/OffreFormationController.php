@@ -182,6 +182,25 @@ class OffreFormationController extends Controller
     }
 
     /**
+     * Liste des offres de formation soft-supprimées, pour la vue Corbeille.
+     */
+    public function trashed(Request $request): JsonResponse
+    {
+        $query = OffreFormation::onlyTrashed()->with(['formation.mention.domaine', 'anneeAcademique']);
+
+        if ($request->has('annee_academique_id')) {
+            $query->where('annee_academique_id', $request->input('annee_academique_id'));
+        }
+
+        $offres = $query->orderBy('deleted_at', 'desc')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => OffreFormationResource::collection($offres),
+        ]);
+    }
+
+    /**
      * Restore a soft-deleted offre de formation.
      */
     public function restore(int $id): JsonResponse
@@ -192,6 +211,21 @@ class OffreFormationController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Cette offre de formation n\'est pas supprimée.'
+            ], 422);
+        }
+
+        // Une offre active pourrait entre-temps avoir été créée pour la même
+        // formation et la même année académique (la contrainte unique en base
+        // a été retirée, rien d'autre ne l'empêcherait) — on l'évite pour ne
+        // pas se retrouver avec deux offres actives identiques.
+        $doublonActif = OffreFormation::where('formation_id', $offre->formation_id)
+            ->where('annee_academique_id', $offre->annee_academique_id)
+            ->exists();
+
+        if ($doublonActif) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Impossible de restaurer cette offre : une autre offre active existe déjà pour cette formation et cette année académique.'
             ], 422);
         }
 

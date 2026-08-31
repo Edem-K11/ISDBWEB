@@ -15,6 +15,7 @@ export interface Mention {
   theme?: string;
   created_at?: string | null;
   updated_at?: string | null;
+  deleted_at?: string | null;
 }
 
 export interface MentionFormData {

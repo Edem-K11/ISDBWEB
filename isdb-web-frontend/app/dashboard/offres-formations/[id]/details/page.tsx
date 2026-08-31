@@ -25,6 +25,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { mutate as globalMutate } from 'swr';
 import { useOffreFormation } from '@/lib/hooks/useOffreFormation';
 import { offreFormationService } from '@/lib/api/services/offreFormationService';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +46,7 @@ export default function OffreDetailPage() {
     try {
       await offreFormationService.delete(id);
       toast.success('Offre supprimée avec succès');
+      await globalMutate((key) => Array.isArray(key) && key[0] === 'offres-formations');
       router.push('/dashboard/offres-formations');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Erreur lors de la suppression');
@@ -131,17 +133,26 @@ export default function OffreDetailPage() {
                 <Badge variant={offre.est_dispensee ? 'success' : 'warning'}>
                   {offre.est_dispensee ? 'Dispensée' : 'Non dispensée'}
                 </Badge>
-                {offre.est_en_cours && (
+                {/*
+                  En cours / À venir / Terminée ne reflètent que la période
+                  date_debut → date_fin de l'offre. Ces dates ne sont saisies
+                  que pour les formations MODULAIRES (les PRINCIPALE se
+                  déroulent sur toute l'année académique, sans dates propres) :
+                  on n'affiche donc ces badges que quand les deux dates sont
+                  réellement renseignées, sinon ils sont systématiquement
+                  faux/trompeurs (ex. "Terminée" alors que rien n'est fini).
+                */}
+                {offre.date_debut && offre.date_fin && offre.est_en_cours && (
                   <Badge variant="default">
                     En cours
                   </Badge>
                 )}
-                {offre.est_future && (
+                {offre.date_debut && offre.date_fin && offre.est_future && (
                   <Badge variant="info">
                     À venir
                   </Badge>
                 )}
-                {offre.est_passee && (
+                {offre.date_debut && offre.date_fin && offre.est_passee && (
                   <Badge>
                     Terminée
                   </Badge>
@@ -409,14 +420,16 @@ export default function OffreDetailPage() {
                 )}
               </div>
               
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">En cours</span>
-                {offre.est_en_cours ? (
-                  <CheckCircle className="text-green-500" size={20} />
-                ) : (
-                  <XCircle className="text-gray-400" size={20} />
-                )}
-              </div>
+              {offre.date_debut && offre.date_fin && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">En cours</span>
+                  {offre.est_en_cours ? (
+                    <CheckCircle className="text-green-500" size={20} />
+                  ) : (
+                    <XCircle className="text-gray-400" size={20} />
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -447,16 +460,15 @@ export default function OffreDetailPage() {
       </div>
 
       {/* Modal de confirmation de suppression */}
-      {/* <ConfirmModal
+      <ConfirmModal
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
         onConfirm={handleDelete}
         title="Supprimer l'offre"
-        message="Êtes-vous sûr de vouloir supprimer cette offre de formation ? Cette action est irréversible."
+        message="Êtes-vous sûr de vouloir supprimer cette offre de formation ? Cette action est irréversible et elle ne sera plus visible sur le site public."
         confirmText="Supprimer"
         confirmButtonClass="bg-red-600 hover:bg-red-700"
-        isLoading={isDeleting}
-      /> */}
+      />
     </div>
   );
 }

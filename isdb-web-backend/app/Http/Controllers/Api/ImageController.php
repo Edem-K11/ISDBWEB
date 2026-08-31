@@ -3,117 +3,134 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Cloudinary\Cloudinary;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 
 class ImageController extends Controller
 {
+    private const ALLOWED_TYPES = 'blogs,redacteurs,avatars,radio,institut,studios';
+
     /**
-     * Upload une image
-     * @param string $type - 'blogs' ou 'redacteurs' ou 'avatars'
+     * Upload une image vers Cloudinary.
+     * @param string $type - dossier logique : 'blogs', 'redacteurs', 'avatars', 'radio', 'institut' ou 'studios'
      */
-    public function upload(Request $request)
+    public function upload(Request $request, Cloudinary $cloudinary)
     {
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB max
-            'type' => 'nullable|string|in:blogs,redacteurs,avatars,radio,institut,studios', // Type d'image
+            'type' => 'nullable|string|in:'.self::ALLOWED_TYPES,
         ]);
 
         try {
             $image = $request->file('image');
             $type = $request->input('type', 'blogs'); // Par défaut 'blogs'
-            
-            // Générer un nom unique
-            $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
-            
-            // Stocker dans le bon dossier selon le type
-            $path = $image->storeAs($type, $filename, 'public');
-            
-            // Générer l'URL publique
-            $url = Storage::url($path);
-            
+
+            $result = $this->uploadToCloudinary($image, $type, $cloudinary);
+
             return response()->json([
                 'success' => true,
-                'url' => $url,
-                'path' => $path,
-                'message' => 'Image uploadée avec succès'
+                'url' => $result['secure_url'],
+                'path' => $result['public_id'],
+                'message' => 'Image uploadée avec succès',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors de l\'upload: ' . $e->getMessage()
+                'message' => 'Erreur lors de l\'upload: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
-     * Supprimer une image
+     * Supprimer une image sur Cloudinary, identifiée par son public_id
+     * (le champ "path" renvoyé par upload()/uploadMultiple()).
      */
-    public function delete(Request $request)
+    public function delete(Request $request, Cloudinary $cloudinary)
     {
         $request->validate([
-            'path' => 'required|string'
+            'path' => 'required|string',
         ]);
 
         try {
-            if (Storage::disk('public')->exists($request->path)) {
-                Storage::disk('public')->delete($request->path);
-                
+            $result = $cloudinary->uploadApi()->destroy($request->path, ['resource_type' => 'image']);
+
+            if (in_array($result['result'], ['ok', 'not found'], true)) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Image supprimée avec succès'
+                    'message' => 'Image supprimée avec succès',
                 ]);
             }
-            
+
             return response()->json([
                 'success' => false,
-                'message' => 'Image non trouvée'
+                'message' => 'Image non trouvée',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors de la suppression: ' . $e->getMessage()
+                'message' => 'Erreur lors de la suppression: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
-     * Upload multiple images (pour l'éditeur)
+     * Upload multiple images vers Cloudinary (pour l'éditeur).
      */
-    public function uploadMultiple(Request $request)
+    public function uploadMultiple(Request $request, Cloudinary $cloudinary)
     {
         $request->validate([
             'images' => 'required|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-            'type' => 'nullable|string|in:blogs,redacteurs,avatars,radio,institut,studios',
+            'type' => 'nullable|string|in:'.self::ALLOWED_TYPES,
         ]);
 
         try {
             $type = $request->input('type', 'blogs');
             $uploadedImages = [];
-            
+
             foreach ($request->file('images') as $image) {
-                $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
-                $path = $image->storeAs($type, $filename, 'public');
-                $url = Storage::url($path);
-                
+                $result = $this->uploadToCloudinary($image, $type, $cloudinary);
+
                 $uploadedImages[] = [
-                    'url' => $url,
-                    'path' => $path
+                    'url' => $result['secure_url'],
+                    'path' => $result['public_id'],
                 ];
             }
-            
+
             return response()->json([
                 'success' => true,
                 'images' => $uploadedImages,
-                'message' => count($uploadedImages) . ' image(s) uploadée(s)'
+                'message' => count($uploadedImages).' image(s) uploadée(s)',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors de l\'upload: ' . $e->getMessage()
+                'message' => 'Erreur lors de l\'upload: '.$e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Envoie un fichier vers Cloudinary, rangé dans le dossier logique
+     * correspondant à son type ("blogs", "avatars"...), sous un identifiant
+     * unique — on passe directement par le SDK Cloudinary plutôt que par la
+     * façade Storage : ça évite un aller-retour d'API supplémentaire pour
+     * récupérer l'URL (déjà présente dans la réponse d'upload), et ça
+     * contourne une limite du package cloudinary-labs/cloudinary-laravel qui
+     * ne gère correctement que les images/vidéos via Storage::url() (les
+     * fichiers "raw" comme un PDF perdent leur extension et deviennent
+     * introuvables — voir programme_pdf, volontairement laissé en stockage
+     * local pour cette raison).
+     */
+    private function uploadToCloudinary(UploadedFile $image, string $type, Cloudinary $cloudinary)
+    {
+        $publicId = $type.'/'.Str::uuid();
+
+        return $cloudinary->uploadApi()->upload($image->getRealPath(), [
+            'public_id' => $publicId,
+            'resource_type' => 'image',
+        ]);
     }
 }

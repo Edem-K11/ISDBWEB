@@ -49,14 +49,9 @@ export default async function FormationModulaireDetailPage({
             {formation.contenu && (
               <section className="mb-10">
                 <h2 className="text-xl font-bold text-slate-900 mb-4">Contenu du module</h2>
-                <ul className="space-y-2 text-slate-700">
-                  {formation.contenu.split('\n').filter(Boolean).map((line: string) => (
-                    <li key={line} className="flex gap-2">
-                      <span className="text-isdb-green-600">•</span>
-                      <span>{line}</span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="prose max-w-none text-slate-700">
+                  <div dangerouslySetInnerHTML={{ __html: formation.contenu }} />
+                </div>
               </section>
             )}
 

@@ -304,7 +304,7 @@ export default function DomainesPage() {
           setDeleteModalOpen(false);
           setDomaineToDelete(null);
         }}
-        onConfirm={() => handleDelete}
+        onConfirm={handleDelete}
         title="Supprimer le domaine"
         message="Êtes-vous sûr de vouloir supprimer ce domaine ? Cette action est irréversible."
         confirmText='Supprimer le domaine'

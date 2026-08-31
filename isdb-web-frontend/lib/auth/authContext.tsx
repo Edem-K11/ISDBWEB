@@ -54,6 +54,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('user', JSON.stringify(response.user));
       setUser(response.user);
 
+      // Le message de bienvenue du tableau de bord doit réapparaître à chaque
+      // connexion, même s'il avait été fermé lors d'une session précédente.
+      sessionStorage.removeItem('dashboard_welcome_dismissed');
+
       toast.success('Connexion réussie !');
       router.push('/dashboard');
     } catch (error: any) {

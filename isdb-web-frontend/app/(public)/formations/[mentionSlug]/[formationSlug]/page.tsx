@@ -10,10 +10,10 @@ import { getMentionThemePalette } from '@/lib/utils/mentionTheme';
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 interface PageProps {
-  params: {
+  params: Promise<{
     mentionSlug: string;
     formationSlug: string;
-  };
+  }>;
 }
 
 async function getOffreData(mentionSlug: string, formationSlug: string) {
@@ -37,7 +37,7 @@ async function getOffreData(mentionSlug: string, formationSlug: string) {
   }
 }
 
-export default async function FormationDetailPage({ params }: PageProps) {
+export default async function FormationDetailPage({ params }: Readonly<PageProps>) {
   const { mentionSlug, formationSlug } = await params;
   
   const data = await getOffreData(mentionSlug, formationSlug);
@@ -53,7 +53,7 @@ export default async function FormationDetailPage({ params }: PageProps) {
     { label: 'Accueil', href: '/' },
     { label: 'Formations', href: '/formations' },
     { label: mention.titre, href: `/formations/${mention.slug}` },
-    { label: formation.titre, href: `/formations/${mention.slug}/${formation.slug}` }
+    { label: formation.titre, href: `/formations/${mention.slug}/${formation.slug}`, active: true }
   ];
 
   // Thème (aligné sur la mention, identique aux pages /formations et /formations/[mentionSlug])
@@ -78,27 +78,27 @@ export default async function FormationDetailPage({ params }: PageProps) {
   return (
     <div className={`min-h-screen bg-gray-50 theme-${theme}`}>
       {/* Hero Section */}
-      <div className={`relative bg-gradient-to-br ${colors.gradient} text-white py-20 px-6 md:px-12 overflow-hidden`}>
+      <div className={`relative bg-gradient-to-br ${colors.gradient} text-white pt-20 pb-12 sm:pt-20 px-6 md:px-12 overflow-hidden`}>
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32" />
 
         <div className="container mx-auto relative z-10">
           <div className="mt-6">
             <div className="flex items-center gap-3 mb-4">
-              <span className="px-4 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
+              <span className="px-4 py-1 bg-white/20 backdrop-blur-sm rounded-full text-[0.625rem] sm:text-sm font-medium">
                 {diplomeLabel}
               </span>
-              <span className="px-4 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
+              <span className="px-4 py-1 bg-white/20 backdrop-blur-sm rounded-full text-[0.625rem] sm:text-sm font-medium">
                 {formation.type === 'PRINCIPALE' ? 'Formation Principale' : 'Formation Modulaire'}
               </span>
             </div>
             
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight">
               {formation.titre}
             </h1>
             
             {formation.description && (
-              <p className="text-xl text-white/90 leading-relaxed max-w-3xl">
+              <p className="text-lg sm:text-xl text-white/90 leading-relaxed max-w-3xl">
                 {formation.description}
               </p>
             )}
@@ -187,7 +187,7 @@ export default async function FormationDetailPage({ params }: PageProps) {
 
 // Métadonnées SEO
 export async function generateMetadata({ params }: PageProps) {
-  const {mentionSlug, formationSlug} = await params;
+  const { mentionSlug, formationSlug } = await params;
   const data = await getOffreData(mentionSlug, formationSlug);
   
   if (!data) {

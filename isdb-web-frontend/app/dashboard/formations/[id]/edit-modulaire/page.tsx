@@ -3,11 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Save, BookOpen, AlertCircle, Clock, DollarSign, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, BookOpen, AlertCircle, Clock, DollarSign, Loader2, Archive, Trash2, RotateCcw } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { formationModulaireService } from '@/lib/api/services/formationModulaireService';
 import { useFormationModulaire } from '@/lib/hooks/useFormationModulaire';
 import { StatutFormation } from '@/lib/types/Formation';
+import { ENDPOINTS } from '@/lib/api/endpoints';
+import RichTextEditor from '@/components/dashboard/blogs/richTextEditor';
+import ConfirmModal from '@/components/ui/confirmModal';
 import { mutate } from 'swr';
 
 export default function EditFormationModulairePage() {
@@ -18,6 +21,14 @@ export default function EditFormationModulairePage() {
   const { formation, isLoading: isLoadingFormation, mutate: mutateFormation } = useFormationModulaire(formationId);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [actionModalOpen, setActionModalOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isReactivating, setIsReactivating] = useState(false);
+
+  // Reflète le statut réellement enregistré (pas la bascule en cours de
+  // modification dans le formulaire) : une fois la formation archivée, ce
+  // bouton devient "Supprimer" sur toutes les pages qui la concernent.
+  const isArchived = formation?.statut_formation === StatutFormation.ARCHIVEE;
 
   const [formData, setFormData] = useState({
     titre: '',
@@ -103,6 +114,61 @@ export default function EditFormationModulairePage() {
     }
   };
 
+  const handleConfirmAction = async () => {
+    setIsProcessing(true);
+    try {
+      if (isArchived) {
+        await formationModulaireService.delete(formationId);
+        toast.success('Formation modulaire supprimée avec succès');
+      } else {
+        await formationModulaireService.archive(formationId);
+        toast.success('Formation modulaire archivée avec succès');
+      }
+      // Les clés SWR concernées sont soit des tableaux
+      // (['formations-modulaires-dashboard', filtres]), soit des chaînes
+      // (`formation-modulaire-${id}`) — on couvre les deux formes.
+      await mutate(
+        (key) => {
+          const firstSegment = Array.isArray(key) ? key[0] : key;
+          return typeof firstSegment === 'string' && firstSegment.startsWith('formation');
+        },
+        undefined,
+        { revalidate: true }
+      );
+      router.push(ENDPOINTS.DASHBOARD_FORMATIONS);
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message ||
+          (isArchived ? 'Erreur lors de la suppression' : "Erreur lors de l'archivage")
+      );
+    } finally {
+      setIsProcessing(false);
+      setActionModalOpen(false);
+    }
+  };
+
+  // Réactivation : action non destructive, pas besoin de confirmation.
+  const handleReactivate = async () => {
+    setIsReactivating(true);
+    try {
+      await formationModulaireService.activate(formationId);
+      toast.success('Formation modulaire réactivée avec succès');
+      await mutateFormation();
+      await mutate(
+        (key) => {
+          const firstSegment = Array.isArray(key) ? key[0] : key;
+          return typeof firstSegment === 'string' && firstSegment.startsWith('formation');
+        },
+        undefined,
+        { revalidate: true }
+      );
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Erreur lors de la réactivation');
+    } finally {
+      setIsReactivating(false);
+    }
+  };
+
   // États de chargement
   if (isLoadingFormation) {
     return (
@@ -150,16 +216,54 @@ export default function EditFormationModulairePage() {
           <ArrowLeft size={20} />
           Retour aux formations
         </Link>
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-isdb-green-600 rounded-xl">
-            <BookOpen className="text-white" size={24} />
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-isdb-green-600 rounded-xl">
+              <BookOpen className="text-white" size={24} />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Modifier la formation modulaire</h1>
+              <p className="text-gray-600 mt-1">
+                Modifiez les informations de l'atelier/formation courte
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Modifier la formation modulaire</h1>
-            <p className="text-gray-600 mt-1">
-              Modifiez les informations de l'atelier/formation courte
-            </p>
-          </div>
+
+          {isArchived ? (
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleReactivate}
+                disabled={isReactivating}
+                className="inline-flex items-center gap-2 px-4 py-2 text-isdb-green-700 bg-isdb-green-50 hover:bg-isdb-green-100 rounded-lg transition-colors text-sm font-medium disabled:opacity-50"
+                title="Réactiver"
+              >
+                <RotateCcw size={16} />
+                Réactiver
+              </button>
+              <button
+                type="button"
+                onClick={() => setActionModalOpen(true)}
+                disabled={isProcessing}
+                className="inline-flex items-center gap-2 px-4 py-2 text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-sm font-medium disabled:opacity-50"
+                title="Supprimer"
+              >
+                <Trash2 size={16} />
+                Supprimer
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setActionModalOpen(true)}
+              disabled={isProcessing}
+              className="inline-flex items-center gap-2 px-4 py-2 text-yellow-700 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors text-sm font-medium disabled:opacity-50 shrink-0"
+              title="Archiver"
+            >
+              <Archive size={16} />
+              Archiver
+            </button>
+          )}
         </div>
       </div>
 
@@ -209,14 +313,11 @@ export default function EditFormationModulairePage() {
           {/* Contenu */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Contenu (une ligne par point abordé)
+              Contenu de la formation
             </label>
-            <textarea
+            <RichTextEditor
               value={formData.contenu}
-              onChange={(e) => handleChange('contenu', e.target.value)}
-              placeholder={'Prise de parole en public\nVoix off\nRédaction de conducteur'}
-              rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent resize-none"
+              onChange={(value) => handleChange('contenu', value)}
             />
           </div>
 
@@ -291,34 +392,33 @@ export default function EditFormationModulairePage() {
           </div>
 
           {/* Statut */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Statut de la formation
-            </label>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="statut"
-                  value="ACTIVE"
-                  checked={formData.statut_formation === StatutFormation.ACTIVE}
-                  onChange={() => setFormData(prev => ({ ...prev, statut_formation: StatutFormation.ACTIVE }))}
-                  className="h-4 w-4 text-isdb-green-600 focus:ring-isdb-green-500 border-gray-300"
-                />
-                <span className="text-gray-700">Active</span>
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="statut"
-                  value="ARCHIVEE"
-                  checked={formData.statut_formation === StatutFormation.ARCHIVEE}
-                  onChange={() => setFormData(prev => ({ ...prev, statut_formation: StatutFormation.ARCHIVEE }))}
-                  className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
-                />
-                <span className="text-gray-700">Archivée</span>
-              </label>
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div>
+              <p className="text-sm font-medium text-gray-700">Formation active</p>
+              <p className="text-sm text-gray-500">
+                Visible par les visiteurs du site tant qu'elle est active.
+              </p>
             </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={formData.statut_formation === StatutFormation.ACTIVE}
+              onClick={() => setFormData(prev => ({
+                ...prev,
+                statut_formation: prev.statut_formation === StatutFormation.ACTIVE
+                  ? StatutFormation.ARCHIVEE
+                  : StatutFormation.ACTIVE,
+              }))}
+              className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors cursor-pointer ${
+                formData.statut_formation === StatutFormation.ACTIVE ? 'bg-isdb-green-600' : 'bg-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  formData.statut_formation === StatutFormation.ACTIVE ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
           </div>
 
           {/* Actions */}
@@ -395,6 +495,20 @@ export default function EditFormationModulairePage() {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={actionModalOpen}
+        onClose={() => setActionModalOpen(false)}
+        onConfirm={handleConfirmAction}
+        title={isArchived ? 'Supprimer la formation modulaire' : 'Archiver la formation modulaire'}
+        message={
+          isArchived
+            ? 'Êtes-vous sûr de vouloir supprimer définitivement cette formation modulaire ? Elle ne sera plus accessible nulle part, y compris dans le dashboard.'
+            : 'Êtes-vous sûr de vouloir archiver cette formation modulaire ? Elle ne sera plus visible pour les visiteurs mais restera accessible en consultation.'
+        }
+        confirmText={isArchived ? 'Supprimer' : 'Archiver'}
+        confirmButtonClass={isArchived ? 'bg-red-600 hover:bg-red-700' : 'bg-yellow-600 hover:bg-yellow-700'}
+      />
     </div>
   );
 }

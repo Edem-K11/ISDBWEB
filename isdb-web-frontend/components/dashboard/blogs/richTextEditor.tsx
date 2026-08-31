@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -78,6 +79,16 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
       },
     },
   });
+
+  // Synchroniser le contenu de l'éditeur avec la prop value : `content` dans
+  // useEditor ne sert qu'à l'initialisation, TipTap ne réagit pas tout seul à
+  // un changement de `value` après coup (ex: données chargées de manière
+  // asynchrone après le premier rendu de l'éditeur).
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value);
+    }
+  }, [editor, value]);
 
   if (!editor) {
     return null;

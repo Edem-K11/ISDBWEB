@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, Calendar, Users, AlertCircle, Info } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -17,6 +17,7 @@ import { ENDPOINTS } from '@/lib/api/endpoints';
 
 export default function CreateOffrePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { formations } = useFormations({ statut: StatutFormation.ACTIVE });
   const { annees } = useAnneesAcademiques();
 
@@ -42,6 +43,14 @@ export default function CreateOffrePage() {
       setFormData(prev => ({ ...prev, annee_academique_id: anneeActuelle.id }));
     }
   }, [annees]);
+
+  // Pré-sélectionner la formation si on arrive depuis sa page (?formation_id=...)
+  useEffect(() => {
+    const preselected = searchParams.get('formation_id');
+    if (preselected && !formData.formation_id) {
+      setFormData(prev => ({ ...prev, formation_id: Number(preselected) }));
+    }
+  }, [searchParams]);
 
   // Gérer le changement de formation
   useEffect(() => {

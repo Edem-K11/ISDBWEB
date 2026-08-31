@@ -78,7 +78,7 @@ export const MENTION_THEME_PALETTE: Record<MentionTheme, MentionThemePalette> = 
   },
   gold: {
     gradient: 'from-isdb-gold-800 via-isdb-gold-600 to-isdb-gold-500',
-    accentHex: '#c8ad7f',
+    accentHex: '#968464',
     bg: 'bg-isdb-gold-50',
     border: 'border-isdb-gold-100',
     borderStrong: 'border-isdb-gold-200',
@@ -94,7 +94,7 @@ export const MENTION_THEME_PALETTE: Record<MentionTheme, MentionThemePalette> = 
   },
   orange: {
     gradient: 'from-isdb-orange-800 via-isdb-orange-600 to-isdb-orange-500',
-    accentHex: '#fad09c',
+    accentHex: '#967e62',
     bg: 'bg-isdb-orange-50',
     border: 'border-isdb-orange-100',
     borderStrong: 'border-isdb-orange-200',
@@ -106,7 +106,7 @@ export const MENTION_THEME_PALETTE: Record<MentionTheme, MentionThemePalette> = 
     cardHover: 'group-hover:bg-isdb-orange-700',
     tileGradient: 'from-isdb-orange-400 to-isdb-orange-300',
     solidBg: 'bg-isdb-orange-200',
-    decorative: 'text-isdb-orange-500',
+    decorative: 'text-isdb-orange-700',
   },
 };
 

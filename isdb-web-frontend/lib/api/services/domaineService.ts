@@ -35,4 +35,28 @@ export const domaineService = {
         const { data } = await apiClient.delete(ENDPOINTS.DASHBOARD_DOMAINE_BY_ID(id));
         return data;
     },
+
+    /**
+     * Domaines soft-supprimés (corbeille).
+     */
+    getTrashed: async () => {
+        const { data } = await apiClient.get<ApiResponse<Domaine[]>>(
+            `${ENDPOINTS.DASHBOARD_DOMAINES}/trashed`
+        );
+        return data.data;
+    },
+
+    restore: async (id: number) => {
+        const { data } = await apiClient.patch<ApiResponse<Domaine>>(
+            `${ENDPOINTS.DASHBOARD_DOMAINE_BY_ID(id)}/restore`
+        );
+        return data.data;
+    },
+
+    forceDelete: async (id: number) => {
+        const { data } = await apiClient.delete(
+            `${ENDPOINTS.DASHBOARD_DOMAINE_BY_ID(id)}/force`
+        );
+        return data;
+    },
 };

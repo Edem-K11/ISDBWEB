@@ -17,13 +17,13 @@ export default function Breadcrumbs({
 }) {
   return (
     <nav aria-label="Breadcrumb" className="mb-6 block">
-      <ol className={clsx(lexendDeca.className, 'flex flex-wrap md:text-md')}>
+      <ol className={clsx(lexendDeca.className, 'flex flex-wrap text-sm md:text-md')}>
         {breadcrumbs.map((breadcrumb, index) => (
           <li
             key={index}
             aria-current={breadcrumb.active}
             className={clsx(
-              breadcrumb.active ? 'underline underline-offset-4' : 'hover:text-isdb-green-200 text-lg transition-colors duration-200',
+              breadcrumb.active ? 'underline underline-offset-4' : 'hover:text-isdb-green-200 text-sm md:text-md transition-colors duration-200',
             )}
           >
             <Link
@@ -35,7 +35,7 @@ export default function Breadcrumbs({
             </Link>
             {index < breadcrumbs.length - 1 ? (
               <span className="mx-2 inline-block">
-                <ChevronRight size={16}/>
+                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4"/>
               </span>
             ) : null}
           </li>

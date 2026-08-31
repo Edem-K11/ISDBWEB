@@ -8,6 +8,7 @@ import {
   Search,
   Filter,
   Edit,
+  Archive,
   Trash2,
   GraduationCap,
   BookOpen,
@@ -49,6 +50,8 @@ export default function FormationsPage() {
     diplome: '',
     statut: StatutFormation.ACTIVE,
   });
+  const [archiveTarget, setArchiveTarget] = useState<{ id: number; kind: 'formation' | 'modulaire' } | null>(null);
+  const [archiveModalOpen, setArchiveModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; kind: 'formation' | 'modulaire' } | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -75,15 +78,30 @@ export default function FormationsPage() {
 
   // ✅ Revalider les données à chaque montage du composant
   useEffect(() => {
-    mutate();
-    mutateModulaires();
-
     globalMutate(
-      key => typeof key === 'string' && key.startsWith('formations'),
+      (key) => {
+        // Les clés SWRInfinite (ex: useFormationsInfinite) sont des tableaux
+        // (['formations-infinite', filtres]), pas des chaînes — l'ancien filtre
+        // ne les détectait donc jamais et ne revalidait rien en pratique.
+        const firstSegment = Array.isArray(key) ? key[0] : key;
+        return typeof firstSegment === 'string' && firstSegment.startsWith('formation');
+      },
       undefined,
       { revalidate: true }
     );
   }, []); // Se déclenche uniquement au montage
+
+  // ✅ Revalider systématiquement dès qu'un filtre change (pas seulement au
+  // montage) : sans ça, revenir à une combinaison de filtres déjà visitée un
+  // peu plus tôt dans la session pouvait réafficher un résultat mis en cache
+  // avant que les données réelles n'aient changé (ex: avant un archivage).
+  useEffect(() => {
+    mutate();
+    if (modulairesApplicables) {
+      mutateModulaires();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
 
   // Fusionne les formations (table `formations`) et les formations modulaires (table `formation_modulaires`)
   const rows: FormationRow[] = useMemo(() => {
@@ -100,6 +118,42 @@ export default function FormationsPage() {
     ? mentions.filter(m => m.domaine_id === filters.domaine_id)
     : mentions;
 
+  // Revalide toutes les combinaisons de filtres en cache (pas seulement celle
+  // affichée en ce moment) : sans ça, basculer sur "Archivée" juste après un
+  // archivage pouvait afficher une liste obsolète encore en cache.
+  const revalidateFormationsCaches = () =>
+    globalMutate(
+      (key) => {
+        const firstSegment = Array.isArray(key) ? key[0] : key;
+        return typeof firstSegment === 'string' && firstSegment.startsWith('formation');
+      },
+      undefined,
+      { revalidate: true }
+    );
+
+  const handleArchive = async () => {
+    if (!archiveTarget) return;
+
+    try {
+      if (archiveTarget.kind === 'modulaire') {
+        await formationModulaireService.archive(archiveTarget.id);
+        await mutateModulaires();
+      } else {
+        await formationService.archive(archiveTarget.id);
+        await mutate();
+      }
+      await revalidateFormationsCaches();
+
+      toast.success('Formation archivée avec succès');
+      setArchiveModalOpen(false);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || "Erreur lors de l'archivage";
+      toast.error(errorMessage);
+    } finally {
+      setArchiveTarget(null);
+    }
+  };
+
   const handleDelete = async () => {
     if (!deleteTarget) return;
 
@@ -111,8 +165,9 @@ export default function FormationsPage() {
         await formationService.delete(deleteTarget.id);
         await mutate();
       }
+      await revalidateFormationsCaches();
 
-      toast.success('Formation archivée avec succès');
+      toast.success('Formation supprimée avec succès');
       setDeleteModalOpen(false);
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Erreur lors de la suppression';
@@ -175,6 +230,7 @@ export default function FormationsPage() {
 
         <div className="flex items-center gap-3">
           <button
+            type="submit"
             onClick={() => setShowFilters(!showFilters)}
             className={cn(
               "px-4 py-2 border rounded-lg flex items-center gap-2 transition-colors",
@@ -305,6 +361,7 @@ export default function FormationsPage() {
             {/* Boutons d'action */}
             <div className="md:col-span-2 lg:col-span-2 flex items-end">
               <button
+                type="button"
                 onClick={resetFilters}
                 className="w-full px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg border border-gray-300 flex items-center justify-center gap-2 transition-colors"
               >
@@ -342,11 +399,15 @@ export default function FormationsPage() {
               const description = row.data.description;
               const statut = row.data.statut_formation;
 
-              const editHref = isModulaire
+              const isFormationModulaireType = !isModulaire && (row.data as Formation).type_formation === 'MODULAIRE';
+
+              const editHref = isModulaire || isFormationModulaireType
                 ? ENDPOINTS.DASHBOARD_FORMATION_MODULAIRE_EDIT(row.id)
-                : (row.data as Formation).type_formation === 'MODULAIRE'
-                  ? ENDPOINTS.DASHBOARD_FORMATION_MODULAIRE_EDIT(row.id)
-                  : ENDPOINTS.DASHBOARD_FORMATION_PRINCIPALE_EDIT(row.id);
+                : ENDPOINTS.DASHBOARD_FORMATION_PRINCIPALE_EDIT(row.id);
+
+              const viewHref = isModulaire || isFormationModulaireType
+                ? ENDPOINTS.DASHBOARD_FORMATION_MODULAIRE_DETAILS(row.id)
+                : ENDPOINTS.DASHBOARD_FORMATION_DETAILS(row.id);
 
               return (
                 <div
@@ -410,15 +471,24 @@ export default function FormationsPage() {
                             icon: <Edit size={16} />,
                             onClick: () => router.push(editHref),
                           },
-                          {
-                            label: 'Supprimer',
-                            icon: <Trash2 size={16} />,
-                            variant: 'danger',
-                            onClick: () => {
-                              setDeleteTarget({ id: row.id, kind: row.kind });
-                              setDeleteModalOpen(true);
-                            },
-                          },
+                          statut === StatutFormation.ARCHIVEE
+                            ? {
+                                label: 'Supprimer',
+                                icon: <Trash2 size={16} />,
+                                variant: 'danger' as const,
+                                onClick: () => {
+                                  setDeleteTarget({ id: row.id, kind: row.kind });
+                                  setDeleteModalOpen(true);
+                                },
+                              }
+                            : {
+                                label: 'Archiver',
+                                icon: <Archive size={16} />,
+                                onClick: () => {
+                                  setArchiveTarget({ id: row.id, kind: row.kind });
+                                  setArchiveModalOpen(true);
+                                },
+                              },
                         ]}
                       />
                     </div>
@@ -493,7 +563,7 @@ export default function FormationsPage() {
                           {statut === StatutFormation.ACTIVE ? 'Active' : 'Archivée'}
                         </span>
                         <button
-                          onClick={() => router.push(editHref)}
+                          onClick={() => router.push(viewHref)}
                           className="px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors"
                         >
                           Voir
@@ -604,7 +674,21 @@ export default function FormationsPage() {
         )}
       </div>
 
-      {/* Modal de confirmation */}
+      {/* Modal de confirmation : archivage */}
+      <ConfirmModal
+        isOpen={archiveModalOpen}
+        onClose={() => {
+          setArchiveModalOpen(false);
+          setArchiveTarget(null);
+        }}
+        onConfirm={handleArchive}
+        title="Archiver la formation"
+        message="Êtes-vous sûr de vouloir archiver cette formation ? Elle ne sera plus visible pour les visiteurs mais restera accessible en consultation."
+        confirmText="Archiver"
+        confirmButtonClass="bg-yellow-600 hover:bg-yellow-700"
+      />
+
+      {/* Modal de confirmation : suppression (formations déjà archivées uniquement) */}
       <ConfirmModal
         isOpen={deleteModalOpen}
         onClose={() => {
@@ -612,10 +696,10 @@ export default function FormationsPage() {
           setDeleteTarget(null);
         }}
         onConfirm={handleDelete}
-        title="Archiver la formation"
-        message="Êtes-vous sûr de vouloir archiver cette formation ? Elle ne sera plus visible pour les visiteurs mais restera accessible en consultation."
-        confirmText="Archiver"
-        confirmButtonClass="bg-yellow-600 hover:bg-yellow-700"
+        title="Supprimer la formation"
+        message="Êtes-vous sûr de vouloir supprimer définitivement cette formation ? Elle ne sera plus accessible nulle part, y compris dans le dashboard."
+        confirmText="Supprimer"
+        confirmButtonClass="bg-red-600 hover:bg-red-700"
       />
     </div>
   );

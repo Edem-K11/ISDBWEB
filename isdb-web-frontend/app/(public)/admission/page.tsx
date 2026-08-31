@@ -1,13 +1,24 @@
 
 
 // app/(public)/admission/page.tsx
-'use client';
-
-import { useState } from 'react';
 import Link from 'next/link';
+import { getInstitutSettings } from '@/lib/api/institut';
+import FeesAccordion from '@/components/admission/feesAccordion';
 
-export default function AdmissionPage() {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+// Formate une date "YYYY-MM-DD" façon "1er septembre 2026" (ordinal français
+// pour le 1er du mois), ou renvoie un texte de repli si la date n'est pas
+// encore renseignée dans les paramètres de l'institut.
+function formatAdmissionDate(value: string | null | undefined, fallback: string): string {
+  if (!value) return fallback;
+  const date = new Date(`${value}T00:00:00`);
+  const day = date.getDate();
+  const dayLabel = day === 1 ? '1er' : String(day);
+  const month = date.toLocaleDateString('fr-FR', { month: 'long' });
+  return `${dayLabel} ${month} ${date.getFullYear()}`;
+}
+
+export default async function AdmissionPage() {
+  const institut = await getInstitutSettings();
 
   const faqItems = [
     {
@@ -153,27 +164,22 @@ export default function AdmissionPage() {
     { value: '7856', label: 'Apprenants satisfaits' }
   ];
 
-
-  const toggleFaq = (id: number) => {
-    setOpenFaq(openFaq === id ? null : id);
-  };
-
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-isdb-green-600 via-isdb-green-700 to-isdb-green-800 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/20" />
-        <div className="container relative mx-auto px-6 md:px-12 py-20 lg:py-28">
+        <div className="container relative mx-auto px-6 md:px-12 pt-22 pb-12 sm:pb-20 lg:py-28">
           <div className="max-w-4xl">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
               Rejoignez l'excellence académique
             </h1>
-            <p className="text-xl md:text-2xl text-isdb-green-100 mb-8">
+            <p className="text-base sm:text-xl md:text-2xl text-isdb-green-100 mb-8">
               Votre avenir commence ici. Découvrez notre processus d'admission et lancez votre parcours vers le succès.
             </p>
             <Link
               href="/contact"
-              className="inline-flex items-center px-8 py-4 bg-white text-isdb-green-600 font-semibold rounded-xl hover:bg-isdb-green-50 transition-all duration-300 shadow-lg text-lg"
+              className="inline-flex items-center px-4 py-2 sm:px-8 sm:py-4 bg-white text-isdb-green-600 font-semibold rounded-xl hover:bg-isdb-green-50 transition-all duration-300 shadow-lg text-sm sm:text-lg"
             >
               Commencer votre inscription
               <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,8 +196,8 @@ export default function AdmissionPage() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-isdb-green-600 mb-2">{stat.value}</div>
-                <div className="text-sm md:text-base text-gray-700">{stat.label}</div>
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-isdb-green-600 mb-2">{stat.value}</div>
+                <div className="text-sm sm:text-base md:text-lg text-gray-700">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -272,44 +278,7 @@ export default function AdmissionPage() {
           </div>
 
           <div className="max-w-4xl mx-auto">
-            <div className="space-y-4">
-              {faqItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-white rounded-xl shadow-lg overflow-hidden"
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleFaq(item.id)}
-                    className="w-full px-6 py-5 text-left flex justify-between items-center hover:bg-gray-50 transition-colors duration-200"
-                  >
-                    <span className="text-lg font-semibold text-gray-900">
-                      {item.question}
-                    </span>
-                    <svg
-                      className={`w-5 h-5 text-isdb-green-600 transform transition-transform duration-200 ${
-                        openFaq === item.id ? 'rotate-180' : ''
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                  
-                  <div
-                    className={`px-6 overflow-hidden transition-all duration-300 ${
-                      openFaq === item.id ? 'max-h-96 pb-5' : 'max-h-0'
-                    }`}
-                  >
-                    <div className="pt-2">
-                      {item.answer}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <FeesAccordion items={faqItems} />
 
             <div className="mt-12 bg-gradient-to-r from-isdb-green-600 to-isdb-green-700 rounded-2xl p-8 text-white">
               <div className="flex flex-col lg:flex-row items-center justify-between">
@@ -345,44 +314,60 @@ export default function AdmissionPage() {
               <ul className="space-y-3">
                 <li className="flex justify-between items-center border-b border-gray-100 pb-3">
                   <span className="text-gray-700">Ouverture des inscriptions</span>
-                  <span className="font-semibold text-isdb-green-600">1er Septembre</span>
+                  <span className="font-semibold text-isdb-green-600">
+                    {formatAdmissionDate(institut?.date_ouverture_inscriptions, '1er septembre')}
+                  </span>
                 </li>
                 <li className="flex justify-between items-center border-b border-gray-100 pb-3">
                   <span className="text-gray-700">Clôture des inscriptions</span>
-                  <span className="font-semibold text-isdb-green-600">30 Novembre</span>
+                  <span className="font-semibold text-isdb-green-600">
+                    {formatAdmissionDate(institut?.date_cloture_inscriptions, '30 novembre')}
+                  </span>
                 </li>
                 <li className="flex justify-between items-center pb-3">
-                  <span className="text-gray-700">Début des cours</span>
-                  <span className="font-semibold text-isdb-green-600">15 Janvier</span>
+                  <span className="text-gray-700">Rentrée des cours</span>
+                  <span className="font-semibold text-isdb-green-600">
+                    {formatAdmissionDate(institut?.date_rentree, '15 janvier')}
+                  </span>
                 </li>
               </ul>
             </div>
-            
+
             <div className="bg-white rounded-2xl p-8 shadow-lg">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Nous contacter</h3>
               <p className="text-gray-600 mb-6">
                 Pour toute question concernant l'admission, notre équipe est à votre disposition.
               </p>
               <div className="space-y-3">
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 text-isdb-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  <span className="text-gray-700">+226 XX XX XX XX</span>
-                </div>
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 text-isdb-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  <span className="text-gray-700">admission@isdb.edu</span>
-                </div>
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 text-isdb-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span className="text-gray-700">Ouagadougou, Burkina Faso</span>
-                </div>
+                {[institut?.telephone, institut?.telephone_2].filter(Boolean).map((telephone) => (
+                  <div key={telephone} className="flex items-center">
+                    <svg className="w-5 h-5 text-isdb-green-600 mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    <a href={`tel:${telephone!.replace(/\s+/g, '')}`} className="text-gray-700 hover:text-isdb-green-600 transition-colors">
+                      {telephone}
+                    </a>
+                  </div>
+                ))}
+                {[institut?.email, institut?.email_2].filter(Boolean).map((email) => (
+                  <div key={email} className="flex items-center">
+                    <svg className="w-5 h-5 text-isdb-green-600 mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <a href={`mailto:${email}`} className="text-gray-700 hover:text-isdb-green-600 transition-colors break-all">
+                      {email}
+                    </a>
+                  </div>
+                ))}
+                {institut?.adresse && (
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-isdb-green-600 mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span className="text-gray-700">{institut.adresse}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

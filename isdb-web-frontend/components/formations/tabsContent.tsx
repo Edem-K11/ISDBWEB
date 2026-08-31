@@ -101,9 +101,7 @@ export default function TabsContent({ formation, offre, colors }: TabsContentPro
               Programme de la formation
             </h2>
             <div className="prose max-w-none">
-              <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                {formation.programme}
-              </div>
+              <div dangerouslySetInnerHTML={{ __html: formation.programme }} />
             </div>
 
             {formation.programme_pdf && (
@@ -130,8 +128,8 @@ export default function TabsContent({ formation, offre, colors }: TabsContentPro
             {formation.profile_intree && (
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-slate-800 mb-3">Profil d'entrée</h3>
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {formation.profile_intree}
+                <div className="prose max-w-none">
+                  <div dangerouslySetInnerHTML={{ __html: formation.profile_intree }} />
                 </div>
               </div>
             )}
@@ -139,8 +137,8 @@ export default function TabsContent({ formation, offre, colors }: TabsContentPro
             {formation.condition_admission && (
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-slate-800 mb-3">Conditions requises</h3>
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {formation.condition_admission}
+                <div className="prose max-w-none">
+                  <div dangerouslySetInnerHTML={{ __html: formation.condition_admission }} />
                 </div>
               </div>
             )}
@@ -161,8 +159,8 @@ export default function TabsContent({ formation, offre, colors }: TabsContentPro
             <h2 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b">
               Objectifs de la formation
             </h2>
-            <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-              {formation.objectifs}
+            <div className="prose max-w-none">
+              <div dangerouslySetInnerHTML={{ __html: formation.objectifs }} />
             </div>
           </div>
         )}
@@ -172,8 +170,8 @@ export default function TabsContent({ formation, offre, colors }: TabsContentPro
             <h2 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b">
               Modalités d'évaluation
             </h2>
-            <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-              {formation.evaluation}
+            <div className="prose max-w-none">
+              <div dangerouslySetInnerHTML={{ __html: formation.evaluation }} />
             </div>
           </div>
         )}
@@ -183,8 +181,8 @@ export default function TabsContent({ formation, offre, colors }: TabsContentPro
             <h2 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b">
               Débouchés et poursuites d'études
             </h2>
-            <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-              {formation.profile_sortie}
+            <div className="prose max-w-none">
+              <div dangerouslySetInnerHTML={{ __html: formation.profile_sortie }} />
             </div>
           </div>
         )}

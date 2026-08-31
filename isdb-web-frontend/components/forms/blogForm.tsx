@@ -26,7 +26,7 @@ export default function BlogForm({ blog }: BlogFormProps) {
   const router = useRouter();
   const { user, isAdmin } = useAuth();
   const { tags } = useTags();
-  const { redacteurs } = useRedacteurs();
+  const { redacteurs } = useRedacteurs(isAdmin());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [contenu, setContenu] = useState(blog?.contenu || '');
   const [selectedTags, setSelectedTags] = useState<number[]>(

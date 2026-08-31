@@ -89,11 +89,58 @@ export const formationModulaireService = {
   },
 
   /**
-   * Archiver une formation modulaire (soft delete)
+   * Supprimer une formation modulaire (suppression réelle, non utilisée par
+   * les boutons "Archiver" du dashboard — voir archive() ci-dessous).
    */
   delete: async (id: number) => {
     const { data } = await apiClient.delete(
       ENDPOINTS.DASHBOARD_FORMATION_MODULAIRE_BY_ID(id)
+    );
+    return data;
+  },
+
+  /**
+   * Archiver une formation modulaire : change uniquement son statut
+   * (ARCHIVEE), sans suppression — c'est l'action déclenchée par les boutons
+   * "Archiver".
+   */
+  archive: async (id: number) => {
+    const { data } = await apiClient.patch<ApiResponse<FormationModulaire>>(
+      ENDPOINTS.DASHBOARD_FORMATION_MODULAIRE_ARCHIVE(id)
+    );
+    return data.data;
+  },
+
+  /**
+   * Réactiver une formation modulaire archivée.
+   */
+  activate: async (id: number) => {
+    const { data } = await apiClient.patch<ApiResponse<FormationModulaire>>(
+      ENDPOINTS.DASHBOARD_FORMATION_MODULAIRE_ACTIVATE(id)
+    );
+    return data.data;
+  },
+
+  /**
+   * Formations modulaires soft-supprimées (corbeille).
+   */
+  getTrashed: async () => {
+    const { data } = await apiClient.get<ApiResponse<FormationModulaire[]>>(
+      `${ENDPOINTS.DASHBOARD_FORMATIONS_MODULAIRES}/trashed`
+    );
+    return data.data;
+  },
+
+  restore: async (id: number) => {
+    const { data } = await apiClient.patch<ApiResponse<FormationModulaire>>(
+      `${ENDPOINTS.DASHBOARD_FORMATION_MODULAIRE_BY_ID(id)}/restore`
+    );
+    return data.data;
+  },
+
+  forceDelete: async (id: number) => {
+    const { data } = await apiClient.delete(
+      `${ENDPOINTS.DASHBOARD_FORMATION_MODULAIRE_BY_ID(id)}/force`
     );
     return data;
   },

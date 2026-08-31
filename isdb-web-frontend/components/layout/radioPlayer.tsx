@@ -99,53 +99,54 @@ export default function RadioPlayer({
     <div className="fixed bottom-0 left-0 right-0 z-50 animate-slideUp">
       {/* Fond flouté avec gradient */}
       <div className="absolute inset-0 backdrop-blur-xl bg-[#1a2f1a]/90 opacity-95"></div>      
-      <div className="relative px-6 py-4">
+      <div className="relative px-2 py-2 sm:px-6 sm:py-4">
         <div className="max-w-full mx-auto flex items-center justify-between">
           
           {/* Left Section - Image & Info */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
             {/* Image avec bordure décorative */}
-            <div className="relative group">
-              <div className="relative">
+            <div className="relative group shrink-0">
+              <div className="relative w-12 h-12 hidden sm:block sm:w-[68px] sm:h-[68px]">
                 <Image
                   src={radio?.image ? imageService.getUrl(radio.image) : '/logo_isdb.png'}
                   alt={radio?.nom || 'Radio ISDB'}
-                  width={68}
-                  height={68}
+                  fill
+                  sizes="(max-width: 640px) 48px, 68px"
                   className="rounded-lg object-cover shadow-2xl"
                   priority
                 />
               </div>
             </div>
 
-            {/* Radio Info */}
-            <div className="flex flex-col">
-              <div className="flex items-center gap-3">
-                <h3 className="text-white font-bold text-xl tracking-wide drop-shadow-lg">
+            {/* Radio Info : taille réduite en mobile, et texte tronqué plutôt
+                que de forcer la barre à s'agrandir ou à passer sur 2 lignes. */}
+            <div className="flex flex-col min-w-0">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <h3 className="text-white font-bold text-sm sm:text-xl tracking-wide drop-shadow-lg truncate">
                   {radio?.nom?.toUpperCase() || 'RADIO ISDB'}
                 </h3>
-                
+
                 {/* Badge en direct */}
                 {radio?.enDirect && (
-                  <div className="relative">
+                  <div className="relative shrink-0">
                     <div className="absolute inset-0 bg-red-500/30 blur-sm rounded-full"></div>
-                    <span className="relative flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-red-600 to-red-700 rounded-full text-white text-xs font-semibold shadow-lg">
-                      <span className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+                    <span className="relative flex items-center gap-1 sm:gap-2 px-2 py-0.5 sm:px-3 sm:py-1 bg-gradient-to-r from-red-600 to-red-700 rounded-full text-white text-[10px] sm:text-xs font-semibold shadow-lg whitespace-nowrap">
+                      <span className="flex items-center gap-1 sm:gap-1.5">
+                        <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full animate-pulse"></span>
                         EN DIRECT
                       </span>
                     </span>
                   </div>
                 )}
               </div>
-              <p className="text-white/80 text-sm mt-1 font-light tracking-wide">
+              <p className="text-white/80 text-xs sm:text-sm mt-0.5 sm:mt-1 font-light tracking-wide truncate">
                 {radio?.description || 'Écoutez notre programmation exclusive'}
               </p>
             </div>
           </div>
 
           {/* Right Section - Controls */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-3 sm:gap-8 shrink-0">
             {/* Bouton Fermer (X) */}
             {onClose && (
               <button
@@ -153,7 +154,7 @@ export default function RadioPlayer({
                 className="text-white/70 hover:text-white transition-colors p-2"
                 title="Fermer le lecteur"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -197,8 +198,10 @@ export default function RadioPlayer({
               )}
             </button>
 
-            {/* Volume Control amélioré */}
-            <div className="flex items-center gap-4 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2 border border-white/10">
+            {/* Volume Control amélioré — masqué en mobile : pas assez de place à
+                côté de l'image/texte et des boutons play/fermer, et le bouton
+                play doit rester tout à droite, juste à côté de la croix. */}
+            <div className="hidden sm:flex items-center gap-4 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2 border border-white/10">
               {/* Volume Icon */}
               <button
                 onClick={onMuteToggle}

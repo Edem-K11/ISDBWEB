@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useAuth } from '@/lib/auth/useAuth';
 import { authService } from '@/lib/api/services/authService';
 import { imageService } from '@/lib/api/services/imageService';
-import { User, Mail, Briefcase, Lock, Upload, Loader2, Save } from 'lucide-react';
+import { User, Mail, Lock, Upload, Loader2, Save } from 'lucide-react';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 
@@ -36,7 +36,7 @@ export default function ProfilPage() {
 
     setUploadingAvatar(true);
     try {
-      const { url } = await imageService.upload(file);
+      const { url } = await imageService.upload(file, 'redacteurs');
       setFormData({ ...formData, avatar: url });
       toast.success('Avatar uploadé !');
     } catch (error) {
@@ -214,22 +214,6 @@ export default function ProfilPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-50 disabled:text-gray-500"
               />
             </div>
-          </div>
-
-          {/* Poste */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-              <Briefcase className="w-4 h-4" />
-              Poste
-            </label>
-            <input
-              type="text"
-              value={formData.nom}
-              onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
-              disabled={!isEditing}
-              placeholder="Ex: Rédacteur en chef"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-50 disabled:text-gray-500"
-            />
           </div>
 
           {/* Bio */}

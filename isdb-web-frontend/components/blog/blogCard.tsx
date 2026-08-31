@@ -18,7 +18,7 @@ export default function BlogCard({ article }: { article: Blog }) {
   return (
     <Link href={ENDPOINTS.BLOG_BY_SLUG(article.slug)}>
       <article className="group cursor-pointer bg-white hover:shadow-md rounded-xl border border-slate-300 mb-10 hover:border-slate-400 overflow-hidden transition-all duration-300 h-full">
-        <div className="flex flex-col md:flex-row gap-10 px-6 py-8 h-full">
+        <div className="flex flex-col md:flex-row gap-6 sm:gap-10 px-6 py-8 h-full">
           {/* Contenu textuel */}
           <div className="flex flex-1 flex-col justify-between">
             {/* Tags */}
@@ -26,7 +26,7 @@ export default function BlogCard({ article }: { article: Blog }) {
               {article.tags.slice(0, 2).map(tag => (
                 <span
                   key={tag.id}
-                  className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium border"
+                  className="inline-flex items-center px-3 py-1 rounded-md text-[10px] sm:text-sm font-medium border"
                   style={{
                     backgroundColor: `${tag.couleur || '#6366F1'}1A`,
                     color: tag.couleur || '#6366F1',
@@ -37,7 +37,7 @@ export default function BlogCard({ article }: { article: Blog }) {
                 </span>
               ))}
               {article.tags.length > 2 && (
-                <span className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-gray-100 border border-gray-300 text-gray-600">
+                <span className="inline-flex items-center px-3 py-1 rounded-md text-[10px] sm:text-sm font-medium bg-gray-100 border border-gray-300 text-gray-600">
                   +{article.tags.length - 2}
                 </span>
               )}
@@ -45,19 +45,19 @@ export default function BlogCard({ article }: { article: Blog }) {
 
             {/* Titre */}
             <h3
-              className="text-3xl font-bold text-gray-900 mb-3 group-hover:text-indigo-600 transition-colors"
+              className="text-xl sm:text-3xl font-bold text-gray-900 mb-3 group-hover:text-indigo-600 transition-colors"
               title={article.titre}
             >
               {truncatedTitre}
             </h3>
 
             {/* Résumé */}
-            <p className="text-gray-600 mb-4 line-clamp-2">
+            <p className="text-sm sm:text-base text-gray-600 mb-4 line-clamp-2">
               {article.resume}
             </p>
 
             {/* redacteur et date */}
-            <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center justify-between mt-2 sm:mt-4">
               <div className="flex items-center gap-2">
                 {article.redacteur?.avatar ? (
                   <Image
@@ -69,17 +69,17 @@ export default function BlogCard({ article }: { article: Blog }) {
                   />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                    <span className="text-indigo-600 font-semibold text-sm">
+                    <span className="text-indigo-600 font-semibold text-[10px] sm:text-sm">
                       {article.redacteur?.nom.charAt(0)}
                     </span>
                   </div>
                 )}
-                <span className="text-sm text-gray-700 font-medium">
+                <span className="text-[12px] sm:text-sm text-gray-700 font-medium">
                   {article.redacteur?.nom ?? "Rédacteur inconnu"}
                 </span>
               </div>
               
-              <div className="flex items-center text-sm text-gray-500">
+              <div className="flex items-center text-[12px] sm:text-sm text-gray-500">
                 <svg
                   className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400"
                   fill="none"

@@ -5,8 +5,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  ArrowLeft, 
+import {
+  ArrowLeft,
   Save,
   GraduationCap,
   BookOpen,
@@ -21,7 +21,10 @@ import {
   ChevronUp,
   Loader2,
   Eye,
-  Download
+  Download,
+  Archive,
+  Trash2,
+  RotateCcw,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { formationService } from '@/lib/api/services/formationService';
@@ -31,6 +34,8 @@ import { useMentions } from '@/lib/hooks/useMention';
 import RichTextEditor from '@/components/ui/richTextEditor';
 import { FileUpload } from '@/components/ui/fileUpload';
 import { SelectWithSearch } from '@/components/ui/selectWithSearch';
+import ConfirmModal from '@/components/ui/confirmModal';
+import { StatutFormation } from '@/lib/types/Formation';
 import { mutate } from 'swr';
 import { cn } from '@/lib/utils/cn';
 import { ENDPOINTS } from '@/lib/api/endpoints';
@@ -46,6 +51,63 @@ export default function EditFormationPrincipalePage() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [actionModalOpen, setActionModalOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isReactivating, setIsReactivating] = useState(false);
+
+  // Reflète le statut réellement enregistré : une fois la formation archivée,
+  // ce bouton devient "Supprimer" (avec "Réactiver" en plus) à la place
+  // d'"Archiver", sur toutes les pages qui la concernent.
+  const isArchived = formation?.statut_formation === StatutFormation.ARCHIVEE;
+
+  const revalidateFormationsCaches = () =>
+    mutate(
+      (key) => {
+        const firstSegment = Array.isArray(key) ? key[0] : key;
+        return typeof firstSegment === 'string' && firstSegment.startsWith('formation');
+      },
+      undefined,
+      { revalidate: true }
+    );
+
+  const handleConfirmAction = async () => {
+    setIsProcessing(true);
+    try {
+      if (isArchived) {
+        await formationService.delete(formationId);
+        toast.success('Formation supprimée avec succès');
+      } else {
+        await formationService.archive(formationId);
+        toast.success('Formation archivée avec succès');
+      }
+      await revalidateFormationsCaches();
+      router.push(ENDPOINTS.DASHBOARD_FORMATIONS);
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message ||
+          (isArchived ? 'Erreur lors de la suppression' : "Erreur lors de l'archivage")
+      );
+    } finally {
+      setIsProcessing(false);
+      setActionModalOpen(false);
+    }
+  };
+
+  // Réactivation : action non destructive, pas besoin de confirmation.
+  const handleReactivate = async () => {
+    setIsReactivating(true);
+    try {
+      await formationService.activate(formationId);
+      toast.success('Formation réactivée avec succès');
+      await mutateFormation();
+      await revalidateFormationsCaches();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Erreur lors de la réactivation');
+    } finally {
+      setIsReactivating(false);
+    }
+  };
+
   const [expandedSections, setExpandedSections] = useState<string[]>([
     'informations',
     'domaine',
@@ -204,25 +266,24 @@ export default function EditFormationPrincipalePage() {
         evaluation: formData.evaluation || null,
       };
 
-      // Ajouter le fichier PDF si présent
-      if (formData.programme_pdf) {
-        const formDataToSend = new FormData();
-        Object.entries(formationData).forEach(([key, value]) => {
-          if (value !== null && value !== undefined && value !== '') {
-            formDataToSend.append(key, String(value));
-          }
-        });
-        formDataToSend.append('programme_pdf', formData.programme_pdf);
-        formDataToSend.append('_method', 'PUT');
-        await formationService.update(formationId, formDataToSend as any);
-      } else {
-        await formationService.update(formationId, formationData);
-      }
+      // Le fichier PDF (s'il y en a un) est ajouté à l'objet simple : c'est
+      // formationService.update qui se charge de construire le FormData et de
+      // passer par un POST + _method=PUT (seule combinaison que PHP sait
+      // parser pour un upload de fichier — un vrai PUT multipart n'est jamais
+      // lu côté serveur).
+      await formationService.update(formationId, {
+        ...formationData,
+        ...(formData.programme_pdf ? { programme_pdf: formData.programme_pdf } : {}),
+      });
 
-      // Revalider les données
+      // Revalider les données. Les clés SWRInfinite sont des tableaux
+      // (['formations-infinite', filtres]), pas des chaînes.
       await mutateFormation();
       await mutate(
-        key => typeof key === 'string' && key.startsWith('formations'),
+        (key) => {
+          const firstSegment = Array.isArray(key) ? key[0] : key;
+          return typeof firstSegment === 'string' && firstSegment.startsWith('formation');
+        },
         undefined,
         { revalidate: true }
       );
@@ -325,15 +386,51 @@ export default function EditFormationPrincipalePage() {
             </div>
           </div>
           
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+          <div className="flex items-center gap-3">
             <span className={cn(
-              "px-2 py-1 rounded",
-              formation.statut_formation === 'ACTIVE' 
+              "px-2 py-1 rounded text-sm",
+              formation.statut_formation === 'ACTIVE'
                 ? 'bg-green-100 text-green-800'
                 : 'bg-yellow-100 text-yellow-800'
             )}>
               {formation.statut_formation === 'ACTIVE' ? 'Active' : 'Archivée'}
             </span>
+
+            {isArchived ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handleReactivate}
+                  disabled={isReactivating}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-isdb-green-700 bg-isdb-green-50 hover:bg-isdb-green-100 rounded-lg transition-colors text-sm font-medium disabled:opacity-50 shrink-0"
+                  title="Réactiver"
+                >
+                  <RotateCcw size={16} />
+                  Réactiver
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActionModalOpen(true)}
+                  disabled={isProcessing}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-sm font-medium disabled:opacity-50 shrink-0"
+                  title="Supprimer"
+                >
+                  <Trash2 size={16} />
+                  Supprimer
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setActionModalOpen(true)}
+                disabled={isProcessing}
+                className="inline-flex items-center gap-2 px-4 py-2 text-yellow-700 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors text-sm font-medium disabled:opacity-50 shrink-0"
+                title="Archiver"
+              >
+                <Archive size={16} />
+                Archiver
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -703,85 +800,19 @@ export default function EditFormationPrincipalePage() {
         </div>
       </form>
 
-      {/* Informations complémentaires */}
-      <div className="mt-8 space-y-6">
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-          <h3 className="font-medium text-blue-900 mb-3 flex items-center gap-2">
-            <GraduationCap size={20} />
-            Informations techniques
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-blue-800">Type :</span>
-                <span className="font-medium">Formation principale</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-blue-800">Statut :</span>
-                <span className={cn(
-                  "px-2 py-1 rounded text-xs",
-                  formation.statut_formation === 'ACTIVE' 
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-yellow-100 text-yellow-800'
-                )}>
-                  {formation.statut_formation === 'ACTIVE' ? 'Active' : 'Archivée'}
-                </span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-blue-800">Crée le :</span>
-                <span>{new Date(formation.createdAt).toLocaleDateString('fr-FR', {
-                  day: '2-digit',
-                  month: 'long',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-blue-800">Dernière modification :</span>
-                <span>{new Date(formation.updatedAt).toLocaleDateString('fr-FR', {
-                  day: '2-digit',
-                  month: 'long',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-blue-800">Nombre d'offres :</span>
-                <span className="font-medium">{formation.offresFormations?.length || 0}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-green-50 border border-green-200 rounded-xl p-6">
-          <h3 className="font-medium text-green-900 mb-3">
-            💡 Rappel : Chef de parcours et offres
-          </h3>
-          <p className="text-green-800 mb-3">
-            Le chef de parcours est défini au niveau des offres de formation, pas au niveau de la formation elle-même.
-          </p>
-          <div className="flex gap-3">
-            <Link
-              href={`/dashboard/formations/${formation.id}/offres`}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-            >
-              <Users size={16} />
-              Gérer les offres
-            </Link>
-            <Link
-              href={`/dashboard/formations/${formation.id}`}
-              className="inline-flex items-center gap-2 px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors text-sm"
-            >
-              <Eye size={16} />
-              Voir la fiche complète
-            </Link>
-          </div>
-        </div>
-      </div>
+      <ConfirmModal
+        isOpen={actionModalOpen}
+        onClose={() => setActionModalOpen(false)}
+        onConfirm={handleConfirmAction}
+        title={isArchived ? 'Supprimer la formation' : 'Archiver la formation'}
+        message={
+          isArchived
+            ? 'Êtes-vous sûr de vouloir supprimer définitivement cette formation ? Elle ne sera plus accessible nulle part, y compris dans le dashboard.'
+            : 'Êtes-vous sûr de vouloir archiver cette formation ? Elle ne sera plus visible pour les visiteurs mais restera accessible en consultation.'
+        }
+        confirmText={isArchived ? 'Supprimer' : 'Archiver'}
+        confirmButtonClass={isArchived ? 'bg-red-600 hover:bg-red-700' : 'bg-yellow-600 hover:bg-yellow-700'}
+      />
     </div>
   );
 }

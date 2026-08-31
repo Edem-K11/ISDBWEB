@@ -47,7 +47,7 @@ export default function FormationCard({ title, description, badge, link, highlig
           </div>
           <span
             className={cn(
-              'px-4 py-2 text-sm font-semibold rounded-full transition-all duration-300',
+              'px-4 py-2 text-[12px] sm:text-sm font-semibold rounded-full transition-all duration-300',
               isHovered ? cn(colors.accentBg, 'text-white scale-105') : cn(colors.bg, colors.text)
             )}
           >
@@ -56,10 +56,10 @@ export default function FormationCard({ title, description, badge, link, highlig
         </div>
 
         {/* Title avec effet de soulignement */}
-        <div className="relative mb-6">
+        <div className="relative mb-0 sm:mb-6">
           <h3
             className={cn(
-              'text-2xl md:text-3xl font-bold mb-4 transition-all duration-300 relative inline-block',
+              'text-xl sm:text-2xl md:text-3xl font-bold mb-4 transition-all duration-300 relative inline-block',
               isHovered ? colors.text : 'text-slate-900'
             )}
           >
@@ -76,7 +76,7 @@ export default function FormationCard({ title, description, badge, link, highlig
 
         {/* Description avec effet d'apparition */}
         <p
-          className={`text-slate-700 text-base leading-relaxed mb-8 transition-all duration-500 ${isHovered ? 'translate-x-2 opacity-100' : 'translate-x-0 opacity-90'}`}
+          className={`text-slate-700 text-base leading-relaxed mb-4 sm:mb-8 transition-all duration-500 ${isHovered ? 'translate-x-2 opacity-100' : 'translate-x-0 opacity-90'}`}
         >
           {description}
         </p>
@@ -86,14 +86,15 @@ export default function FormationCard({ title, description, badge, link, highlig
           <div className="flex items-center gap-2">
             <span
               className={cn(
-                'text-sm font-medium transition-all duration-400 flex items-center gap-2',
+                'text-sm font-medium transition-all duration-400 flex items-center gap-2 max-w-[200px] sm:max-w-[300px] overflow-hidden whitespace-nowrap',
                 isHovered ? cn(colors.text, 'translate-x-2 font-semibold') : 'text-slate-700'
               )}
             >
               <div className={cn('p-1.5 rounded transition-colors', isHovered ? colors.bg : 'bg-slate-100')}>
                 <ArrowRight className="w-4 h-4" />
               </div>
-              En savoir plus
+              <p>En savoir plus</p>
+              
             </span>
           </div>
 

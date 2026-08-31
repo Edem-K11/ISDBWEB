@@ -3,6 +3,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/lib/auth/useAuth';
 import { useRadio } from '@/lib/hooks/useRadio';
 import { radioService } from '@/lib/api/services/radioService';
 import ImageUpload from '@/components/ui/imageUpload';
@@ -22,13 +23,15 @@ import {
   AlertCircle,
   Eye,
   Upload,
-  Trash2
+  Trash2,
+  ShieldAlert
 } from 'lucide-react';
 import { mutate } from 'swr';
 import { LoadingSpinner } from '@/components/ui/loadingSpinner';
 import { ENDPOINTS } from '@/lib/api/endpoints';
 
 export default function RadioDashboardPage() {
+  const { isAdmin } = useAuth();
   const { radio, isLoading, mutate: mutateRadio } = useRadio();
   const [isEditing, setIsEditing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -212,6 +215,16 @@ export default function RadioDashboardPage() {
     testAudio.src = formData.urlStream;
     testAudio.load();
   };
+
+  if (!isAdmin()) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <ShieldAlert className="w-16 h-16 text-red-500 mb-4" />
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Accès Refusé</h2>
+        <p className="text-gray-600">Cette page est réservée aux administrateurs.</p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

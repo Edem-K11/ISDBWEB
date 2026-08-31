@@ -1,7 +1,7 @@
 
 
 // components/formations/InfoCard.tsx
-import { Users, BookOpen, GraduationCap, Clock, User, Calendar, MapPin } from 'lucide-react';
+import { Users, BookOpen, GraduationCap, Clock, User, Calendar } from 'lucide-react';
 
 interface InfoCardProps {
   formation: any;
@@ -56,16 +56,15 @@ export default function InfoCard({ formation, offre, mention, colors }: InfoCard
       value: offre.annee_academique.libelle,
       show: true,
     },
-    {
-      icon: MapPin,
-      label: 'Niveau de sortie',
-      value: formation.profile_sortie || 'Non précisé',
-      show: formation.profile_sortie,
-    },
   ].filter(item => item.show);
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 w-full lg:w-80 flex-shrink-0 h-fit sticky top-4">
+    // `sticky` n'a de sens que quand la sidebar est vraiment à côté du contenu
+    // (mise en page flex-row à partir de lg, dans la page parente). En dessous
+    // de lg, la mise en page passe en colonne : si sticky restait actif, la
+    // sidebar se fixait en haut d'écran en scrollant et recouvrait les onglets
+    // d'informations juste en dessous, les rendant illisibles.
+    <div className="bg-white rounded-xl shadow-lg p-6 w-full lg:w-80 flex-shrink-0 h-fit lg:sticky lg:top-4">
       <h3 className={`text-xl font-bold text-slate-800 mb-6 pb-3 border-b-2 ${colors.border}`}>
         Informations générales
       </h3>

@@ -32,13 +32,23 @@ export function FileUpload({
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(existingFileUrl || null);
   const [dragActive, setDragActive] = useState(false);
+  const [rejectionError, setRejectionError] = useState<string | null>(null);
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const uploadedFile = acceptedFiles[0];
     if (uploadedFile) {
+      setRejectionError(null);
       setFile(uploadedFile);
       onFileUpload(uploadedFile);
-      
+
       // Créer une preview pour les PDF (première page)
       if (uploadedFile.type === 'application/pdf') {
         const reader = new FileReader();
@@ -58,21 +68,24 @@ export function FileUpload({
     onDragEnter: () => setDragActive(true),
     onDragLeave: () => setDragActive(false),
     onDropAccepted: () => setDragActive(false),
-    onDropRejected: () => setDragActive(false),
+    onDropRejected: (fileRejections) => {
+      setDragActive(false);
+      const code = fileRejections[0]?.errors[0]?.code;
+      if (code === 'file-too-large') {
+        setRejectionError(`Ce fichier dépasse la taille maximale autorisée (${formatFileSize(maxSize)}).`);
+      } else if (code === 'file-invalid-type') {
+        setRejectionError('Seuls les fichiers au format PDF sont acceptés.');
+      } else {
+        setRejectionError("Ce fichier n'a pas pu être ajouté.");
+      }
+    },
   });
 
   const removeFile = () => {
     setFile(null);
     setPreview(null);
+    setRejectionError(null);
     onFileUpload(null);
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   return (
@@ -92,7 +105,7 @@ export function FileUpload({
             dragActive
               ? 'border-isdb-green-500 bg-isdb-green-50'
               : 'border-gray-300 hover:border-isdb-green-400 hover:bg-gray-50',
-            error && 'border-red-300'
+            (error || rejectionError) && 'border-red-300'
           )}
         >
           <input {...getInputProps()} />
@@ -189,8 +202,8 @@ export function FileUpload({
       )}
 
       {/* Message d'erreur */}
-      {error && (
-        <p className="mt-2 text-sm text-red-600">{error}</p>
+      {(error || rejectionError) && (
+        <p className="mt-2 text-sm text-red-600">{error || rejectionError}</p>
       )}
 
       {/* Instructions */}

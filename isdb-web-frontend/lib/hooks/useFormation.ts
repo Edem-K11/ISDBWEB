@@ -31,16 +31,20 @@ export function useFormation(id?: number) {
  */
 export function useFormationsInfinite(filters: FormationFilters = {}) {
   const getKey = (pageIndex: number, previousPageData: Formation[] | null) => {
-    // Si on a atteint la fin, ne pas charger plus
-    if (previousPageData && previousPageData.length === 0) return null;
-    
+    const perPage = filters.perPage || 10;
+
+    // Si la page précédente était incomplète, c'est qu'on a atteint la fin :
+    // ne pas charger de page suivante (une simple vérification "=== 0" laissait
+    // partir une requête inutile pour une dernière page déjà partiellement pleine).
+    if (previousPageData && previousPageData.length < perPage) return null;
+
     // Première page ou page suivante
     return [
       'formations-infinite',
       {
         ...filters,
         page: pageIndex + 1,
-        perPage: filters.perPage || 10,
+        perPage,
       }
     ];
   };

@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { MapPin } from 'lucide-react';
+import { MapPin, Phone, Mail } from 'lucide-react';
 import { getInstitutSettings } from '@/lib/api/institut';
 import { SOCIAL_LINKS, getSocialHref } from '@/lib/utils/socialLinks';
 import { boldonse } from '@/components/ui/fonts';
@@ -67,6 +67,15 @@ export default async function Footer() {
   const logo = institut?.logo || '/logo_isdb.png';
   const socials = institut ? SOCIAL_LINKS.filter((s) => institut.reseaux_sociaux[s.key]) : [];
 
+  // Un ou deux numéros / emails selon ce qui est renseigné dans les paramètres.
+  const telephones = [institut?.telephone, institut?.telephone_2].filter(
+    (value): value is string => Boolean(value)
+  );
+  const emails = [institut?.email, institut?.email_2].filter(
+    (value): value is string => Boolean(value)
+  );
+  const hasContactColumn = Boolean(institut?.adresse) || telephones.length > 0 || emails.length > 0;
+
   return (
     <footer className="bg-slate-200 py-16">
       <div className="container mx-auto px-6 md:px-12">
@@ -81,9 +90,9 @@ export default async function Footer() {
                 height={36}
                 className="rounded object-contain"
               />
-              <span className={`${boldonse.className} text-xl text-slate-800`}>{nom}</span>
+              <span className={`${boldonse.className} text-base sm:text-xl text-slate-800`}>{nom}</span>
             </div>
-            <p className="text-sm text-slate-500 mb-6">{description}</p>
+            <p className="text-[15px] sm:text-sm text-slate-500 mb-6">{description}</p>
 
             {socials.length > 0 && (
               <div className="flex justify-center md:justify-start gap-4">
@@ -99,7 +108,7 @@ export default async function Footer() {
                       title={label}
                       className="rounded-full bg-isdb-green-700 hover:bg-isdb-green-600 p-3 transition-colors duration-300"
                     >
-                      <Icon size={18} className="text-white" />
+                      <Icon className="text-white w-3 h-3 sm:w-4 sm:h-4" />
                     </a>
                   );
                 })}
@@ -107,32 +116,75 @@ export default async function Footer() {
             )}
           </div>
 
-          {/* Colonnes de navigation */}
+          {/* Colonnes de navigation. Grille à 2 colonnes dès le mobile (plutôt
+              qu'un flex-wrap qui centrait des blocs de largeur inégale), et
+              seulement 3-4 colonnes à partir de md : passer à 4 colonnes dès
+              640px (comme avant) ne laissait qu'une grosse centaine de pixels
+              pour "Contact" — trop peu pour une adresse ou un email complet,
+              d'où le texte à l'étroit et qui débordait. */}
           <div
-            className={`flex flex-wrap justify-center gap-10 sm:grid sm:gap-12 ${
-              institut?.adresse ? 'sm:grid-cols-4' : 'sm:grid-cols-3'
+            className={`grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-10 w-full md:w-auto md:gap-12 ${
+              hasContactColumn ? 'md:grid-cols-4' : 'md:grid-cols-3'
             }`}
           >
             {footerData.map((column) => (
               <FooterColumn key={column.title} title={column.title} items={column.items} />
             ))}
 
-            {institut?.adresse && (
+            {hasContactColumn && (
               <div>
-                <h3 className="text-sm font-semibold text-slate-600 mb-3">Adresse</h3>
-                <div className="flex items-start gap-2 text-sm text-slate-500">
-                  <MapPin size={16} className="flex-shrink-0 mt-0.5 text-isdb-green-600" />
-                  {institut.maps_url ? (
-                    <a
-                      href={institut.maps_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-isdb-green-600 transition-colors duration-200"
-                    >
-                      {institut.adresse}
-                    </a>
-                  ) : (
-                    <span>{institut.adresse}</span>
+                <h3 className="text-sm font-semibold text-slate-600 mb-3">Contact</h3>
+                <div className="space-y-3 text-sm text-slate-500">
+                  {institut?.adresse && (
+                    <div className="flex items-start gap-2">
+                      <MapPin size={16} className="flex-shrink-0 mt-0.5 text-isdb-green-600" />
+                      {institut.maps_url ? (
+                        <a
+                          href={institut.maps_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-isdb-green-600 transition-colors duration-200"
+                        >
+                          {institut.adresse}
+                        </a>
+                      ) : (
+                        <span>{institut.adresse}</span>
+                      )}
+                    </div>
+                  )}
+
+                  {telephones.length > 0 && (
+                    <div className="flex items-start gap-2">
+                      <Phone size={16} className="flex-shrink-0 mt-0.5 text-isdb-green-600" />
+                      <div className="space-y-1">
+                        {telephones.map((telephone) => (
+                          <a
+                            key={telephone}
+                            href={`tel:${telephone.replace(/\s+/g, '')}`}
+                            className="block hover:text-isdb-green-600 transition-colors duration-200"
+                          >
+                            {telephone}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {emails.length > 0 && (
+                    <div className="flex items-start gap-2">
+                      <Mail size={16} className="flex-shrink-0 mt-0.5 text-isdb-green-600" />
+                      <div className="space-y-1">
+                        {emails.map((email) => (
+                          <a
+                            key={email}
+                            href={`mailto:${email}`}
+                            className="block hover:text-isdb-green-600 transition-colors duration-200 break-all"
+                          >
+                            {email}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>

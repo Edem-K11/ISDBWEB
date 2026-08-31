@@ -177,12 +177,17 @@ class OffreFormation extends Model
         // Validation avant sauvegarde
         static::saving(function ($offre) {
             // Vérifier qu'une offre n'existe pas déjà pour cette formation et cette année
-            $existingOffre = static::where('formation_id', $offre->formation_id)
-                ->where('annee_academique_id', $offre->annee_academique_id)
-                ->where('id', '!=', $offre->id)
-                ->exists();
+            $query = static::where('formation_id', $offre->formation_id)
+                ->where('annee_academique_id', $offre->annee_academique_id);
 
-            if ($existingOffre) {
+            // Sur une création, $offre->id est encore null : "id != null" ne
+            // matche jamais aucune ligne en SQL, donc exclure explicitement
+            // cette condition tant qu'aucun id n'est encore assigné.
+            if ($offre->id) {
+                $query->where('id', '!=', $offre->id);
+            }
+
+            if ($query->exists()) {
                 throw new \InvalidArgumentException(
                     'Cette formation est déjà offerte pour cette année académique.'
                 );

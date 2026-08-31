@@ -20,6 +20,7 @@ export interface FormationModulaire {
   statut_formation: StatutFormation;
   created_at?: string | null;
   updated_at?: string | null;
+  deleted_at?: string | null;
 }
 
 export interface FormationModulaireFormData {
