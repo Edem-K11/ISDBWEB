@@ -1,6 +1,7 @@
 
 
 // app/(public)/formations/page.tsx
+import Link from "next/link";
 import EventCard from "@/components/formations/eventCard";
 import HeroSection from "@/components/layout/hero";
 import { getMentions } from "@/lib/api/mentions";
@@ -57,9 +58,12 @@ export default async function FormationsPage() {
           <p className="text-sm sm:text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
             Notre équipe pédagogique est à votre écoute pour vous orienter vers le parcours le plus adapté à votre projet professionnel.
           </p>
-          <button className="px-8 py-4 bg-white text-gray-700 font-semibold rounded-xl hover:bg-blue-50 transition-all duration-300 hover:scale-105 shadow-lg">
+          <Link
+            href="/contact"
+            className="inline-block px-8 py-4 bg-white text-gray-700 font-semibold rounded-xl hover:bg-blue-50 transition-all duration-300 hover:scale-105 shadow-lg"
+          >
             Contactez-nous
-          </button>
+          </Link>
         </div>
       </div>
     </div>
