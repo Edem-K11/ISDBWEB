@@ -20,17 +20,34 @@ import {
   Bookmark,
   Calendar,
   ClipboardList,
-  Mail
+  Mail,
+  Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useContactMessages } from '@/lib/hooks/useContactMessages';
 
 export default function Sidebar() {
   const { user, isAdmin, logout } = useAuth();
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-  const { unreadCount } = useContactMessages();
+  const { unreadCount } = useContactMessages(isAdmin());
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
+
+  // Ferme le menu de compte au clic en dehors, comme les autres menus du dashboard.
+  useEffect(() => {
+    if (!accountMenuOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
+        setAccountMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [accountMenuOpen]);
 
   // Groupes de navigation : `title` sert d'en-tête de section (aucun en-tête si null),
   // les entrées de chaque groupe sont des liens directs (pas de sous-menu à déplier).
@@ -105,43 +122,61 @@ export default function Sidebar() {
             icon: ClipboardList,
             current: pathname.startsWith('/dashboard/offres-formations'),
           },
+          {
+            name: 'Corbeille',
+            href: '/dashboard/corbeille',
+            icon: Trash2,
+            current: pathname.startsWith('/dashboard/corbeille'),
+          },
         ],
       },
     ] : []),
     {
       title: null,
       items: [
-        {
-          name: 'Radio',
-          href: '/dashboard/radio',
-          icon: Radio,
-          current: pathname.startsWith('/dashboard/radio'),
-        },
-        {
-          name: 'Studios',
-          href: '/dashboard/studios',
-          icon: Clapperboard,
-          current: pathname.startsWith('/dashboard/studios'),
-        },
-        {
-          name: 'Messages',
-          href: '/dashboard/messages',
-          icon: Mail,
-          current: pathname.startsWith('/dashboard/messages'),
-          badge: unreadCount > 0 ? unreadCount : undefined,
-        },
+        // Un rédacteur ne doit voir que ses articles et son profil : Radio,
+        // Studios, Messages et Paramètres sont réservés aux admins (ces pages
+        // le vérifient aussi elles-mêmes, mais elles ne doivent même pas
+        // apparaître dans la navigation d'un rédacteur).
+        ...(isAdmin()
+          ? [
+              {
+                name: 'Radio',
+                href: '/dashboard/radio',
+                icon: Radio,
+                current: pathname.startsWith('/dashboard/radio'),
+              },
+              {
+                name: 'Studios',
+                href: '/dashboard/studios',
+                icon: Clapperboard,
+                current: pathname.startsWith('/dashboard/studios'),
+              },
+              {
+                name: 'Messages',
+                href: '/dashboard/messages',
+                icon: Mail,
+                current: pathname.startsWith('/dashboard/messages'),
+                badge: unreadCount > 0 ? unreadCount : undefined,
+              },
+            ]
+          : []),
         {
           name: 'Mon Profil',
           href: '/dashboard/profil',
           icon: User,
           current: pathname === '/dashboard/profil',
         },
-        {
-          name: 'Paramètres',
-          href: '/dashboard/parametres',
-          icon: Settings,
-          current: pathname === '/dashboard/parametres',
-        },
+        ...(isAdmin()
+          ? [
+              {
+                name: 'Paramètres',
+                href: '/dashboard/parametres',
+                icon: Settings,
+                current: pathname === '/dashboard/parametres',
+              },
+            ]
+          : []),
       ],
     },
   ];
@@ -299,45 +334,83 @@ export default function Sidebar() {
           ))}
         </nav>
 
-        {/* User info et Logout */}
-        <div className="border-t border-gray-100/20 p-2 lg:p-4">
-          {/* User info */}
-          <div className="flex items-center gap-2 lg:gap-3 mb-4 lg:mb-6 justify-center lg:justify-start">
+        {/* Compte : ligne compacte qui ouvre un menu (avatar, nom · rôle, chevron) */}
+        <div className="border-t border-gray-100/20 p-2 lg:p-3 relative" ref={accountMenuRef}>
+          {accountMenuOpen && (
+            <div className="absolute bottom-full left-2 right-2 lg:left-2 lg:right-2 mb-2 w-56 max-w-[calc(100vw-2rem)] bg-slate-800 border border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
+              <div className="px-4 py-3 border-b border-white/10">
+                <p className="text-sm font-semibold text-white/90 truncate">{user?.nom}</p>
+                <p className="text-xs text-white/40 truncate">{user?.email}</p>
+              </div>
+
+              <div className="py-1">
+                <Link
+                  href="/dashboard/profil"
+                  onClick={() => setAccountMenuOpen(false)}
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-white/80 hover:bg-white/5 hover:text-white transition-colors"
+                >
+                  <User size={16} className="text-white/50" />
+                  Mon profil
+                </Link>
+                {isAdmin() && (
+                  <Link
+                    href="/dashboard/parametres"
+                    onClick={() => setAccountMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-white/80 hover:bg-white/5 hover:text-white transition-colors"
+                  >
+                    <Settings size={16} className="text-white/50" />
+                    Paramètres
+                  </Link>
+                )}
+              </div>
+
+              <div className="border-t border-white/10 py-1">
+                <button
+                  onClick={() => {
+                    setAccountMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-300 hover:bg-red-500/10 hover:text-red-200 transition-colors"
+                >
+                  <LogOut size={16} />
+                  Se déconnecter
+                </button>
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={() => setAccountMenuOpen((prev) => !prev)}
+            aria-haspopup="menu"
+            aria-expanded={accountMenuOpen}
+            className="w-full flex items-center gap-2 lg:gap-3 px-1 lg:px-2 py-1.5 rounded-lg justify-center lg:justify-start hover:bg-white/5 transition-colors"
+          >
             {user?.avatar ? (
               <img
                 src={user.avatar}
                 alt={user.nom}
-                className="w-8 h-8 lg:w-10 lg:h-10 rounded-full ring-2 ring-gray-200 flex-shrink-0"
+                className="w-8 h-8 rounded-full ring-2 ring-gray-200 flex-shrink-0"
               />
             ) : (
-              <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm ring-2 ring-gray-200 flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm ring-2 ring-gray-200 flex-shrink-0">
                 {user?.nom.charAt(0)}
               </div>
             )}
-            {/* Info utilisateur cachée sur mobile */}
-            <div className="hidden lg:block min-w-0 flex-1">
-              <p className="text-sm font-semibold text-white/80 truncate">{user?.nom}</p>
-              <p className="text-xs text-gray-400 truncate">
-                {user?.role === 'admin' ? 'Administrateur' : 'Auteur'}
-              </p>
-            </div>
-          </div>
 
-          {/* Logout Button */}
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center lg:justify-start px-2 lg:px-3 py-2 lg:py-3 bg-white/5 text-sm font-medium text-white/90 rounded-lg hover:bg-red-600/80 hover:text-white transition-all duration-200 group relative"
-            title="Déconnexion"
-          >
-            <LogOut className="h-4 w-4 lg:h-5 lg:w-5 text-white/50 group-hover:text-white flex-shrink-0 lg:mr-3" />
-            
-            {/* Texte caché sur mobile */}
-            <span className="hidden lg:block">Déconnexion</span>
+            {/* Nom · rôle, caché sur mobile */}
+            <span className="hidden lg:flex items-center min-w-0 flex-1 text-sm font-medium text-white/80 truncate text-left">
+              {user?.nom}
+              <span className="text-white/40 font-normal">
+                &nbsp;·&nbsp;{user?.role === 'admin' ? 'Admin' : 'Auteur'}
+              </span>
+            </span>
 
-            {/* Tooltip pour la version mobile */}
-            <div className="lg:hidden absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap">
-              Déconnexion
-            </div>
+            <ChevronDown
+              className={cn(
+                'hidden lg:block h-4 w-4 text-white/40 transition-transform duration-200 flex-shrink-0',
+                accountMenuOpen && 'rotate-180'
+              )}
+            />
           </button>
         </div>
       </div>

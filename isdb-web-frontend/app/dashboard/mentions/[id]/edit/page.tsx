@@ -12,6 +12,7 @@ import { mentionService } from '@/lib/api/services/mentionService';
 import { useDomaines } from '@/lib/hooks/useDomaine';
 import { SelectWithSearch } from '@/components/ui/selectWithSearch';
 import { ENDPOINTS } from '@/lib/api/endpoints';
+import { mutate } from 'swr';
 
 export default function EditMentionPage() {
   const router = useRouter();
@@ -102,11 +103,14 @@ export default function EditMentionPage() {
         domaine_id: formData.domaine_id as number
       });
 
-      // Revalider les caches
-      Promise.all([
-        // Invalider la liste des mentions
-        fetch('/api/revalidate?path=/dashboard/mentions'),
-        // Invalider la liste des domaines (pour le compteur de mentions)
+      // Revalider les caches : le fetch vers /api/revalidate ne servait à rien
+      // (cette route n'existe pas — c'est un mécanisme d'ISR Next.js, sans
+      // rapport avec le cache SWR côté client réellement utilisé ici). La
+      // page liste affichait donc les anciennes données tant qu'on ne
+      // rechargeait pas manuellement.
+      await Promise.all([
+        mutate('Mentions'),
+        mutate(`Mentions/${id}`),
         mutateDomaines(),
       ]);
 

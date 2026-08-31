@@ -26,13 +26,14 @@ import { anneeAcademiqueService } from '@/lib/api/services/anneeAcademiqueServic
 import { Badge } from '@/components/ui/badge';
 import ConfirmModal from '@/components/ui/confirmModal';
 import { ENDPOINTS } from '@/lib/api/endpoints';
+import { mutate as globalMutate } from 'swr';
 
 export default function AnneeDetailPage() {
   const router = useRouter();
   const params = useParams();
   const id = parseInt(params.id as string);
 
-  const { annee, isLoading, mutate } = useAnneeAcademique(id);
+  const { annee, isLoading } = useAnneeAcademique(id);
   const [statistics, setStatistics] = useState<any>(null);
   const [offres, setOffres] = useState<any[]>([]);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
@@ -74,9 +75,11 @@ export default function AnneeDetailPage() {
     try {
       await anneeAcademiqueService.delete(id);
       toast.success('Année académique supprimée avec succès');
+      // Revalider la liste (clé globale 'annees-academiques'), pas seulement
+      // le cache de cette page — sinon la liste affichait l'année encore
+      // présente jusqu'à expiration du cache (5 min).
+      await globalMutate('annees-academiques');
       router.push(ENDPOINTS.DASHBOARD_ANNEES_ACADEMIQUES);
-      mutate();
-      router.refresh();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Erreur lors de la suppression');
     } finally {
@@ -113,6 +116,12 @@ export default function AnneeDetailPage() {
       </div>
     );
   }
+
+  // Une année terminée (date de fin dans le passé) ne peut plus être modifiée
+  // ni supprimée — même règle que sur la liste et que côté backend (qui la
+  // fait déjà respecter à la soumission, ceci n'est qu'un reflet côté UI).
+  const estTerminee = annee.date_fin ? new Date() > new Date(annee.date_fin) : false;
+  const peutSupprimer = !estTerminee && !isLoadingOffres && offres.length === 0;
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -156,17 +165,24 @@ export default function AnneeDetailPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => router.push(ENDPOINTS.DASHBOARD_ANNEE_ACADEMIQUE_EDIT(id))}
-              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-              title="Modifier"
+              disabled={estTerminee}
+              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              title={estTerminee ? 'Impossible de modifier une année terminée' : 'Modifier'}
             >
               <Edit size={18} />
             </button>
-            
+
             <button
               onClick={() => setDeleteModalOpen(true)}
-              disabled={annee.est_actuelle}
+              disabled={!peutSupprimer}
               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-              title={annee.est_actuelle ? 'Impossible de supprimer l\'année actuelle' : 'Supprimer'}
+              title={
+                estTerminee
+                  ? 'Impossible de supprimer une année terminée'
+                  : offres.length > 0
+                    ? 'Impossible de supprimer : des offres de formation y sont associées'
+                    : 'Supprimer'
+              }
             >
               <Trash2 size={18} />
             </button>
@@ -251,7 +267,7 @@ export default function AnneeDetailPage() {
                 Statistiques
               </h2>
               
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="p-4 bg-blue-50 rounded-lg">
                   <p className="text-sm text-blue-600 mb-1">Total offres</p>
                   <p className="text-2xl font-bold text-blue-900">{statistics.nombre_offres || 0}</p>
@@ -265,21 +281,6 @@ export default function AnneeDetailPage() {
                 <div className="p-4 bg-purple-50 rounded-lg">
                   <p className="text-sm text-purple-600 mb-1">Principales</p>
                   <p className="text-2xl font-bold text-purple-900">{statistics.formations_principales || 0}</p>
-                </div>
-
-                <div className="p-4 bg-orange-50 rounded-lg">
-                  <p className="text-sm text-orange-600 mb-1">Modulaires</p>
-                  <p className="text-2xl font-bold text-orange-900">{statistics.formations_modulaires || 0}</p>
-                </div>
-
-                <div className="p-4 bg-indigo-50 rounded-lg">
-                  <p className="text-sm text-indigo-600 mb-1">Places totales</p>
-                  <p className="text-2xl font-bold text-indigo-900">{statistics.places_totales || 0}</p>
-                </div>
-
-                <div className="p-4 bg-pink-50 rounded-lg">
-                  <p className="text-sm text-pink-600 mb-1">Avec places limitées</p>
-                  <p className="text-2xl font-bold text-pink-900">{statistics.offres_avec_places_limitees || 0}</p>
                 </div>
               </div>
             </div>
@@ -382,7 +383,9 @@ export default function AnneeDetailPage() {
             <div className="space-y-2">
               <button
                 onClick={() => router.push(ENDPOINTS.DASHBOARD_ANNEE_ACADEMIQUE_EDIT(id))}
-                className="w-full px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                disabled={estTerminee}
+                title={estTerminee ? 'Impossible de modifier une année terminée' : undefined}
+                className="w-full px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Modifier l'année
               </button>
@@ -395,7 +398,7 @@ export default function AnneeDetailPage() {
               </Link>
 
               <Link
-                href={ENDPOINTS.DASHBOARD_RECONDUIRE_OFFRES}
+                href={`${ENDPOINTS.DASHBOARD_RECONDUIRE_OFFRES}?source=${id}`}
                 className="block w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium text-center"
               >
                 Reconduire les offres

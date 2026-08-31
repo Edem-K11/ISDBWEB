@@ -38,17 +38,24 @@ export const ENDPOINTS = {
   DASHBOARD_MENTIONS: '/dashboard/mentions',
   DASHBOARD_MENTION_BY_ID: (id: number) => `/dashboard/mentions/${id}`,
   DASHBOARD_MENTION_EDIT: (id: number) => `/dashboard/mentions/${id}/edit`,
+  DASHBOARD_MENTION_FORMATIONS: (id: number) => `/dashboard/mentions/${id}/formations`,
 
   // Dashboard Formations
   DASHBOARD_FORMATIONS: '/dashboard/formations',
   DASHBOARD_FORMATION_BY_ID: (id: number) => `/dashboard/formations/${id}`,
+  DASHBOARD_FORMATION_ARCHIVE: (id: number) => `/dashboard/formations/${id}/archive`,
+  DASHBOARD_FORMATION_ACTIVATE: (id: number) => `/dashboard/formations/${id}/activate`,
+  DASHBOARD_FORMATION_DETAILS: (id: number) => `/dashboard/formations/${id}/details`,
   DASHBOARD_FORMATION_MODULAIRE_EDIT: (id: number) => `/dashboard/formations/${id}/edit-modulaire`,
+  DASHBOARD_FORMATION_MODULAIRE_DETAILS: (id: number) => `/dashboard/formations/${id}/details-modulaire`,
   DASHBOARD_FORMATION_PRINCIPALE_EDIT: (id: number) => `/dashboard/formations/${id}/edit`,
   DASHBOARD_FORMATION_OFFRES: (id: number) => `/dashboard/formations/${id}/offres`,
 
   // Dashboard Formations modulaires (table formation_modulaires)
   DASHBOARD_FORMATIONS_MODULAIRES: '/dashboard/formations-modulaires',
   DASHBOARD_FORMATION_MODULAIRE_BY_ID: (id: number) => `/dashboard/formations-modulaires/${id}`,
+  DASHBOARD_FORMATION_MODULAIRE_ARCHIVE: (id: number) => `/dashboard/formations-modulaires/${id}/archive`,
+  DASHBOARD_FORMATION_MODULAIRE_ACTIVATE: (id: number) => `/dashboard/formations-modulaires/${id}/activate`,
 
   // Dashboard Années Académiques
   DASHBOARD_ANNEES_ACADEMIQUES: '/dashboard/annees-academiques',

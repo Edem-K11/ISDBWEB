@@ -19,7 +19,7 @@ export const mentionService = {
 
   
   getByDomaine: async (domaineId: number): Promise<Mention[]> => {
-    const { data } = await apiClient.get<ApiResponse<Mention[]>>(`/domaines/${domaineId}/mentions`);
+    const { data } = await apiClient.get<ApiResponse<Mention[]>>(`/dashboard/domaines/${domaineId}/mentions`);
     return data.data;
   },
   
@@ -39,6 +39,30 @@ export const mentionService = {
   delete: async (id: number)=> {
     const {data} = await apiClient.delete(ENDPOINTS.DASHBOARD_MENTION_BY_ID(id));
     return data.data;
+  },
+
+  /**
+   * Mentions soft-supprimées (corbeille).
+   */
+  getTrashed: async (): Promise<Mention[]> => {
+    const { data } = await apiClient.get<ApiResponse<Mention[]>>(
+      `${ENDPOINTS.DASHBOARD_MENTIONS}/trashed`
+    );
+    return data.data;
+  },
+
+  restore: async (id: number): Promise<Mention> => {
+    const { data } = await apiClient.patch<ApiResponse<Mention>>(
+      `${ENDPOINTS.DASHBOARD_MENTION_BY_ID(id)}/restore`
+    );
+    return data.data;
+  },
+
+  forceDelete: async (id: number) => {
+    const { data } = await apiClient.delete(
+      `${ENDPOINTS.DASHBOARD_MENTION_BY_ID(id)}/force`
+    );
+    return data;
   },
 
 };

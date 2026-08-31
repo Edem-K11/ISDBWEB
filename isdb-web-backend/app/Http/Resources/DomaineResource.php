@@ -28,6 +28,7 @@ class DomaineResource extends JsonResource
             // Métadonnées
             'createdAt' => $this->created_at?->toISOString(),
             'updatedAt' => $this->updated_at?->toISOString(),
+            'deletedAt' => $this->deleted_at?->toISOString(),
         ];
     }
 }

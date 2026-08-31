@@ -21,7 +21,10 @@ export default function CreateFormationPage() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-12">
-          <button className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-8 group transition-colors">
+          <button
+            onClick={() => router.push('/dashboard/formations')}
+            className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-8 group transition-colors"
+          >
             <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
             <span className="text-sm font-medium">Retour aux formations</span>
           </button>

@@ -9,6 +9,7 @@ export interface Domaine {
   nombreFormations?: number;
   createdAt: string | null;
   updatedAt: string | null;
+  deletedAt?: string | null;
 }
 
 export interface DomaineFormData {

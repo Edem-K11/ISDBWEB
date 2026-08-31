@@ -11,12 +11,24 @@ export default function InstitutInfoSidebar({
   if (!institut) return null;
 
   const contacts = [
-    { icon: MapPin, value: institut.adresse },
-    { icon: Phone, value: institut.telephone },
-    { icon: Mail, value: institut.email },
-    { icon: Printer, value: institut.fax },
-    { icon: Globe, value: institut.site_web },
-  ].filter((c) => c.value);
+    { icon: MapPin, type: 'text' as const, values: institut.adresse ? [institut.adresse] : [] },
+    {
+      icon: Phone,
+      type: 'tel' as const,
+      values: [institut.telephone, institut.telephone_2].filter(
+        (value): value is string => Boolean(value)
+      ),
+    },
+    {
+      icon: Mail,
+      type: 'mailto' as const,
+      values: [institut.email, institut.email_2].filter(
+        (value): value is string => Boolean(value)
+      ),
+    },
+    { icon: Printer, type: 'text' as const, values: institut.fax ? [institut.fax] : [] },
+    { icon: Globe, type: 'text' as const, values: institut.site_web ? [institut.site_web] : [] },
+  ].filter((c) => c.values.length > 0);
 
   const socials = SOCIAL_LINKS.filter((s) => institut.reseaux_sociaux[s.key]);
 
@@ -48,10 +60,34 @@ export default function InstitutInfoSidebar({
 
         {contacts.length > 0 && (
           <div className="px-6 py-5 space-y-4 border-b border-slate-100">
-            {contacts.map(({ icon: Icon, value }) => (
-              <div key={value} className="flex items-start gap-3 text-sm">
+            {contacts.map(({ icon: Icon, type, values }, index) => (
+              <div key={index} className="flex items-start gap-3 text-sm">
                 <Icon size={18} className="text-isdb-green-600 flex-shrink-0 mt-0.5" />
-                <span className="text-slate-700 break-words">{value}</span>
+                <div className="min-w-0 space-y-0.5">
+                  {values.map((value) =>
+                    type === 'tel' ? (
+                      <a
+                        key={value}
+                        href={`tel:${value.replace(/\s+/g, '')}`}
+                        className="block text-slate-700 hover:text-isdb-green-600 transition-colors break-words"
+                      >
+                        {value}
+                      </a>
+                    ) : type === 'mailto' ? (
+                      <a
+                        key={value}
+                        href={`mailto:${value}`}
+                        className="block text-slate-700 hover:text-isdb-green-600 transition-colors break-all"
+                      >
+                        {value}
+                      </a>
+                    ) : (
+                      <span key={value} className="block text-slate-700 break-words">
+                        {value}
+                      </span>
+                    )
+                  )}
+                </div>
               </div>
             ))}
           </div>

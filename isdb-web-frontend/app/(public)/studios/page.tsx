@@ -41,13 +41,13 @@ export default async function StudiosPage() {
         {galerie.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-[140px] sm:auto-rows-[160px] md:auto-rows-[180px] gap-4 grid-flow-row-dense mb-20">
             <div className="col-span-2 row-span-2 flex flex-col justify-center">
-              <p className="text-lg text-slate-700 leading-relaxed">
+              <p className="text-[16px] sm:text-lg text-slate-700 leading-relaxed">
                 À l'ISDB, nos studios sont bien plus que de simples salles de cours : ce sont de
                 véritables espaces de création où les étudiants s'initient aux métiers de
                 l'audiovisuel, de la radio et de la production musicale, dans des conditions
                 professionnelles.
               </p>
-              <p className="text-lg text-slate-700 leading-relaxed mt-4">
+              <p className="text-[16px] sm:text-lg text-slate-700 leading-relaxed mt-4">
                 Ouverts également au grand public pour des besoins de production, ils incarnent
                 notre volonté de conjuguer exigence pédagogique et pratique concrète.
               </p>

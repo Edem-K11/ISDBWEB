@@ -49,12 +49,12 @@ export default async function FormationsPage() {
       </div>
 
       {/* Section CTA bas de page */}
-      <div className="px-20 py-10">
+      <div className="px-8 sm:px-20 py-10">
         <div className="mt-20 bg-gray-800 rounded-2xl p-10 md:p-12 text-white text-center shadow-xl">
-          <h3 className="text-2xl md:text-3xl font-bold mb-4">
+          <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4">
             Vous ne trouvez pas la formation idéale ?
           </h3>
-          <p className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
             Notre équipe pédagogique est à votre écoute pour vous orienter vers le parcours le plus adapté à votre projet professionnel.
           </p>
           <button className="px-8 py-4 bg-white text-gray-700 font-semibold rounded-xl hover:bg-blue-50 transition-all duration-300 hover:scale-105 shadow-lg">

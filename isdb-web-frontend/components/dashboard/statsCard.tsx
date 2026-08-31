@@ -5,20 +5,27 @@ import { cn } from '@/lib/utils/cn';
 interface StatsCardProps {
   name: string;
   value: string;
-  change: string;
-  changeType: 'positive' | 'negative' | 'neutral';
+  change?: string;
+  changeType?: 'positive' | 'negative' | 'neutral';
   icon: LucideIcon;
-  color: 'indigo' | 'green' | 'yellow' | 'purple' | 'red';
+  color: 'indigo' | 'green' | 'yellow' | 'purple' | 'red' | 'blue' | 'orange';
 }
 
+// Fond clair de la carte + bordure dans une teinte plus foncée de la même
+// couleur pour la délimiter (l'icône n'a plus de badge de fond, juste sa
+// couleur propre).
 const colorVariants = {
-  indigo: 'bg-indigo-100 text-indigo-600',
-  green: 'bg-green-100 text-green-600',
-  yellow: 'bg-yellow-100 text-yellow-600',
-  purple: 'bg-purple-100 text-purple-600',
-  red: 'bg-red-100 text-red-600',
+  indigo: { bg: 'bg-indigo-50', border: 'border-indigo-300', icon: 'text-indigo-600' },
+  green: { bg: 'bg-green-50', border: 'border-green-300', icon: 'text-green-600' },
+  yellow: { bg: 'bg-yellow-50', border: 'border-yellow-500', icon: 'text-yellow-600' },
+  purple: { bg: 'bg-purple-50', border: 'border-purple-300', icon: 'text-purple-600' },
+  red: { bg: 'bg-red-50', border: 'border-red-300', icon: 'text-red-600' },
+  blue: { bg: 'bg-blue-50', border: 'border-blue-300', icon: 'text-blue-600' },
+  orange: { bg: 'bg-orange-50', border: 'border-orange-300', icon: 'text-orange-600' },
 };
 
+// Carte compacte et verticale (icône, valeur, libellé empilés), fond teinté
+// et bordure de la même couleur, sans ombre.
 export default function StatsCard({
   name,
   value,
@@ -26,28 +33,27 @@ export default function StatsCard({
   changeType,
   icon: Icon,
   color,
-}: StatsCardProps) {
+}: Readonly<StatsCardProps>) {
+  const variant = colorVariants[color];
+
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-1">{name}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
-          <p
+    <div className={cn('rounded-2xl border p-5', variant.bg, variant.border)}>
+      <Icon className={cn('w-6 h-6 mb-4', variant.icon)} />
+      <p className="text-2xl font-bold text-gray-900">{value}</p>
+      <div className="flex items-center gap-2 mt-1">
+        <p className="text-sm text-gray-600">{name}</p>
+        {change && (
+          <span
             className={cn(
-              'text-sm mt-2 flex items-center gap-1',
-              changeType === 'positive' && 'text-green-600',
-              changeType === 'negative' && 'text-red-600',
-              changeType === 'neutral' && 'text-gray-600'
+              'text-xs font-semibold px-1.5 py-0.5 rounded-full',
+              changeType === 'positive' && 'bg-green-100 text-green-700',
+              changeType === 'negative' && 'bg-red-100 text-red-700',
+              changeType === 'neutral' && 'bg-gray-100 text-gray-600'
             )}
           >
-            <span>{change}</span>
-            <span className="text-gray-500">vs mois dernier</span>
-          </p>
-        </div>
-        <div className={cn('p-4 rounded-full', colorVariants[color])}>
-          <Icon className="w-6 h-6" />
-        </div>
+            {change}
+          </span>
+        )}
       </div>
     </div>
   );

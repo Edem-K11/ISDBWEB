@@ -168,7 +168,7 @@ export default function MyNavFloating() {
                 </div>
 
                 {/* Menu Desktop */}
-                <div className="hidden lg:flex items-center space-x-1">
+                <div className="hidden xl:flex items-center space-x-1">
                   {menuItems.map((item, index) => (
                     <div key={index} className="relative group">
                       {item.href && !item.submenu ? (
@@ -290,7 +290,7 @@ export default function MyNavFloating() {
 
                 {/* Bouton Mobile */}
                 <button
-                  className="lg:hidden p-2 rounded-xl hover:bg-slate-100 transition-all duration-200"
+                  className="xl:hidden p-2 rounded-xl hover:bg-slate-100 transition-all duration-200"
                   onClick={() => setIsOpen(!isOpen)}
                 >
                   <div className="w-6 h-6 flex flex-col justify-center space-y-1">
@@ -307,7 +307,7 @@ export default function MyNavFloating() {
 
       {/* Menu Mobile */}
       {isOpen && (
-        <div className={`lg:hidden fixed z-40 left-0 right-0 bg-white border-b border-slate-200 shadow-lg transition-all duration-300 ${isScrolled ? 'top-16' : 'top-28'}`}>
+        <div className={`xl:hidden fixed z-40 left-0 right-0 bg-white border-b border-slate-200 shadow-lg transition-all duration-300 ${isScrolled ? 'top-16' : 'top-28'}`}>
           <div className="container mx-auto px-6 py-4">
             <div className="space-y-1">
               {menuItems.map((item, index) => (
@@ -435,7 +435,7 @@ export default function MyNavFloating() {
       {/* Overlay pour mobile */}
       {isOpen && (
         <div 
-          className="lg:hidden fixed inset-0 bg-black/20 z-30"
+          className="xl:hidden fixed inset-0 bg-black/20 z-30"
           onClick={() => setIsOpen(false)}
         />
       )}

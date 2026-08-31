@@ -92,6 +92,10 @@ class DomaineController extends Controller
             ], 422);
         }
 
+        // Le slug reste unique en base même après soft delete (la ligne existe
+        // toujours physiquement) : on le libère ici pour qu'un nom identique
+        // puisse être recréé plus tard sans hériter d'un suffixe (-1, -2...).
+        $domaine->update(['slug' => $domaine->slug . '-supprime-' . $domaine->id]);
         $domaine->delete();
 
         return response()->json([
@@ -101,16 +105,46 @@ class DomaineController extends Controller
     }
 
     /**
+     * Liste des domaines soft-supprimés, pour la vue Corbeille.
+     */
+    public function trashed(): JsonResponse
+    {
+        $domaines = Domaine::onlyTrashed()
+            ->withCount(['mentions', 'formations'])
+            ->orderBy('deleted_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => DomaineResource::collection($domaines),
+        ]);
+    }
+
+    /**
      * Restore a soft-deleted domaine.
      */
     public function restore(int $id): JsonResponse
     {
         $domaine = Domaine::withTrashed()->findOrFail($id);
-        
+
         if (!$domaine->trashed()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Ce domaine n\'est pas supprimé.'
+            ], 422);
+        }
+
+        // Un autre domaine actif pourrait entre-temps avoir été créé avec le
+        // même nom (le nom est libéré dès la suppression douce) — on l'évite
+        // pour ne pas se retrouver avec deux domaines actifs identiques.
+        $doublonActif = Domaine::where('nom', $domaine->nom)
+            ->where('id', '!=', $domaine->id)
+            ->exists();
+
+        if ($doublonActif) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Impossible de restaurer ce domaine : un autre domaine actif porte déjà ce nom.'
             ], 422);
         }
 

@@ -62,13 +62,6 @@ export const anneeAcademiqueService = {
     return data;
   },
 
-  setActuelle: async (id: number) => {
-    const { data } = await apiClient.patch<ApiResponse<AnneeAcademique>>(
-      `${ENDPOINTS.DASHBOARD_ANNEE_ACADEMIQUE_BY_ID(id)}/set-actuelle`
-    );
-    return data.data;
-  },
-
   reconduireOffres: async (anneeSourceId: number, reconduireData: ReconduireOffresData) => {
     const { data } = await apiClient.post(
       `${ENDPOINTS.DASHBOARD_ANNEE_ACADEMIQUE_BY_ID(anneeSourceId)}/reconduire-offres`,

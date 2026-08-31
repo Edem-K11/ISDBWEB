@@ -17,9 +17,14 @@ export interface InstitutSettings {
   adresse: string | null;
   maps_url: string | null;
   telephone: string | null;
+  telephone_2: string | null;
   email: string | null;
+  email_2: string | null;
   fax: string | null;
   site_web: string | null;
+  date_ouverture_inscriptions: string | null;
+  date_cloture_inscriptions: string | null;
+  date_rentree: string | null;
   reseaux_sociaux: InstitutReseauxSociaux;
   updated_at: string | null;
 }
@@ -32,9 +37,14 @@ export interface InstitutSettingsFormData {
   adresse: string;
   maps_url: string;
   telephone: string;
+  telephone_2: string;
   email: string;
+  email_2: string;
   fax: string;
   site_web: string;
+  date_ouverture_inscriptions: string;
+  date_cloture_inscriptions: string;
+  date_rentree: string;
   facebook_url: string;
   twitter_url: string;
   linkedin_url: string;

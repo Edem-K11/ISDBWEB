@@ -116,23 +116,35 @@ export const formationService = {
   },
 
   /**
-   * Archiver une formation (soft delete)
-   */
-  archive: async (id: number) => {
-    const { data } = await apiClient.patch<ApiResponse<Formation>>(
-      `${ENDPOINTS.DASHBOARD_FORMATION_BY_ID(id)}/archive`
-    );
-    return data.data;
-  },
-
-  /**
-   * Supprimer une formation
+   * Supprimer une formation (suppression réelle, non utilisée par les boutons
+   * "Archiver" du dashboard — voir archive() ci-dessous).
    */
   delete: async (id: number) => {
     const { data } = await apiClient.delete(
       ENDPOINTS.DASHBOARD_FORMATION_BY_ID(id)
     );
     return data;
+  },
+
+  /**
+   * Archiver une formation : change uniquement son statut (ARCHIVEE), sans
+   * suppression — c'est l'action déclenchée par les boutons "Archiver".
+   */
+  archive: async (id: number) => {
+    const { data } = await apiClient.patch<ApiResponse<Formation>>(
+      ENDPOINTS.DASHBOARD_FORMATION_ARCHIVE(id)
+    );
+    return data.data;
+  },
+
+  /**
+   * Réactiver une formation archivée.
+   */
+  activate: async (id: number) => {
+    const { data } = await apiClient.patch<ApiResponse<Formation>>(
+      ENDPOINTS.DASHBOARD_FORMATION_ACTIVATE(id)
+    );
+    return data.data;
   },
 
   /**
@@ -163,5 +175,29 @@ export const formationService = {
       `${ENDPOINTS.DASHBOARD_FORMATIONS}/statistics`
     );
     return data.data;
+  },
+
+  /**
+   * Formations soft-supprimées (corbeille).
+   */
+  getTrashed: async () => {
+    const { data } = await apiClient.get<ApiResponse<Formation[]>>(
+      `${ENDPOINTS.DASHBOARD_FORMATIONS}/trashed`
+    );
+    return data.data;
+  },
+
+  restore: async (id: number) => {
+    const { data } = await apiClient.patch<ApiResponse<Formation>>(
+      `${ENDPOINTS.DASHBOARD_FORMATION_BY_ID(id)}/restore`
+    );
+    return data.data;
+  },
+
+  forceDelete: async (id: number) => {
+    const { data } = await apiClient.delete(
+      `${ENDPOINTS.DASHBOARD_FORMATION_BY_ID(id)}/force`
+    );
+    return data;
   },
 };

@@ -50,6 +50,9 @@ export interface Formation {
   createdAt: string;
   updatedAt: string;
   deletedAt?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  deleted_at?: string | null;
 
   // Relations (chargées conditionnellement)
   domaine?: Domaine;

@@ -14,12 +14,36 @@ export default async function ContactPage() {
   const institut = await getInstitutSettings();
 
   const contacts = [
-    { icon: MapPin, label: 'Adresse', value: institut?.adresse },
-    { icon: Phone, label: 'Téléphone', value: institut?.telephone },
-    { icon: Mail, label: 'Email', value: institut?.email },
-    { icon: Printer, label: 'Fax', value: institut?.fax },
-    { icon: Globe, label: 'Site web', value: institut?.site_web },
-  ].filter((c) => c.value);
+    {
+      icon: MapPin,
+      label: 'Adresse',
+      type: 'text' as const,
+      values: institut?.adresse ? [institut.adresse] : [],
+    },
+    {
+      icon: Phone,
+      label: 'Téléphone',
+      type: 'tel' as const,
+      values: [institut?.telephone, institut?.telephone_2].filter(
+        (value): value is string => Boolean(value)
+      ),
+    },
+    {
+      icon: Mail,
+      label: 'Email',
+      type: 'mailto' as const,
+      values: [institut?.email, institut?.email_2].filter(
+        (value): value is string => Boolean(value)
+      ),
+    },
+    { icon: Printer, label: 'Fax', type: 'text' as const, values: institut?.fax ? [institut.fax] : [] },
+    {
+      icon: Globe,
+      label: 'Site web',
+      type: 'text' as const,
+      values: institut?.site_web ? [institut.site_web] : [],
+    },
+  ].filter((c) => c.values.length > 0);
 
   const socials = SOCIAL_LINKS.filter((s) => institut?.reseaux_sociaux[s.key]);
   const mapsHref = getMapsHref(institut?.maps_url);
@@ -45,16 +69,40 @@ export default async function ContactPage() {
 
               {contacts.length > 0 ? (
                 <div className="px-6 py-6 space-y-5">
-                  {contacts.map(({ icon: Icon, label, value }) => (
+                  {contacts.map(({ icon: Icon, label, values, type }) => (
                     <div key={label} className="flex items-start gap-3 text-sm">
                       <div className="w-9 h-9 rounded-lg bg-isdb-green-50 flex items-center justify-center flex-shrink-0">
                         <Icon size={16} className="text-isdb-green-600" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                           {label}
                         </p>
-                        <p className="text-slate-700 break-words">{value}</p>
+                        <div className="space-y-0.5">
+                          {values.map((value) =>
+                            type === 'tel' ? (
+                              <a
+                                key={value}
+                                href={`tel:${value.replace(/\s+/g, '')}`}
+                                className="block text-slate-700 hover:text-isdb-green-600 transition-colors duration-200 break-words"
+                              >
+                                {value}
+                              </a>
+                            ) : type === 'mailto' ? (
+                              <a
+                                key={value}
+                                href={`mailto:${value}`}
+                                className="block text-slate-700 hover:text-isdb-green-600 transition-colors duration-200 break-all"
+                              >
+                                {value}
+                              </a>
+                            ) : (
+                              <p key={value} className="text-slate-700 break-words">
+                                {value}
+                              </p>
+                            )
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}

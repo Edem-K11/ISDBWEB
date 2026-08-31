@@ -14,6 +14,7 @@ import {
   Building2,
   Phone,
   Share2,
+  Calendar,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -25,9 +26,14 @@ const emptyForm: InstitutSettingsFormData = {
   adresse: '',
   maps_url: '',
   telephone: '',
+  telephone_2: '',
   email: '',
+  email_2: '',
   fax: '',
   site_web: '',
+  date_ouverture_inscriptions: '',
+  date_cloture_inscriptions: '',
+  date_rentree: '',
   facebook_url: '',
   twitter_url: '',
   linkedin_url: '',
@@ -53,9 +59,14 @@ export default function ParametresPage() {
         adresse: settings.adresse || '',
         maps_url: settings.maps_url || '',
         telephone: settings.telephone || '',
+        telephone_2: settings.telephone_2 || '',
         email: settings.email || '',
+        email_2: settings.email_2 || '',
         fax: settings.fax || '',
         site_web: settings.site_web || '',
+        date_ouverture_inscriptions: settings.date_ouverture_inscriptions || '',
+        date_cloture_inscriptions: settings.date_cloture_inscriptions || '',
+        date_rentree: settings.date_rentree || '',
         facebook_url: settings.reseaux_sociaux.facebook || '',
         twitter_url: settings.reseaux_sociaux.twitter || '',
         linkedin_url: settings.reseaux_sociaux.linkedin || '',
@@ -224,7 +235,7 @@ export default function ParametresPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Téléphone
+                Téléphone principal
               </label>
               <input
                 type="text"
@@ -233,6 +244,51 @@ export default function ParametresPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent"
                 placeholder="+228 22 50 78 56"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Téléphone secondaire
+              </label>
+              <input
+                type="text"
+                value={formData.telephone_2}
+                onChange={(e) => handleChange('telephone_2', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent"
+                placeholder="+228 22 50 78 58"
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                Facultatif. Utile si l'institut met plusieurs numéros à disposition du public.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email principal
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleChange('email', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent"
+                placeholder="contact@isdb.edu"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email secondaire
+              </label>
+              <input
+                type="email"
+                value={formData.email_2}
+                onChange={(e) => handleChange('email_2', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent"
+                placeholder="admission@isdb.edu"
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                Facultatif. Par exemple une adresse dédiée aux admissions.
+              </p>
             </div>
 
             <div>
@@ -250,19 +306,6 @@ export default function ParametresPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleChange('email', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent"
-                placeholder="contact@isdb.edu"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
                 WhatsApp
               </label>
               <input
@@ -271,6 +314,56 @@ export default function ParametresPage() {
                 onChange={(e) => handleChange('whatsapp', e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent"
                 placeholder="+228 90 00 00 00"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Dates importantes (admission) */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center gap-2 mb-2">
+            <Calendar className="text-isdb-green-600" size={20} />
+            <h2 className="text-lg font-semibold text-gray-900">Dates importantes</h2>
+          </div>
+          <p className="text-sm text-gray-500 mb-6">
+            Affichées dans la section « Dates importantes » de la page publique Admission.
+            À mettre à jour chaque année.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Ouverture des inscriptions
+              </label>
+              <input
+                type="date"
+                value={formData.date_ouverture_inscriptions}
+                onChange={(e) => handleChange('date_ouverture_inscriptions', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Clôture des inscriptions
+              </label>
+              <input
+                type="date"
+                value={formData.date_cloture_inscriptions}
+                onChange={(e) => handleChange('date_cloture_inscriptions', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Rentrée des cours
+              </label>
+              <input
+                type="date"
+                value={formData.date_rentree}
+                onChange={(e) => handleChange('date_rentree', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent"
               />
             </div>
           </div>

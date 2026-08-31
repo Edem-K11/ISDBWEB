@@ -37,7 +37,14 @@ class FormationResource extends JsonResource
             'profile_sortie' => $this->profile_sortie,
             'evaluation' => $this->evaluation,
             'programme' => $this->programme,
-            'programme_pdf' => $this->programme_pdf,
+            // Le champ stocke un chemin relatif (ex: "programmes/xxx.pdf") lors de
+            // l'upload direct dans FormationController — on le convertit en URL
+            // absolue ici pour que le lien fonctionne côté client.
+            'programme_pdf' => $this->programme_pdf
+                ? (str_starts_with($this->programme_pdf, 'http')
+                    ? $this->programme_pdf
+                    : asset('storage/' . $this->programme_pdf))
+                : null,
             'programme_image' => $this->programme_image,
             
             // Informations pratiques
@@ -65,6 +72,7 @@ class FormationResource extends JsonResource
             // Métadonnées
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
+            'deleted_at' => $this->deleted_at?->toISOString(),
         ];
     }
 }

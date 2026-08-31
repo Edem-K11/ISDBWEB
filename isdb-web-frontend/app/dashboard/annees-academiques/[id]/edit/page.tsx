@@ -154,6 +154,33 @@ export default function EditAnneePage() {
     );
   }
 
+  // Une année terminée ne peut plus être modifiée (déjà refusé par le
+  // backend à la soumission) — on l'affiche clairement au lieu de laisser
+  // remplir un formulaire voué à être rejeté, pour quelqu'un qui arriverait
+  // ici directement par l'URL plutôt que via le bouton (désactivé) de la liste.
+  const estTerminee = annee.date_fin ? new Date() > new Date(annee.date_fin) : false;
+
+  if (estTerminee) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center max-w-md">
+          <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+          <p className="text-gray-900 font-medium mb-2">Année académique terminée</p>
+          <p className="text-gray-600 mb-4">
+            {annee.libelle} est déjà terminée : elle ne peut plus être modifiée, afin de
+            préserver les données historiques.
+          </p>
+          <Link
+            href="/dashboard/annees-academiques"
+            className="text-isdb-green-600 hover:underline"
+          >
+            Retour à la liste
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const libellePreview = `${formData.annee_debut}-${formData.annee_fin}`;
 
   return (

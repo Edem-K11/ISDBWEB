@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Save, BookOpen, AlertCircle, Clock, DollarSign } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { formationModulaireService } from '@/lib/api/services/formationModulaireService';
+import RichTextEditor from '@/components/dashboard/blogs/richTextEditor';
 import { mutate } from 'swr';
 
 export default function CreateFormationModulairePage() {
@@ -150,14 +151,11 @@ export default function CreateFormationModulairePage() {
           {/* Contenu */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Contenu (une ligne par point abordé)
+              Contenu de la formation
             </label>
-            <textarea
+            <RichTextEditor
               value={formData.contenu}
-              onChange={(e) => handleChange('contenu', e.target.value)}
-              placeholder={'Prise de parole en public\nVoix off\nRédaction de conducteur'}
-              rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent resize-none"
+              onChange={(value) => handleChange('contenu', value)}
             />
           </div>
 

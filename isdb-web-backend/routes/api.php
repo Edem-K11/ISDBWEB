@@ -95,36 +95,82 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('tags/{id}', [TagController::class, 'destroy']);
 
             // Domaines
+            // ⚠️ "trashed" est une route littérale : elle doit être déclarée
+            // AVANT Route::resource (qui enregistre "domaines/{domaine}" pour
+            // show()), sinon Laravel la matcherait comme un {domaine}.
+            Route::get('domaines/trashed', [DomaineController::class, 'trashed']);
             Route::resource('domaines', DomaineController::class);
+            Route::get('domaines/{domaine}/mentions', [DomaineController::class, 'mentions']);
+            Route::get('domaines/{domaine}/formations', [DomaineController::class, 'formations']);
+            Route::get('domaines/{domaine}/statistics', [DomaineController::class, 'statistics']);
+            Route::patch('domaines/{id}/restore', [DomaineController::class, 'restore']);
+            Route::delete('domaines/{id}/force', [DomaineController::class, 'forceDelete']);
 
             // Mentions
+            // ⚠️ même piège d'ordre de route que pour domaines/trashed.
+            Route::get('mentions/trashed', [MentionController::class, 'trashed']);
             Route::resource('mentions', MentionController::class);
+            Route::get('mentions/{mention}/formations', [MentionController::class, 'formations']);
+            Route::get('mentions/{mention}/statistics', [MentionController::class, 'statistics']);
+            Route::patch('mentions/{id}/restore', [MentionController::class, 'restore']);
+            Route::delete('mentions/{id}/force', [MentionController::class, 'forceDelete']);
 
             // Formations
+            // ⚠️ même piège d'ordre de route que pour domaines/trashed.
+            Route::get('formations/trashed', [FormationController::class, 'trashed']);
             Route::resource('formations', FormationController::class);
+            Route::patch('formations/{formation}/archive', [FormationController::class, 'archive']);
+            Route::patch('formations/{formation}/activate', [FormationController::class, 'activate']);
+            Route::patch('formations/{id}/restore', [FormationController::class, 'restore']);
+            Route::delete('formations/{id}/force', [FormationController::class, 'forceDelete']);
 
             // Formations modulaires (table séparée formation_modulaires)
+            // ⚠️ "trashed" doit être déclaré AVANT "{formationModulaire}".
+            Route::get('formations-modulaires/trashed', [FormationModulaireController::class, 'trashed']);
             Route::get('formations-modulaires', [FormationModulaireController::class, 'indexDashboard']);
             Route::post('formations-modulaires', [FormationModulaireController::class, 'store']);
             Route::get('formations-modulaires/{formationModulaire}', [FormationModulaireController::class, 'showAdmin']);
             Route::put('formations-modulaires/{formationModulaire}', [FormationModulaireController::class, 'update']);
             Route::delete('formations-modulaires/{formationModulaire}', [FormationModulaireController::class, 'destroy']);
+            Route::patch('formations-modulaires/{formationModulaire}/archive', [FormationModulaireController::class, 'archive']);
+            Route::patch('formations-modulaires/{formationModulaire}/activate', [FormationModulaireController::class, 'activate']);
+            Route::patch('formations-modulaires/{id}/restore', [FormationModulaireController::class, 'restore']);
+            Route::delete('formations-modulaires/{id}/force', [FormationModulaireController::class, 'forceDelete']);
 
             // Années académiques
+            // ⚠️ La route littérale "actuelle" doit être déclarée AVANT
+            // "{id}" : sinon Laravel matche "actuelle" comme un {id} et
+            // route vers show(), qui échoue avec un ModelNotFoundException.
+            Route::get('annees-academiques/actuelle', [AnneeAcademiqueController::class, 'actuelle']);
             Route::get('annees-academiques', [AnneeAcademiqueController::class, 'index']);
             Route::post('annees-academiques', [AnneeAcademiqueController::class, 'store']);
             Route::get('annees-academiques/{id}', [AnneeAcademiqueController::class, 'show']);
             Route::put('annees-academiques/{id}', [AnneeAcademiqueController::class, 'update']);
             Route::delete('annees-academiques/{id}', [AnneeAcademiqueController::class, 'destroy']);
+            Route::get('annees-academiques/{anneeAcademique}/offres', [AnneeAcademiqueController::class, 'offres']);
+            Route::get('annees-academiques/{anneeAcademique}/statistics', [AnneeAcademiqueController::class, 'statistics']);
+            Route::post('annees-academiques/{anneeSource}/reconduire-offres', [AnneeAcademiqueController::class, 'reconduireOffres']);
+            Route::patch('annees-academiques/{id}/restore', [AnneeAcademiqueController::class, 'restore']);
+            Route::delete('annees-academiques/{id}/force', [AnneeAcademiqueController::class, 'forceDelete']);
 
 
             // Offres de formation
+            // ⚠️ Les routes littérales "actuelles" et "trashed" doivent être
+            // déclarées AVANT "{offreFormation}" : sinon Laravel les matche
+            // comme un {offreFormation} et route vers show(), qui échoue avec
+            // un ModelNotFoundException (même piège que pour "actuelle" plus haut).
+            Route::get('offres-formations/actuelles', [OffreFormationController::class, 'actuelles']);
+            Route::get('offres-formations/trashed', [OffreFormationController::class, 'trashed']);
             Route::get('offres-formations', [OffreFormationController::class, 'index']);
             Route::post('offres-formations', [OffreFormationController::class, 'store']);
             Route::get('offres-formations/{offreFormation}', [OffreFormationController::class, 'show']);
             Route::put('offres-formations/{offreFormation}', [OffreFormationController::class, 'update']);
             Route::delete('offres-formations/{offreFormation}', [OffreFormationController::class, 'destroy']);
             Route::patch('offres-formations/{offreFormation}/toggle-dispensee', [OffreFormationController::class, 'toggleDispensee']);
+            Route::get('offres-formations/{offreFormation}/statistics', [OffreFormationController::class, 'statistics']);
+            Route::post('offres-formations/{offreFormation}/duplicate', [OffreFormationController::class, 'duplicate']);
+            Route::patch('offres-formations/{id}/restore', [OffreFormationController::class, 'restore']);
+            Route::delete('offres-formations/{id}/force', [OffreFormationController::class, 'forceDelete']);
 
             // Radio (une seule)
             Route::put('radio', [RadioController::class, 'update']);

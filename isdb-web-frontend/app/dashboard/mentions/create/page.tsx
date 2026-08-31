@@ -51,7 +51,7 @@ export default function CreateMentionPage() {
       // Revalider les caches
       await Promise.all([
         mutate('Mentions'),
-        mutate(`Domaine/${domaineId}/mentions`)
+        mutate(`Mentions/Domaine/${domaineId}`),
       ]);
 
       toast.success('Mention créée avec succès');

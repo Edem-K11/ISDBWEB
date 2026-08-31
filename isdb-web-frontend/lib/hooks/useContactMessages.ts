@@ -2,9 +2,11 @@ import useSWR from 'swr';
 import { contactMessageService } from '@/lib/api/services/contactMessageService';
 import { ContactMessage } from '@/lib/types/contactMessage';
 
-export function useContactMessages() {
+// `enabled` évite d'appeler l'API (réservée aux admins côté backend) pour un
+// redacteur qui n'y a pas accès — sinon la requête échoue systématiquement en 403.
+export function useContactMessages(enabled: boolean = true) {
   const { data, error, isLoading, mutate } = useSWR<ContactMessage[]>(
-    'dashboard-messages',
+    enabled ? 'dashboard-messages' : null,
     contactMessageService.getAll,
     {
       revalidateOnFocus: false,

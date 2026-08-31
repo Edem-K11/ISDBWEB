@@ -12,7 +12,7 @@ import toast from 'react-hot-toast';
 
 export default function MessagesPage() {
   const { isAdmin } = useAuth();
-  const { messages, unreadCount, mutate, isLoading } = useContactMessages();
+  const { messages, unreadCount, mutate, isLoading } = useContactMessages(isAdmin());
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);

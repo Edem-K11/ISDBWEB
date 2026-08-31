@@ -37,7 +37,7 @@ async function getMentionData(mentionSlug: string) {
   }
 }
 
-export default async function MentionPage({ params }: PageProps) {
+export default async function MentionPage({ params }: Readonly<PageProps>) {
     const {mentionSlug: slug} = await params;
 
     const data = await getMentionData(slug);
@@ -53,7 +53,7 @@ export default async function MentionPage({ params }: PageProps) {
     const breadcrumbItems = [
         { label: 'Accueil', href: '/' },
         { label: 'Formations', href: '/formations' },
-        { label: mention.titre, href: `/formations/${mention.slug}` }
+        { label: mention.titre, href: `/formations/${mention.slug}`, active: true }
     ];
 
     // Thème par défaut si pas de contenu (aligné sur les cartes de /formations)
@@ -63,7 +63,7 @@ export default async function MentionPage({ params }: PageProps) {
     return (
         <div className={`min-h-screen theme-${theme}`}>
         {/* Header Section */}
-        <div className={`relative bg-gradient-to-br ${colors.gradient} text-white py-20 px-6 md:px-12 overflow-hidden`}>
+        <div className={`relative bg-gradient-to-br ${colors.gradient} text-white pt-20 pb-12 sm:pb-20 px-6 md:px-12 overflow-hidden`}>
             <div className="absolute inset-0 bg-black/20" />
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full -translate-x-64 translate-y-64" />
@@ -74,18 +74,18 @@ export default async function MentionPage({ params }: PageProps) {
             </div>
             
             <div className="mt-6 max-w-3xl">
-                <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                <p className='uppercase tracking-wide'>
-                    {content?.hero.title || mention.titre}
-                </p> 
-                {content?.hero.subtitle && (
-                    <span className="block capitalize text-3xl md:text-4xl font-light mt-8 text-white/90">
-                    {content.hero.subtitle}
-                    </span>
-                )}
+                <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                    <p className='uppercase tracking-wide'>
+                        {content?.hero.title || mention.titre}
+                    </p> 
+                    {content?.hero.subtitle && (
+                        <span className="block capitalize text-xl sm:text-3xl md:text-4xl font-light mt-4 sm:mt-8 text-white/90">
+                        {content.hero.subtitle}
+                        </span>
+                    )}
                 </h1>
                 
-                <p className="text-xl text-white/90 leading-relaxed">
+                <p className=" text-sm sm:text-xl text-white/90 leading-relaxed">
                 {content?.hero.description || mention.description}
                 </p>
             </div>
@@ -93,41 +93,20 @@ export default async function MentionPage({ params }: PageProps) {
         </div>
 
         {/* Introduction */}
-        <div className="py-12">
+        <div className=" py-8 sm:py-12">
             <div className="max-w-4xl mx-auto px-6 text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-800 mb-6">
-                {content?.section.title || `Formations en ${mention.titre}`}
-            </h2>
-            <p className="text-lg text-slate-600">
-                {content?.section.description || `Découvrez nos parcours de formation en ${mention.titre}.`}
-            </p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-6">
+                    {content?.section.title || `Formations en ${mention.titre}`}
+                </h2>
+                <p className="text-base sm:text-lg text-slate-600">
+                    {content?.section.description || `Découvrez nos parcours de formation en ${mention.titre}.`}
+                </p>
             </div>
 
-            {/* Stats (si des offres existent) */}
-            {/* {offres.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-20 mx-auto max-w-6xl px-6">
-                <div className={`text-center p-6 ${colors.bg} rounded-lg ${colors.border}`}>
-                <div className={`text-3xl font-bold ${colors.text} mb-2`}>{offres.length}</div>
-                <div className="text-sm text-slate-600">Offre(s) disponible(s)</div>
-                </div>
-                <div className={`text-center p-6 ${colors.bg} rounded-lg ${colors.border}`}>
-                <div className={`text-3xl font-bold ${colors.text} mb-2`}>
-                    {offres.filter((o: any) => o.formation.type === 'PRINCIPALE').length}
-                </div>
-                <div className="text-sm text-slate-600">Formation(s) principale(s)</div>
-                </div>
-                <div className={`text-center p-6 ${colors.bg} rounded-lg ${colors.border}`}>
-                <div className={`text-3xl font-bold ${colors.text} mb-2`}>
-                    {offres.filter((o: any) => o.formation.type === 'MODULAIRE').length}
-                </div>
-                <div className="text-sm text-slate-600">Formation(s) modulaire(s)</div>
-                </div>
-            </div>
-            )} */}
 
             {/* Section des offres */}
             <div className="relative w-full">
-            <div className="relative z-10 mt-50 mb-8">
+            <div className="relative z-10 mt-38 sm:mt-50 mb-8">
                 <div className="relative">
                 <div className="absolute -top-24 left-8 lg:-top-42 lg:left-16">
                     <h2 
@@ -156,10 +135,18 @@ export default async function MentionPage({ params }: PageProps) {
                         const formation = offreData.formation;
                         const offre = offreData.offre;
                         
-                        // Construire les highlights
+                        // Construire les highlights : uniquement des informations
+                        // courtes, en une ligne. `niveau_sortie` (profil_sortie) est
+                        // rédigé en riche texte (HTML) via l'éditeur du dashboard —
+                        // on ne l'affiche jamais ici (sa place est la page de détail
+                        // de la formation), sinon les balises HTML s'affichent telles
+                        // quelles en texte brut dans ce badge.
                         const highlights = [
                         formation.duree_formation || null,
-                        formation.niveau_sortie || null,
+                        formation.diplome ? formation.diplome.replace(/_/g, ' ').toLowerCase()
+                            .split(' ')
+                            .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' ') : null,
                         formation.credits_ects ? `${formation.credits_ects} crédits ECTS` : null
                         ].filter(Boolean);
 
@@ -177,7 +164,7 @@ export default async function MentionPage({ params }: PageProps) {
                             
                             {/* Highlights supplémentaires */}
                             {offre.chef_parcours && (
-                            <div className="mt-4 text-center">
+                            <div className="mt-0 sm:mt-4 text-center">
                                 <span className="text-sm text-gray-600">
                                 <strong>Chef de parcours :</strong> {offre.chef_parcours}
                                 </span>
@@ -253,7 +240,7 @@ export default async function MentionPage({ params }: PageProps) {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <a 
                         href="/contact"
-                        className={`px-8 py-4 bg-[var(--theme-600)] text-white font-medium rounded-xl hover:bg-[var(--theme-700)] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5`}
+                        className={`px-8 py-4 bg-[var(--theme-600)] text-white font-medium rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5`}
                     >
                         Nous contacter
                     </a>

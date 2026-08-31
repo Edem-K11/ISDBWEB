@@ -1,17 +1,32 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import Image from 'next/image';
+import { X } from 'lucide-react';
 
 interface BlogContentProps {
   contenu: string;
 }
 
 export default function BlogContent({ contenu }: BlogContentProps) {
+  // Lightbox : clic sur une image de l'article pour l'agrandir en plein écran.
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+
+  useEffect(() => {
+    if (!lightbox) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightbox(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightbox]);
+
   return (
+    <>
     <article className="prose prose-lg prose-slate max-w-none
       prose-headings:font-bold prose-headings:text-gray-900
       prose-h1:text-4xl prose-h1:mb-6 prose-h1:mt-8
@@ -40,17 +55,21 @@ export default function BlogContent({ contenu }: BlogContentProps) {
           // Personnaliser les images
           img: ({ src, alt }) => {
             if (!src || typeof src !== 'string') return null;
-            
+
             return (
-              <div className="relative w-full h-[400px] my-8 rounded-xl overflow-hidden shadow-lg">
+              <button
+                type="button"
+                onClick={() => setLightbox({ src, alt: alt || 'Image du blog' })}
+                className="relative block w-full h-[400px] my-8 rounded-xl overflow-hidden shadow-lg cursor-zoom-in group"
+              >
                 <Image
                   src={src}
                   alt={alt || 'Image du blog'}
                   fill
-                  className="object-cover"
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
                   sizes="(max-width: 768px) 100vw, 896px"
                 />
-              </div>
+              </button>
             );
           },
           
@@ -138,5 +157,34 @@ export default function BlogContent({ contenu }: BlogContentProps) {
         {contenu}
       </ReactMarkdown>
     </article>
+
+    {/* Lightbox : fond noir légèrement flouté, clic en dehors de l'image ou sur
+        la croix pour fermer, clic sur l'image elle-même sans effet. */}
+    {lightbox && (
+      <div
+        role="dialog"
+        aria-modal="true"
+        onClick={() => setLightbox(null)}
+        className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 cursor-zoom-out animate-lightbox-in"
+      >
+        <button
+          type="button"
+          onClick={() => setLightbox(null)}
+          aria-label="Fermer"
+          className="fixed top-5 right-5 z-[110] p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+        >
+          <X className="w-6 h-6" />
+        </button>
+
+        {/* eslint-disable-next-line @next/next/no-img-element -- dimensions inconnues, agrandissement libre dans la lightbox */}
+        <img
+          src={lightbox.src}
+          alt={lightbox.alt}
+          onClick={(e) => e.stopPropagation()}
+          className="max-w-full max-h-full object-contain rounded-lg shadow-2xl cursor-default"
+        />
+      </div>
+    )}
+    </>
   );
 }

@@ -60,7 +60,7 @@ class StoreFormationRequest extends FormRequest
             'profile_sortie' => ['nullable', 'string'],
             'evaluation' => ['nullable', 'string'],
             'programme' => ['nullable', 'string'],
-            'programme_pdf' => ['nullable', 'file', 'mimes:pdf', 'max:10240'], // 10MB max
+            'programme_pdf' => ['nullable', 'file', 'mimes:pdf', 'max:15360'], // 15MB max
             
             // Informations pratiques
             'duree_formation' => ['nullable', 'string', 'max:50'],
@@ -94,9 +94,9 @@ class StoreFormationRequest extends FormRequest
             
             'diplome.in' => 'Le diplôme sélectionné n\'est pas valide.',
             
-            'programme_pdf.file' => 'Le programme doit être un fichier.',
-            'programme_pdf.mimes' => 'Le programme doit être un fichier PDF.',
-            'programme_pdf.max' => 'Le fichier PDF ne peut pas dépasser 10MB.',
+            'programme_pdf.file' => 'Le fichier du programme n\'a pas pu être lu — merci de réessayer ou de choisir un autre fichier.',
+            'programme_pdf.mimes' => 'Le programme doit être un fichier au format PDF.',
+            'programme_pdf.max' => 'Le fichier PDF ne peut pas dépasser 15 Mo.',
             
             'duree_formation.max' => 'La durée de formation ne peut pas dépasser 50 caractères.',
             

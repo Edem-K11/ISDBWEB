@@ -116,6 +116,10 @@ class MentionController extends Controller
             ], 422);
         }
 
+        // Le slug reste unique en base même après soft delete (la ligne existe
+        // toujours physiquement) : on le libère ici pour qu'un titre identique
+        // puisse être recréé plus tard sans hériter d'un suffixe (-1, -2...).
+        $mention->update(['slug' => $mention->slug . '-supprime-' . $mention->id]);
         $mention->delete();
 
         return response()->json([
@@ -125,16 +129,47 @@ class MentionController extends Controller
     }
 
     /**
+     * Liste des mentions soft-supprimées, pour la vue Corbeille.
+     */
+    public function trashed(): JsonResponse
+    {
+        $mentions = Mention::onlyTrashed()
+            ->withCount('formations')
+            ->with('domaine')
+            ->orderBy('deleted_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => MentionResource::collection($mentions),
+        ]);
+    }
+
+    /**
      * Restore a soft-deleted mention.
      */
     public function restore(int $id): JsonResponse
     {
         $mention = Mention::withTrashed()->findOrFail($id);
-        
+
         if (!$mention->trashed()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Cette mention n\'est pas supprimée.'
+            ], 422);
+        }
+
+        // Une autre mention active pourrait entre-temps avoir été créée avec
+        // le même titre (le titre est libéré dès la suppression douce) — on
+        // l'évite pour ne pas se retrouver avec deux mentions actives identiques.
+        $doublonActif = Mention::where('titre', $mention->titre)
+            ->where('id', '!=', $mention->id)
+            ->exists();
+
+        if ($doublonActif) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Impossible de restaurer cette mention : une autre mention active porte déjà ce titre.'
             ], 422);
         }
 

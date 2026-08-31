@@ -142,7 +142,7 @@ export default async function HomePage() {
           Version statique pour l'instant : la flèche de carrousel viendra quand
           plusieurs slides seront configurables depuis le dashboard. */}
       <section className="relative overflow-hidden bg-slate-950 h-screen flex flex-col">
-        <div className="absolute inset-0 scale-110">
+        <div className="absolute inset-0 scale-100 md:scale-110">
           <Image
             src="/immeuble_isdb.png"
             alt="Campus de l'Institut Supérieur Don Bosco"
@@ -163,10 +163,16 @@ export default async function HomePage() {
             le titre et le logo gardent des trajectoires d'entrée indépendantes. */}
         <div className="relative z-10 flex-1 flex items-center justify-center px-4">
           <div className="relative flex flex-col items-center">
-            <h1 className={`${boldonse.className} relative z-10 animate-hero-drop text-white uppercase tracking-wide leading-[1.05] text-5xl sm:text-6xl md:text-7xl lg:text-8xl`}>
+            {/* Taille fluide (clamp) plutôt que des paliers fixes par breakpoint :
+                un saut brutal de taille pile à la bascule md→lg (ex. text-7xl à
+                1023px puis text-8xl à 1024px, sans plus de largeur pour autant)
+                faisait passer le titre à la ligne suivante et tout décaler,
+                typiquement entre ~1020px et ~1155px de large. Avec un clamp, la
+                taille suit la largeur de l'écran en continu, sans palier. */}
+            <h1 className={`${boldonse.className} relative z-10 animate-hero-drop text-white uppercase tracking-wide leading-[1.05] text-center text-3xl sm:text-4xl md:text-7xl xl:text-8xl`}>
               {heroNomHaut}
             </h1>
-            <h1 className={`${boldonse.className} relative z-30 animate-hero-drop text-white uppercase tracking-wide leading-[1.05] text-5xl sm:text-6xl md:text-7xl lg:text-8xl mt-12 md:mt-16`}>
+            <h1 className={`${boldonse.className} relative z-30 animate-hero-drop text-white uppercase tracking-wide leading-[1.05] text-center text-3xl sm:text-4xl md:text-7xl xl:text-8xl mt-12 md:mt-16`}>
               {heroNomBas}
             </h1>
 
@@ -175,7 +181,7 @@ export default async function HomePage() {
                 et décalé vers le bas pour que ses ~10% inférieurs soient rognés par
                 le bas de la section (overflow-hidden). */}
             <div
-              className="absolute left-1/2 -translate-x-1/2 -translate-y-[15%] z-20 select-none"
+              className="absolute left-1/2 -translate-x-1/2 -translate-y-[35%] sm:-translate-y-[15%] z-20 select-none"
               style={{ width: 'min(82vh, 85vw)', height: 'min(82vh, 85vw)' }}
             >
               <div className="w-full h-full animate-hero-logo">
@@ -187,21 +193,21 @@ export default async function HomePage() {
 
         {/* Accroche + CTA (bas gauche) et description (bas droite), au même niveau */}
         <div className="relative z-10 container mx-auto px-6 md:px-12 pb-12 md:pb-16">
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
-            <div className="animate-hero-fade-left">
-              <h2 className="text-white font-bold text-xl md:text-2xl leading-snug mb-5 max-w-xs">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between text-center gap-8">
+            <div className="animate-hero-fade-left flex flex-col text-center md:text-left">
+              <h2 className="text-white font-bold text-xl md:text-2xl leading-snug mb-5 max-w-xs mx-auto md:mx-0">
                 Votre formation d'excellence commence ici
               </h2>
               <Link
                 href="/formations"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-white/15 backdrop-blur-md text-white font-semibold rounded-full border border-white/30 hover:bg-white/25 hover:scale-95 transition-all duration-300"
+                className="flex justify-center md:justify-start items-center gap-2 px-6 py-3 bg-white/15 backdrop-blur-md text-white font-semibold rounded-full border border-white/30 hover:bg-white/25 hover:scale-95 transition-all duration-300"
               >
                 Découvrir les formations
                 <ArrowIcon className="w-4 h-4" />
               </Link>
             </div>
             <div className="max-w-xs text-right animate-hero-fade-right">
-              <p className="text-white text-base md:text-lg leading-relaxed">
+              <p className="text-white text-base md:text-lg hidden md:block leading-relaxed">
                 Des formations innovantes, un encadrement de qualité et des studios
                 professionnels pour révéler votre potentiel et construire votre avenir.
               </p>
@@ -224,7 +230,7 @@ export default async function HomePage() {
           </RevealOnScroll>
 
           {orderedMentions.length > 0 && (
-            <div className="grid md:grid-cols-3 gap-8 items-stretch">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 items-stretch">
               {orderedMentions.map((mention, index) => {
                 const palette = getMentionThemePalette(mention.theme);
                 return (
@@ -235,7 +241,7 @@ export default async function HomePage() {
                       <CaurisIcon
                         className={`absolute -top-10 -right-14 w-64 rotate-[18deg] ${palette.decorative} opacity-40 group-hover:opacity-55 group-hover:rotate-[12deg] transition-all duration-500 pointer-events-none`}
                       />
-                      <div className="relative z-10 flex flex-col flex-1 pt-32">
+                      <div className="relative z-10 flex flex-col flex-1 pt-32 md:pt-64">
                         <h3 className="text-2xl font-bold text-slate-900 mb-3">{mention.titre}</h3>
                         <p className="text-slate-700/90 mb-6 flex-1">
                           {mention.description || 'Découvrez les offres de formation de cette filière.'}
@@ -526,8 +532,12 @@ export default async function HomePage() {
             <RevealOnScroll className="order-2 lg:order-1">
               {studioCollage.length > 0 ? (
                 <>
-                  {/* Mobile / tablette : grille simple, sans chevauchement */}
-                  <div className="grid grid-cols-2 gap-3 lg:hidden">
+                  {/* Mobile / tablette : grille simple, sans chevauchement. Largeur
+                      plafonnée et centrée : sans ça, sur les écrans ~768-1024px
+                      (juste avant le collage desktop), les photos s'étirent sur
+                      toute la largeur du conteneur et paraissent énormes au lieu
+                      de continuer à rapetisser avec l'écran. */}
+                  <div className="grid grid-cols-2 gap-3 max-w-md mx-auto lg:max-w-none lg:mx-0 lg:hidden">
                     {studioCollage.slice(0, 4).map((src, index) => (
                       <div
                         key={src}

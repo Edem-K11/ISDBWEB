@@ -92,6 +92,11 @@ class AuthController extends Controller
             'email' => 'sometimes|email|unique:redacteurs,email,' . $redacteur->id,
             'avatar' => 'nullable|string',
             'bio' => 'nullable|string',
+        ], [
+            'nom.string' => 'Le nom doit être une chaîne de caractères.',
+            'nom.max' => 'Le nom ne peut pas dépasser 255 caractères.',
+            'email.email' => 'L\'adresse email n\'est pas valide.',
+            'email.unique' => 'Cette adresse email est déjà utilisée par un autre compte.',
         ]);
 
         $redacteur->update($validated);
@@ -117,6 +122,11 @@ class AuthController extends Controller
         $validated = $request->validate([
             'current_password' => 'required',
             'new_password' => 'required|min:8|confirmed',
+        ], [
+            'current_password.required' => 'Le mot de passe actuel est obligatoire.',
+            'new_password.required' => 'Le nouveau mot de passe est obligatoire.',
+            'new_password.min' => 'Le nouveau mot de passe doit contenir au moins 8 caractères.',
+            'new_password.confirmed' => 'La confirmation ne correspond pas au nouveau mot de passe.',
         ]);
 
         $redacteur = $request->user();

@@ -116,4 +116,28 @@ export const offreFormationService = {
     );
     return data.data;
   },
+
+  /**
+   * Offres de formation soft-supprimées (corbeille).
+   */
+  getTrashed: async () => {
+    const { data } = await apiClient.get<ApiResponse<OffreFormation[]>>(
+      `${ENDPOINTS.DASHBOARD_OFFRES_FORMATIONS}/trashed`
+    );
+    return data.data;
+  },
+
+  restore: async (id: number) => {
+    const { data } = await apiClient.patch<ApiResponse<OffreFormation>>(
+      `${ENDPOINTS.DASHBOARD_OFFRE_FORMATION_BY_ID(id)}/restore`
+    );
+    return data.data;
+  },
+
+  forceDelete: async (id: number) => {
+    const { data } = await apiClient.delete(
+      `${ENDPOINTS.DASHBOARD_OFFRE_FORMATION_BY_ID(id)}/force`
+    );
+    return data;
+  },
 };

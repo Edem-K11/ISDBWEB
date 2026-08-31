@@ -205,13 +205,6 @@ export default function CreateFormationPrincipalePage() {
         statut_formation: 'ACTIVE',
       };
 
-      // ✅ Revalider toutes les clés SWR liées aux formations
-      await mutate(
-        key => typeof key === 'string' && key.startsWith('formations'),
-        undefined,
-        { revalidate: true }
-      );
-
       // Ajouter le fichier PDF si présent
       if (formData.programme_pdf) {
         const formDataToSend = new FormData();
@@ -225,6 +218,18 @@ export default function CreateFormationPrincipalePage() {
       } else {
         await formationService.create(formationData);
       }
+
+      // Revalider toutes les clés SWR liées aux formations (maintenant que la
+      // nouvelle formation existe bien). Les clés SWRInfinite sont des
+      // tableaux (['formations-infinite', filtres]), pas des chaînes.
+      await mutate(
+        (key) => {
+          const firstSegment = Array.isArray(key) ? key[0] : key;
+          return typeof firstSegment === 'string' && firstSegment.startsWith('formation');
+        },
+        undefined,
+        { revalidate: true }
+      );
 
       toast.success('Formation principale créée avec succès');
       router.push('/dashboard/formations');
