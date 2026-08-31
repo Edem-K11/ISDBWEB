@@ -19,9 +19,20 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:3000', 'http://127.0.0.1:3000', env('FRONTEND_URL')], 'https://*.vercel.app',
+    'allowed_origins' => array_filter([
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        env('FRONTEND_URL'),
+    ]),
 
-    'allowed_origins_patterns' => [],
+    // 'https://*.vercel.app' n'est pas un motif valide ici : Laravel compare
+    // allowed_origins_patterns à une vraie expression régulière, pas à un
+    // glob. Couvre aussi bien le domaine de prod que les URLs de preview
+    // (qui changent à chaque déploiement), sans avoir à les whitelister une
+    // par une.
+    'allowed_origins_patterns' => [
+        '#^https://.*\.vercel\.app$#',
+    ],
 
     'allowed_headers' => ['*'],
 
