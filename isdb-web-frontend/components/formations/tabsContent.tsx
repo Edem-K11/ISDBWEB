@@ -4,6 +4,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 interface TabsContentProps {
   formation: any;
@@ -146,9 +147,9 @@ export default function TabsContent({ formation, offre, colors }: TabsContentPro
             <div className="mt-6 p-4 bg-green-50 rounded-lg">
               <p className="text-gray-700">
                 Pour plus d'informations sur les modalités de candidature, 
-                <a href="/admissions" className={`${colors.text} font-semibold hover:underline ml-1`}>
+                <Link href="/admission" className={`${colors.text} font-semibold hover:underline ml-1`}>
                   consultez notre page Admissions
-                </a>.
+                </Link>.
               </p>
             </div>
           </div>

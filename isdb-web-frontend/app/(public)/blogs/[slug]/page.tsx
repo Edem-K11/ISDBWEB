@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useBlog } from '@/lib/hooks/useBlog';
 import BlogHeader from '@/components/blog/blogHeader';
@@ -39,12 +40,12 @@ export default function BlogDetailPage() {
           <p className="text-gray-600 mb-8">
             Désolé, l'article que vous recherchez n'existe pas ou a été supprimé.
           </p>
-          <a
+          <Link
             href={ENDPOINTS.BLOGS}
             className="inline-flex items-center px-6 py-3 bg-isdb-green-600 text-white rounded-lg hover:bg-isdb-green-700 transition-colors"
           >
             Retour au blog
-          </a>
+          </Link>
         </div>
       </div>
     );

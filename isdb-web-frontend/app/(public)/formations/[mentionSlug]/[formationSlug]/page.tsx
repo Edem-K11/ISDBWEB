@@ -1,6 +1,7 @@
 
 
 // app/(public)/formations/[mentionSlug]/[formationSlug]/page.tsx
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Breadcrumbs from '@/components/layout/breadcrumbs';
 import InfoCard from '@/components/formations/infoCard';
@@ -137,7 +138,7 @@ export default async function FormationDetailPage({ params }: Readonly<PageProps
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {autres_formations.map((f: any) => (
-                <a
+                <Link
                   key={f.id}
                   href={`/formations/${f.mention_slug}/${f.slug}`}
                   className={`block p-6 bg-white rounded-xl border-2 ${colors.border} hover:shadow-lg transition-all`}
@@ -149,7 +150,7 @@ export default async function FormationDetailPage({ params }: Readonly<PageProps
                   </div>
                   <h3 className="font-semibold text-slate-800 mb-2">{f.titre}</h3>
                   <p className={`text-sm ${colors.text}`}>Découvrir →</p>
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -165,18 +166,18 @@ export default async function FormationDetailPage({ params }: Readonly<PageProps
               Rejoignez notre communauté d'étudiants et bénéficiez d'une formation d'excellence
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
+              <Link
                 href="/contact"
                 className={`px-8 py-4 ${colors.accent} text-white font-medium rounded-xl hover:opacity-90 transition-all shadow-lg`}
               >
                 Nous contacter
-              </a>
-              <a
-                href="/admissions"
+              </Link>
+              <Link
+                href="/admission"
                 className={`px-8 py-4 bg-white border-2 ${colors.border} ${colors.text} font-medium rounded-xl hover:bg-gray-50 transition-all`}
               >
                 Procédure d'admission
-              </a>
+              </Link>
             </div>
           </div>
         </div>

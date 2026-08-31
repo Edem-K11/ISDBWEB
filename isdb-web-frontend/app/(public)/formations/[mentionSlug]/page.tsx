@@ -1,6 +1,7 @@
 
 
 // app/(public)/formations/[mentionSlug]/page.tsx
+import Link from 'next/link';
 import FormationCard from '@/components/layout/formationCard';
 import Breadcrumbs from '@/components/layout/breadcrumbs';
 import DiscoverCard from '@/components/layout/discoverdCard';
@@ -238,18 +239,18 @@ export default async function MentionPage({ params }: Readonly<PageProps>) {
                     {content?.cta.description || 'Rejoignez une communauté passionnée par la connaissance'}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a 
+                    <Link
                         href="/contact"
                         className={`px-8 py-4 bg-[var(--theme-600)] text-white font-medium rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5`}
                     >
                         Nous contacter
-                    </a>
-                    <a 
-                        href="/admissions"
+                    </Link>
+                    <Link
+                        href="/admission"
                         className={`px-8 py-4 bg-white border-2 border-[var(--theme-600)] text-[var(--theme-600)] font-medium rounded-xl ${colors.hoverBg} transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5`}
                     >
                         Procédure d'admission
-                    </a>
+                    </Link>
                     </div>
                 </div>
                 </div>

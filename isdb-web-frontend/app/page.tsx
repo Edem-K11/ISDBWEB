@@ -235,7 +235,8 @@ export default async function HomePage() {
                 const palette = getMentionThemePalette(mention.theme);
                 return (
                   <RevealOnScroll key={mention.id} delay={index * 100}>
-                    <div
+                    <Link
+                      href={`/formations/${mention.slug}`}
                       className={`group relative overflow-hidden rounded-2xl ${palette.solidBg} p-8 flex flex-col h-full shadow-sm hover:shadow-lg transition-shadow duration-300`}
                     >
                       <CaurisIcon
@@ -246,15 +247,14 @@ export default async function HomePage() {
                         <p className="text-slate-700/90 mb-6 flex-1">
                           {mention.description || 'Découvrez les offres de formation de cette filière.'}
                         </p>
-                        <Link
-                          href={`/formations/${mention.slug}`}
+                        <div
                           className={`inline-flex items-center font-semibold ${palette.text}`}
                         >
                           Explorer
                           <ArrowIcon className="w-4 h-4 ml-2" />
-                        </Link>
+                        </div>
                       </div>
-                    </div>
+                    </Link>
                   </RevealOnScroll>
                 );
               })}

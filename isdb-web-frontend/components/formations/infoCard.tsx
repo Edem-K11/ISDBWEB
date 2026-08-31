@@ -1,6 +1,7 @@
 
 
 // components/formations/InfoCard.tsx
+import Link from 'next/link';
 import { Users, BookOpen, GraduationCap, Clock, User, Calendar } from 'lucide-react';
 
 interface InfoCardProps {
@@ -88,12 +89,12 @@ export default function InfoCard({ formation, offre, mention, colors }: InfoCard
 
       {/* Bouton d'action */}
       <div className="mt-8 pt-6 border-t border-gray-200">
-        <a
+        <Link
           href="/contact"
           className={`block w-full text-center px-6 py-3 ${colors.accent} text-white font-medium rounded-xl hover:opacity-90 transition-all shadow-md`}
         >
           Demander plus d'infos
-        </a>
+        </Link>
       </div>
     </div>
   );
