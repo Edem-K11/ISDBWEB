@@ -12,9 +12,29 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://isdbwebfront-nine.vercel.app";
+const siteTitle = "ISDB - Institut Supérieur Don Bosco";
+const siteDescription = "Institut Supérieur Don Bosco — formations, studios, radio et actualités";
+
 export const metadata: Metadata = {
-  title: "ISDB - Institut Supérieur Don Bosco",
-  description: "Institut Supérieur Don Bosco — formations, studios, radio et actualités",
+  metadataBase: new URL(siteUrl),
+  title: siteTitle,
+  description: siteDescription,
+  openGraph: {
+    title: siteTitle,
+    description: siteDescription,
+    url: siteUrl,
+    siteName: siteTitle,
+    images: [{ url: "/logo_isdb.png", width: 200, height: 200 }],
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: siteTitle,
+    description: siteDescription,
+    images: ["/logo_isdb.png"],
+  },
 };
 
 export default function RootLayout({
