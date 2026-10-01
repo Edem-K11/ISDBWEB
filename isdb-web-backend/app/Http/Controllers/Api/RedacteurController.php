@@ -57,6 +57,20 @@ class RedacteurController extends Controller
             ], 403);
         }
 
+        // blogs.redacteur_id a une contrainte de clé étrangère sans cascade :
+        // on vérifie en amont plutôt que de laisser MySQL rejeter le DELETE
+        // (ce qui remontait une erreur 500 brute côté front).
+        $blogsCount = $redacteur->blogs()->count();
+        if ($blogsCount > 0) {
+            $pluriel = $blogsCount > 1 ? 's' : '';
+            $verbe = $blogsCount > 1 ? 'sont' : 'est';
+            return response()->json([
+                'message' => "Impossible de supprimer ce rédacteur : {$blogsCount} article{$pluriel} lui {$verbe} encore associé{$pluriel}. Réaffectez ou supprimez ces articles avant de le supprimer.",
+                'error' => 'redacteur_has_blogs',
+                'blogs_count' => $blogsCount,
+            ], 409);
+        }
+
         $redacteur->delete();
 
         return response()->json([

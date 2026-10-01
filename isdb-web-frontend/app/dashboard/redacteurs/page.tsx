@@ -39,8 +39,8 @@ export default function RedacteursPage() {
       toast.success('Rédacteur supprimé avec succès');
       mutate();
       setDeleteModalOpen(false);
-    } catch (error) {
-      toast.error('Erreur lors de la suppression');
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Erreur lors de la suppression');
     }
   };
 
@@ -198,7 +198,7 @@ export default function RedacteursPage() {
         onClose={() => setDeleteModalOpen(false)}
         onConfirm={handleDelete}
         title="Supprimer le rédacteur"
-        message="Êtes-vous sûr de vouloir supprimer ce rédacteur ? Tous ses articles seront également supprimés."
+        message="Êtes-vous sûr de vouloir supprimer ce rédacteur ? Cette action est impossible tant qu'il a des articles associés : réaffectez-les ou supprimez-les d'abord."
         confirmText="Supprimer"
         confirmButtonClass="bg-red-600 hover:bg-red-700"
       />
