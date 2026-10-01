@@ -19,7 +19,11 @@ interface PageProps {
 async function getMentionData(mentionSlug: string) {
   try {
     const res = await fetch(`${API_URL}/formations/${mentionSlug}`, {
-      cache: 'no-store', // Contenu piloté par l'admin (thème, offres, mentions liées) : ne pas mettre en cache
+      // Revalidate court plutôt que no-store : le contenu est piloté par l'admin
+      // et doit rester raisonnablement frais, mais no-store imposait un aller-retour
+      // live vers Render (plan gratuit) à chaque visite, ce qui alourdit le
+      // chargement perçu. 60s = compromis fraîcheur/latence (voir lib/api/mentions.ts).
+      next: { revalidate: 60 },
       headers: {
         'Accept': 'application/json',
       }

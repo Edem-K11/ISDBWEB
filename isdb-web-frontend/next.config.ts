@@ -21,15 +21,21 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'ui-avatars.com',
       },
-      /* ⬇️ AJOUTÉ : Autorise l'affichage des images stockées sur votre Laravel en ligne ⬇️ */
+      /* Images encore servies depuis le disque Laravel (anciens enregistrements
+         pré-Cloudinary, ou fallback si jamais utilisé) */
       {
         protocol: 'https',
-        hostname: '://onrender.com',
+        hostname: 'isdb-web-backend.onrender.com',
         pathname: '/storage/**',
-      }
+      },
+      /* Toutes les images uploadées depuis la migration Cloudinary */
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/jih3f0cq/**',
+      },
     ],
     dangerouslyAllowSVG: true,
-    unoptimized: true,
   }
 };
 

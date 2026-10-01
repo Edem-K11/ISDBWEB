@@ -4,14 +4,14 @@ import { Mention } from '@/lib/types/Mention';
 
 export async function getMentions(): Promise<Mention[]> {
   try {
-    // Pas de cache ISR ici : le backend est hébergé sur le plan gratuit de
-    // Render, qui se met en veille après inactivité. Avec `revalidate`, une
-    // régénération en arrière-plan qui tombe sur un cold-start peut échouer
-    // (timeout) et figer une page vide en cache pendant toute la durée du
-    // revalidate. `no-store` force un fetch live à chaque requête, comme sur
-    // les pages de détail de mention/formation (voir getMentionData).
+    // Revalidate court (60s) plutôt que no-store : no-store forçait un aller-retour
+    // live vers Render (plan gratuit, cold-start possible) à CHAQUE visite, ce qui
+    // alourdissait le chargement perçu. Avec 60s, la page profite du cache la
+    // plupart du temps, et si jamais une régénération tombe sur un cold-start raté,
+    // elle s'auto-corrige en 1 minute max (contre 1h avec l'ancien revalidate:3600
+    // qui avait causé une page figée vide — voir commit 77adbf8).
     const res = await fetch(`${API_URL}/formations`, {
-      cache: 'no-store',
+      next: { revalidate: 60 },
     });
 
     if (!res.ok) return [];
