@@ -9,6 +9,7 @@ export interface Redacteur {
   bio?: string;
   password?: string;
   blogsPubliesCount?: number;
+  est_systeme?: boolean;
 }
 
 export interface RedacteurFormData {

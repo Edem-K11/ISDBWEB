@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/lib/auth/useAuth';
 import { useRedacteurs } from '@/lib/hooks/useRedacteur';
 import { redacteurService } from '@/lib/api/services/redacteurService';
-import { Plus, Edit, Trash2, Mail, User, ShieldAlert, Shield } from 'lucide-react';
+import { Plus, Edit, Trash2, Mail, User, ShieldAlert, Shield, Building2 } from 'lucide-react';
 import Image from 'next/image';
 import ConfirmModal from '@/components/ui/confirmModal';
 import RedacteurFormModal from '@/components/dashboard/redacteurs/redacteurFormModal';
@@ -15,10 +15,8 @@ export default function RedacteursPage() {
   const { redacteurs, mutate, isLoading } = useRedacteurs();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [formModalOpen, setFormModalOpen] = useState(false);
-  const [redacteurToDelete, setRedacteurToDelete] = useState<number | null>(null);
+  const [redacteurToDelete, setRedacteurToDelete] = useState<any>(null);
   const [redacteurToEdit, setRedacteurToEdit] = useState<any>(null);
-
-  console.log(redacteurs);
 
   // Protection admin
   if (!isAdmin()) {
@@ -35,8 +33,8 @@ export default function RedacteursPage() {
     if (!redacteurToDelete) return;
 
     try {
-      await redacteurService.delete(redacteurToDelete);
-      toast.success('Rédacteur supprimé avec succès');
+      const { message } = await redacteurService.delete(redacteurToDelete.id);
+      toast.success(message || 'Rédacteur supprimé avec succès');
       mutate();
       setDeleteModalOpen(false);
     } catch (error: any) {
@@ -124,6 +122,13 @@ export default function RedacteursPage() {
                         Admin
                       </div>
                     )}
+
+                    {redacteur.est_systeme && (
+                      <div className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold flex items-center gap-1">
+                        <Building2 className="w-3 h-3" />
+                        Système
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -131,15 +136,17 @@ export default function RedacteursPage() {
 
             {/* Informations */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Mail className="w-4 h-4 text-gray-400" />
-                <a
-                  href={`mailto:${redacteur.email}`}
-                  className="hover:text-indigo-600 transition-colors"
-                >
-                  {redacteur.email}
-                </a>
-              </div>
+              {!redacteur.est_systeme && (
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Mail className="w-4 h-4 text-gray-400" />
+                  <a
+                    href={`mailto:${redacteur.email}`}
+                    className="hover:text-indigo-600 transition-colors"
+                  >
+                    {redacteur.email}
+                  </a>
+                </div>
+              )}
 
               {redacteur.bio && (
                 <p className="text-sm text-gray-600 line-clamp-2">
@@ -169,14 +176,14 @@ export default function RedacteursPage() {
                   <Edit className="w-5 h-5" />
                 </button>
 
-                {redacteur.role !== 'admin' && (
+                {redacteur.role !== 'admin' && !redacteur.est_systeme && (
                   <>
                     {/* Séparateur vertical */}
                     <div className="h-6 w-px bg-gray-300 mx-1"></div>
 
                     <button
                       onClick={() => {
-                        setRedacteurToDelete(redacteur.id);
+                        setRedacteurToDelete(redacteur);
                         setDeleteModalOpen(true);
                       }}
                       className="p-4 text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -198,7 +205,11 @@ export default function RedacteursPage() {
         onClose={() => setDeleteModalOpen(false)}
         onConfirm={handleDelete}
         title="Supprimer le rédacteur"
-        message="Êtes-vous sûr de vouloir supprimer ce rédacteur ? Cette action est impossible tant qu'il a des articles associés : réaffectez-les ou supprimez-les d'abord."
+        message={
+          redacteurToDelete?.blogsPubliesCount > 0
+            ? `Êtes-vous sûr de vouloir supprimer "${redacteurToDelete?.nom}" ? Ses ${redacteurToDelete.blogsPubliesCount} article(s) seront automatiquement réaffecté(s) à "La Rédaction".`
+            : `Êtes-vous sûr de vouloir supprimer "${redacteurToDelete?.nom}" ?`
+        }
         confirmText="Supprimer"
         confirmButtonClass="bg-red-600 hover:bg-red-700"
       />

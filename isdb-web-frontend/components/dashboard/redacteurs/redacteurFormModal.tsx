@@ -32,6 +32,7 @@ export default function RedacteurFormModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [showPassword, setShowPassword] = useState(false); // Nouvel état pour afficher/masquer le mot de passe
+  const isSysteme = Boolean(redacteur?.est_systeme);
 
   useEffect(() => {
     if (redacteur) {
@@ -79,11 +80,21 @@ export default function RedacteurFormModal({
 
     try {
       const dataToSend = { ...formData };
-      // Ne pas envoyer le password s'il est vide en mode édition
-      const payload = redacteur && !dataToSend.password
-        ? (({ password, ...rest }: typeof dataToSend) => rest)(dataToSend)
-        : dataToSend;
-      console.log('Rédacteur enregistré :', payload);
+      // Le compte système n'est jamais créé via ce formulaire (seedé en migration),
+      // seulement édité : les branches "email manquant" et "create()" sont donc
+      // mutuellement exclusives en pratique, d'où le `any` plutôt qu'un type union
+      // que TS ne peut pas réduire automatiquement.
+      let payload: any = dataToSend;
+      if (isSysteme) {
+        // Compte système : ni email ni mot de passe ne sont modifiables (pas
+        // d'identifiants de connexion réels pour ce compte).
+        const { email, password, ...rest } = dataToSend;
+        payload = rest;
+      } else if (redacteur && !dataToSend.password) {
+        // Ne pas envoyer le password s'il est vide en mode édition
+        const { password, ...rest } = dataToSend;
+        payload = rest;
+      }
 
       if (redacteur) {
         await redacteurService.update(redacteur.id, payload);
@@ -123,6 +134,14 @@ export default function RedacteurFormModal({
             {redacteur ? 'Modifier le rédacteur' : 'Nouveau rédacteur'}
           </h3>
 
+          {isSysteme && (
+            <div className="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg text-sm text-indigo-800">
+              Compte système : utilisé comme byline institutionnelle (ex. pour les articles de l'admin,
+              ou les articles d'un rédacteur supprimé). Il n'a pas d'identifiants de connexion — seuls
+              le nom, l'avatar et le statut sont modifiables.
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Avatar */}
             <div className="flex items-center gap-4">
@@ -153,7 +172,7 @@ export default function RedacteurFormModal({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className={`grid grid-cols-1 gap-4 ${isSysteme ? '' : 'md:grid-cols-2'}`}>
               {/* Nom */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -169,20 +188,22 @@ export default function RedacteurFormModal({
                 />
               </div>
 
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="john@example.com"
-                />
-              </div>
+              {/* Email (pas pour le compte système) */}
+              {!isSysteme && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="john@example.com"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Bio */}
@@ -266,7 +287,8 @@ export default function RedacteurFormModal({
               </span>
             </div>
 
-            {/* Mot de passe avec toggle de visibilité */}
+            {/* Mot de passe avec toggle de visibilité (pas pour le compte système) */}
+            {!isSysteme && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Mot de passe {!redacteur && <span className="text-red-500">*</span>}
@@ -303,6 +325,7 @@ export default function RedacteurFormModal({
                 )}
               </div>
             </div>
+            )}
 
             {/* Actions */}
             <div className="flex gap-3 pt-4 border-t">

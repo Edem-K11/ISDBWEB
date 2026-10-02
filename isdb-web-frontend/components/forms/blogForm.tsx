@@ -54,6 +54,19 @@ export default function BlogForm({ blog }: BlogFormProps) {
 
   const titre = watch('titre');
 
+  // Par défaut, un admin qui crée un nouvel article publie sous la byline
+  // institutionnelle "La Rédaction" plutôt que sous son propre nom — il garde
+  // la possibilité de choisir un autre rédacteur dans la liste. Ne s'applique
+  // qu'à la création (un article existant garde son auteur actuel par défaut).
+  useEffect(() => {
+    if (!blog && isAdmin() && redacteurs.length > 0) {
+      const laRedaction = redacteurs.find((r) => r.est_systeme);
+      if (laRedaction) {
+        setValue('redacteur_id', laRedaction.id);
+      }
+    }
+  }, [redacteurs, blog, isAdmin, setValue]);
+
   const onSubmit = async (data: BlogFormData) => {
     if (!cover_image) {
       toast.error('Veuillez rajouter l\'image cover du blog');

@@ -22,6 +22,7 @@ class RedacteurResource extends JsonResource
             'bio' => $this->bio,
             'role' => $this->role,
             'est_actif' => $this->est_actif,
+            'est_systeme' => $this->est_systeme,
             'blogsPubliesCount' => $this->blogs_publies_count,
         ];
     }

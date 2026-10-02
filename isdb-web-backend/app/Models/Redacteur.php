@@ -4,13 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class Redacteur extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable; // Vérifier que HasApiTokens est présent
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes; // Vérifier que HasApiTokens est présent
 
     protected $table = 'redacteurs'; // IMPORTANT : Spécifier le nom de la table
 
@@ -22,6 +23,7 @@ class Redacteur extends Authenticatable
         'bio',
         'role',
         'est_actif',
+        'est_systeme',
     ];
 
     protected $hidden = [
@@ -32,6 +34,7 @@ class Redacteur extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'est_actif' => 'boolean',
+        'est_systeme' => 'boolean',
         'password' => 'hashed',
     ];
 
