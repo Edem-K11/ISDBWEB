@@ -5,7 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function MyNavFloating() {
+interface MyNavFloatingProps {
+  mentions?: { titre: string; slug: string }[];
+}
+
+export default function MyNavFloating({ mentions = [] }: MyNavFloatingProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<number | null>(null);
   const [openSubSubmenu, setOpenSubSubmenu] = useState<string | null>(null);
@@ -38,23 +42,10 @@ export default function MyNavFloating() {
         {
           name: 'Formations diplômantes',
           isGroup: true,
-          children: [
-            {
-              name: 'Philosophie',
-              href: '/formations/philosophie',
-              description: 'Licence fondamentale & Master recherche'
-            },
-            {
-              name: 'Sciences de l\'éducation',
-              href: '/formations/sciences-de-leducation',
-              description: 'Licence fondamentale & Master professionnel'
-            },
-            {
-              name: 'Communication',
-              href: '/formations/sciences-et-techniques-de-la-communication',
-              description: 'Production multimédia & relations publiques'
-            },
-          ]
+          children: mentions.map((mention) => ({
+            name: mention.titre,
+            href: `/formations/${mention.slug}`,
+          })),
         },
         {
           name: 'Formations modulaires',

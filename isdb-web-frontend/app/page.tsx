@@ -134,7 +134,7 @@ export default async function HomePage() {
         className="fixed inset-0 -z-10 pointer-events-none bg-repeat opacity-20"
         style={{ backgroundImage: "url('/motif_background6.jpg')", backgroundSize: '480px 480px' }}
       />
-      <MyNavFloating />
+      <MyNavFloating mentions={orderedMentions} />
 
       {/* Hero Section — photo floutée/assombrie en fond, nom de l'institut en deux
           lignes avec le logo en verre superposé entre les deux (effet de
@@ -230,11 +230,14 @@ export default async function HomePage() {
           </RevealOnScroll>
 
           {orderedMentions.length > 0 && (
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 items-stretch">
+            <div className="flex flex-wrap justify-center gap-8">{/* 4 filières : une seule ligne en grand écran ; sinon 3 par ligne, dernière ligne centrée (5 = 3 + 2, 6 = 3 + 3) */}
               {orderedMentions.map((mention, index) => {
                 const palette = getMentionThemePalette(mention.theme);
+                const largeur = orderedMentions.length === 4
+                  ? 'lg:w-[calc(25%-1.5rem)]'
+                  : 'lg:w-[calc(33.333%-1.4rem)]';
                 return (
-                  <RevealOnScroll key={mention.id} delay={index * 100}>
+                  <RevealOnScroll key={mention.id} delay={index * 100} className={`w-full sm:w-[calc(50%-1rem)] h-auto ${largeur}`}>
                     <Link
                       href={`/formations/${mention.slug}`}
                       className={`group relative overflow-hidden rounded-2xl ${palette.solidBg} p-8 flex flex-col h-full shadow-sm hover:shadow-lg transition-shadow duration-300`}
