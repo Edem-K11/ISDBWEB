@@ -10,6 +10,7 @@ export interface Redacteur {
   password?: string;
   blogsPubliesCount?: number;
   est_systeme?: boolean;
+  deleted_at?: string | null;
 }
 
 export interface RedacteurFormData {

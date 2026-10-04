@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth/useAuth';
-import { useRedacteurs } from '@/lib/hooks/useRedacteur';
+import { useRedacteursPage } from '@/lib/hooks/useRedacteur';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { mutate as globalMutate } from 'swr';
 import { redacteurService } from '@/lib/api/services/redacteurService';
 import { Plus, Edit, Trash2, Mail, User, ShieldAlert, Shield, Building2 } from 'lucide-react';
 import Image from 'next/image';
@@ -12,7 +14,15 @@ import toast from 'react-hot-toast';
 
 export default function RedacteursPage() {
   const { isAdmin } = useAuth();
-  const { redacteurs, mutate, isLoading } = useRedacteurs();
+  const [page, setPage] = useState(1);
+  const { redacteurs, meta, mutate: mutatePage, isLoading } = useRedacteursPage(page);
+
+  // Rafraîchit la page courante ET les autres consommateurs de la liste complète
+  // (formulaire d'article, tableau de bord, filtre des articles).
+  const mutate = () => {
+    mutatePage();
+    globalMutate('redacteurs');
+  };
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [redacteurToDelete, setRedacteurToDelete] = useState<any>(null);
@@ -72,7 +82,7 @@ export default function RedacteursPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Gestion des rédacteurs</h1>
           <p className="text-gray-600 mt-1">
-            {redacteurs.length} rédacteur{redacteurs.length > 1 ? 's' : ''} enregistré{redacteurs.length > 1 ? 's' : ''}
+            {meta?.total ?? redacteurs.length} rédacteur{(meta?.total ?? redacteurs.length) > 1 ? 's' : ''} enregistré{(meta?.total ?? redacteurs.length) > 1 ? 's' : ''}
           </p>
         </div>
         <button
@@ -198,6 +208,31 @@ export default function RedacteursPage() {
           </div>
         ))}
       </div>
+
+      {/* Pagination */}
+      {meta && meta.last_page > 1 && (
+        <div className="flex items-center justify-center gap-4">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+            className="p-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+            aria-label="Page précédente"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <span className="text-sm text-gray-600">
+            Page {meta.current_page} sur {meta.last_page}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(meta.last_page, p + 1))}
+            disabled={page >= meta.last_page}
+            className="p-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+            aria-label="Page suivante"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      )}
 
       {/* Modals */}
       <ConfirmModal

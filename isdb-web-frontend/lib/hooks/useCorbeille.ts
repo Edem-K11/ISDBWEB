@@ -18,6 +18,8 @@ import { FormationModulaire } from '@/lib/types/FormationModulaire';
 import { Domaine } from '@/lib/types/Domaine';
 import { Mention } from '@/lib/types/Mention';
 import { OffreFormation } from '@/lib/types/OffreFormation';
+import { redacteurService } from '@/lib/api/services/redacteurService';
+import { Redacteur } from '@/lib/types/redacteur';
 
 export function useFormationsTrashed() {
   const { data, error, isLoading, mutate } = useSWR<Formation[]>(
@@ -57,6 +59,16 @@ export function useMentionsTrashed() {
   );
 
   return { mentions: data || [], isLoading, isError: error, mutate };
+}
+
+export function useRedacteursTrashed() {
+  const { data, error, isLoading, mutate } = useSWR<Redacteur[]>(
+    'redacteurs-trashed',
+    redacteurService.getTrashed,
+    { revalidateOnFocus: false }
+  );
+
+  return { redacteurs: data || [], isLoading, isError: error, mutate };
 }
 
 export function useOffresTrashed() {

@@ -23,3 +23,24 @@ export function useRedacteurs(enabled: boolean = true) {
     mutate,
   };
 }
+
+export const REDACTEURS_PER_PAGE = 12;
+
+export function useRedacteursPage(page: number) {
+  const { data, error, isLoading, mutate } = useSWR(
+    ['redacteurs-page', page],
+    () => redacteurService.getPage(page, REDACTEURS_PER_PAGE),
+    {
+      revalidateOnFocus: false,
+      keepPreviousData: true,
+    }
+  );
+
+  return {
+    redacteurs: (data?.data || []) as Redacteur[],
+    meta: data?.meta,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}

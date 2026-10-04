@@ -87,7 +87,11 @@ Route::middleware('auth:sanctum')->group(function () {
             
             
             // Redacteurs
+            // ⚠️ "trashed" doit être déclaré AVANT Route::resource (sinon matché comme {redacteur}).
+            Route::get('redacteurs/trashed', [RedacteurController::class, 'trashed']);
             Route::resource('redacteurs', RedacteurController::class);
+            Route::patch('redacteurs/{id}/restore', [RedacteurController::class, 'restore']);
+            Route::delete('redacteurs/{id}/force', [RedacteurController::class, 'forceDelete']);
             
             // Tags
             Route::post('tags', [TagController::class, 'store']);

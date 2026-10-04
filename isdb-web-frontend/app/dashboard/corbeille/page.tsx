@@ -15,6 +15,7 @@ import {
   Building,
   BookOpen,
   Calendar,
+  Users,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import {
@@ -23,7 +24,9 @@ import {
   useDomainesTrashed,
   useMentionsTrashed,
   useOffresTrashed,
+  useRedacteursTrashed,
 } from '@/lib/hooks/useCorbeille';
+import { redacteurService } from '@/lib/api/services/redacteurService';
 import { formationService } from '@/lib/api/services/formationService';
 import { formationModulaireService } from '@/lib/api/services/formationModulaireService';
 import { domaineService } from '@/lib/api/services/domaineService';
@@ -32,7 +35,7 @@ import { offreFormationService } from '@/lib/api/services/offreFormationService'
 import { Badge } from '@/components/ui/badge';
 import ConfirmModal from '@/components/ui/confirmModal';
 
-type TabKey = 'formations' | 'domaines' | 'mentions' | 'offres';
+type TabKey = 'formations' | 'domaines' | 'mentions' | 'offres' | 'redacteurs';
 
 // Après une restauration/suppression définitive, on revalide les caches des
 // écrans "normaux" de la ressource concernée en plus de la corbeille elle-même
@@ -72,6 +75,7 @@ export default function CorbeillePage() {
   const domainesTrashed = useDomainesTrashed();
   const mentionsTrashed = useMentionsTrashed();
   const offresTrashed = useOffresTrashed();
+  const redacteursTrashed = useRedacteursTrashed();
 
   // État de la fenêtre de confirmation de suppression définitive, commun aux
   // 4 onglets (une seule action irréversible à la fois).
@@ -94,6 +98,7 @@ export default function CorbeillePage() {
     { key: 'domaines', label: 'Domaines', icon: Layers, count: domainesTrashed.domaines.length },
     { key: 'mentions', label: 'Mentions', icon: Bookmark, count: mentionsTrashed.mentions.length },
     { key: 'offres', label: 'Offres de formation', icon: ClipboardList, count: offresTrashed.offres.length },
+    { key: 'redacteurs', label: 'Rédacteurs', icon: Users, count: redacteursTrashed.redacteurs.length },
   ];
 
   const totalCount = tabs.reduce((sum, t) => sum + t.count, 0);
@@ -156,6 +161,20 @@ export default function CorbeillePage() {
     }
   };
 
+  const handleRestoreRedacteur = async (id: number, nom: string) => {
+    setPendingAction(busyKey('redacteurs', id));
+    try {
+      await redacteurService.restore(id);
+      toast.success(`« ${nom} » restauré avec succès`);
+      await redacteursTrashed.mutate();
+      globalMutate('redacteurs');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Erreur lors de la restauration');
+    } finally {
+      setPendingAction(null);
+    }
+  };
+
   const handleRestoreOffre = async (id: number, titre: string) => {
     setPendingAction(busyKey('offres', id));
     try {
@@ -204,6 +223,10 @@ export default function CorbeillePage() {
           await offresTrashed.mutate();
           revalidateOffres();
           break;
+        case 'redacteurs':
+          await redacteurService.forceDelete(id);
+          await redacteursTrashed.mutate();
+          break;
       }
       toast.success(`« ${label} » supprimé définitivement`);
     } catch (error: any) {
@@ -229,7 +252,8 @@ export default function CorbeillePage() {
     formationsModulairesTrashed.isLoading ||
     domainesTrashed.isLoading ||
     mentionsTrashed.isLoading ||
-    offresTrashed.isLoading;
+    offresTrashed.isLoading ||
+    redacteursTrashed.isLoading;
 
   return (
     <div className="space-y-6">
@@ -502,6 +526,57 @@ export default function CorbeillePage() {
                       </button>
                       <button
                         onClick={() => setConfirmTarget({ resource: 'mentions', id: mention.id, label: mention.titre })}
+                        className="px-3 py-1.5 rounded-lg bg-red-50 text-red-700 text-sm font-medium hover:bg-red-100 transition-colors flex items-center gap-1.5"
+                      >
+                        <Trash2 size={14} />
+                        Supprimer définitivement
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {activeTab === 'redacteurs' && (
+            <div className="space-y-3">
+              {redacteursTrashed.redacteurs.length === 0 ? (
+                renderEmpty('e rédacteur')
+              ) : (
+                redacteursTrashed.redacteurs.map((redacteur) => (
+                  <div
+                    key={redacteur.id}
+                    className="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between gap-4"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="p-2 bg-gray-100 rounded-lg shrink-0">
+                        <Users className="text-gray-600" size={18} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-gray-900 truncate">{redacteur.nom}</p>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <span className="text-xs text-gray-500">{redacteur.email}</span>
+                          <span className="text-xs text-gray-400">
+                            Supprimé le {formatDate(redacteur.deleted_at)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => handleRestoreRedacteur(redacteur.id, redacteur.nom)}
+                        disabled={pendingAction === busyKey('redacteurs', redacteur.id)}
+                        className="px-3 py-1.5 rounded-lg bg-green-50 text-green-700 text-sm font-medium hover:bg-green-100 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                      >
+                        {pendingAction === busyKey('redacteurs', redacteur.id) ? (
+                          <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                          <RotateCcw size={14} />
+                        )}
+                        Restaurer
+                      </button>
+                      <button
+                        onClick={() => setConfirmTarget({ resource: 'redacteurs', id: redacteur.id, label: redacteur.nom })}
                         className="px-3 py-1.5 rounded-lg bg-red-50 text-red-700 text-sm font-medium hover:bg-red-100 transition-colors flex items-center gap-1.5"
                       >
                         <Trash2 size={14} />
