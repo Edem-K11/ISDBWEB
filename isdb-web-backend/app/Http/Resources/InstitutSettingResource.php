@@ -17,6 +17,7 @@ class InstitutSettingResource extends JsonResource
                 fn ($image) => str_starts_with($image, 'http') ? $image : asset('storage/' . $image)
             )->values(),
             'description' => $this->description,
+            'accueil_stats' => $this->accueil_stats ?? [],
             'adresse' => $this->adresse,
             'maps_url' => $this->maps_url,
             'telephone' => $this->telephone,

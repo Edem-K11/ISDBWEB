@@ -658,7 +658,10 @@ export default async function HomePage() {
                 "Institution d'excellence dédiée à l'éducation, la recherche et l'innovation, l'ISDB accompagne chaque étudiant dans la construction d'un parcours académique solide et d'un projet professionnel durable."}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 mb-10">
-              {aboutStats.map((stat) => (
+              {(institut?.accueil_stats?.length
+                ? institut.accueil_stats.map((s) => ({ value: s.valeur, label: s.libelle }))
+                : aboutStats
+              ).map((stat) => (
                 <div key={stat.label} className="text-center">
                   <div className="text-3xl font-bold text-isdb-green-700">{stat.value}</div>
                   <div className="text-sm text-slate-600">{stat.label}</div>

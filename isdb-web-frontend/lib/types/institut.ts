@@ -8,12 +8,18 @@ export interface InstitutReseauxSociaux {
   whatsapp: string | null;
 }
 
+export interface InstitutStatistique {
+  valeur: string;
+  libelle: string;
+}
+
 export interface InstitutSettings {
   id: number;
   nom: string;
   logo: string | null;
   galerie: string[];
   description: string | null;
+  accueil_stats: InstitutStatistique[];
   adresse: string | null;
   maps_url: string | null;
   telephone: string | null;
@@ -34,6 +40,7 @@ export interface InstitutSettingsFormData {
   logo: string;
   galerie: string[];
   description: string;
+  accueil_stats: InstitutStatistique[];
   adresse: string;
   maps_url: string;
   telephone: string;

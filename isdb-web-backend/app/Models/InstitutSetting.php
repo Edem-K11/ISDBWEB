@@ -11,6 +11,7 @@ class InstitutSetting extends Model
 
     protected $casts = [
         'galerie' => 'array',
+        'accueil_stats' => 'array',
         'date_ouverture_inscriptions' => 'date',
         'date_cloture_inscriptions' => 'date',
         'date_rentree' => 'date',
@@ -21,6 +22,7 @@ class InstitutSetting extends Model
         'logo',
         'galerie',
         'description',
+        'accueil_stats',
         'adresse',
         'maps_url',
         'telephone',

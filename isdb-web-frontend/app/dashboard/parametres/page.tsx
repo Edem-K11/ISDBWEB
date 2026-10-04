@@ -15,6 +15,9 @@ import {
   Phone,
   Share2,
   Calendar,
+  BarChart3,
+  Plus,
+  Trash2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -41,6 +44,7 @@ const emptyForm: InstitutSettingsFormData = {
   youtube_url: '',
   tiktok_url: '',
   whatsapp: '',
+  accueil_stats: [],
 };
 
 export default function ParametresPage() {
@@ -56,6 +60,7 @@ export default function ParametresPage() {
         logo: settings.logo || '',
         galerie: settings.galerie || [],
         description: settings.description || '',
+        accueil_stats: settings.accueil_stats || [],
         adresse: settings.adresse || '',
         maps_url: settings.maps_url || '',
         telephone: settings.telephone || '',
@@ -82,6 +87,27 @@ export default function ParametresPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const updateStat = (index: number, field: 'valeur' | 'libelle', value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      accueil_stats: prev.accueil_stats.map((s, i) => (i === index ? { ...s, [field]: value } : s)),
+    }));
+  };
+
+  const addStat = () => {
+    setFormData((prev) => ({
+      ...prev,
+      accueil_stats: [...prev.accueil_stats, { valeur: '', libelle: '' }],
+    }));
+  };
+
+  const removeStat = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      accueil_stats: prev.accueil_stats.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -92,7 +118,10 @@ export default function ParametresPage() {
 
     setIsSubmitting(true);
     try {
-      await institutService.update(formData);
+      await institutService.update({
+        ...formData,
+        accueil_stats: formData.accueil_stats.filter((s) => s.valeur.trim() && s.libelle.trim()),
+      });
       await mutate();
       toast.success('Informations de l\'institut mises à jour avec succès');
     } catch (error: any) {
@@ -367,6 +396,59 @@ export default function ParametresPage() {
               />
             </div>
           </div>
+        </div>
+
+        {/* Statistiques de la page d'accueil */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center gap-2 mb-2">
+            <BarChart3 className="text-isdb-green-600" size={20} />
+            <h2 className="text-lg font-semibold text-gray-900">Chiffres clés (page d'accueil)</h2>
+          </div>
+          <p className="text-sm text-gray-500 mb-6">
+            Affichés sous la présentation de l'institut sur la page d'accueil. Si la liste est vide,
+            les valeurs par défaut du site sont utilisées.
+          </p>
+
+          <div className="space-y-3">
+            {formData.accueil_stats.map((stat, index) => (
+              <div key={index} className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="text"
+                  value={stat.valeur}
+                  onChange={(e) => updateStat(index, 'valeur', e.target.value)}
+                  placeholder="Valeur (ex. 35, 98%, 20+)"
+                  maxLength={20}
+                  className="sm:w-48 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent"
+                />
+                <input
+                  type="text"
+                  value={stat.libelle}
+                  onChange={(e) => updateStat(index, 'libelle', e.target.value)}
+                  placeholder="Libellé (ex. Ans d'expérience)"
+                  maxLength={100}
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-isdb-green-500 focus:border-transparent"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeStat(index)}
+                  className="px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  aria-label="Supprimer ce chiffre"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={addStat}
+            disabled={formData.accueil_stats.length >= 6}
+            className="mt-4 inline-flex items-center gap-2 px-4 py-2 border border-isdb-green-600 text-isdb-green-700 rounded-lg hover:bg-isdb-green-50 transition-colors disabled:opacity-40"
+          >
+            <Plus size={16} />
+            Ajouter un chiffre
+          </button>
         </div>
 
         {/* Réseaux sociaux */}
