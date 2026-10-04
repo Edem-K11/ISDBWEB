@@ -20,7 +20,7 @@ interface PageProps {
 async function getOffreData(mentionSlug: string, formationSlug: string) {
   try {
     const res = await fetch(`${API_URL}/formations/${mentionSlug}/${formationSlug}`, {
-      next: { revalidate: 1800 },
+      next: { revalidate: 60, tags: ['formations'] },
       headers: { 'Accept': 'application/json' }
     });
     

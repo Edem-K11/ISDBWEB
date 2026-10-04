@@ -14,7 +14,7 @@ export interface Studio {
 export async function getStudios(): Promise<Studio[]> {
   try {
     const res = await fetch(`${API_URL}/studios`, {
-      next: { revalidate: 3600 },
+      next: { revalidate: 3600, tags: ['studios'] },
     });
 
     if (!res.ok) return [];
@@ -29,7 +29,7 @@ export async function getStudios(): Promise<Studio[]> {
 export async function getStudioBySlug(slug: string): Promise<Studio | null> {
   try {
     const res = await fetch(`${API_URL}/studios/${slug}`, {
-      next: { revalidate: 3600 },
+      next: { revalidate: 3600, tags: ['studios'] },
     });
 
     if (!res.ok) return null;

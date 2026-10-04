@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AnneeAcademique extends Model
 {
+    use \App\Models\Concerns\PurgeFrontendCache;
+
+    protected $frontendCacheTags = ['formations'];
     use HasFactory, SoftDeletes;
 
     protected $table = 'annees_academiques';

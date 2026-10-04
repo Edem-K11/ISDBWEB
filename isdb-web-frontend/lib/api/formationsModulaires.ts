@@ -18,7 +18,7 @@ export interface FormationModulaireListItem {
 export async function getFormationsModulaires(): Promise<FormationModulaireListItem[]> {
   try {
     const res = await fetch(`${API_URL}/formations-modulaires`, {
-      next: { revalidate: 1800 },
+      next: { revalidate: 1800, tags: ['formations-modulaires'] },
     });
 
     if (!res.ok) return [];

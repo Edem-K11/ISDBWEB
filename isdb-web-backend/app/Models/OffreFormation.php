@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OffreFormation extends Model
 {
+    use \App\Models\Concerns\PurgeFrontendCache;
+
+    protected $frontendCacheTags = ['formations'];
     use HasFactory, SoftDeletes;
 
     /**

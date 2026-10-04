@@ -5,7 +5,7 @@ import { Blog } from '@/lib/types/blog';
 export async function getLatestBlogs(limit = 3): Promise<Blog[]> {
   try {
     const res = await fetch(`${API_URL}/blogs`, {
-      next: { revalidate: 900 },
+      next: { revalidate: 900, tags: ['blogs'] },
     });
 
     if (!res.ok) return [];

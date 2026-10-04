@@ -10,6 +10,9 @@ use Illuminate\Support\Str;
 
 class Domaine extends Model
 {
+    use \App\Models\Concerns\PurgeFrontendCache;
+
+    protected $frontendCacheTags = ['formations'];
     use HasFactory, SoftDeletes;
 
     /**

@@ -23,7 +23,7 @@ async function getMentionData(mentionSlug: string) {
       // et doit rester raisonnablement frais, mais no-store imposait un aller-retour
       // live vers Render (plan gratuit) à chaque visite, ce qui alourdit le
       // chargement perçu. 60s = compromis fraîcheur/latence (voir lib/api/mentions.ts).
-      next: { revalidate: 60 },
+      next: { revalidate: 60, tags: ['formations'] },
       headers: {
         'Accept': 'application/json',
       }

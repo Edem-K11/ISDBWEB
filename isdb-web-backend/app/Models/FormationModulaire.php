@@ -9,6 +9,9 @@ use Illuminate\Support\Str;
 
 class FormationModulaire extends Model
 {
+    use \App\Models\Concerns\PurgeFrontendCache;
+
+    protected $frontendCacheTags = ['formations-modulaires'];
     use HasFactory, SoftDeletes;
 
     protected $table = 'formation_modulaires';

@@ -9,7 +9,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 async function getModule(slug: string) {
   const res = await fetch(`${API_URL}/formations-modulaires/${slug}`, {
-    next: { revalidate: 1800 },
+    next: { revalidate: 60, tags: ['formations-modulaires'] },
   });
 
   if (!res.ok) return null;

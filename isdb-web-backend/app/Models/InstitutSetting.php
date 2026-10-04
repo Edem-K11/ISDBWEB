@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class InstitutSetting extends Model
 {
+    use \App\Models\Concerns\PurgeFrontendCache;
+
+    protected $frontendCacheTags = ['institut'];
     use HasFactory;
 
     protected $casts = [

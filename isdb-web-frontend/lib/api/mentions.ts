@@ -11,7 +11,7 @@ export async function getMentions(): Promise<Mention[]> {
     // elle s'auto-corrige en 1 minute max (contre 1h avec l'ancien revalidate:3600
     // qui avait causé une page figée vide — voir commit 77adbf8).
     const res = await fetch(`${API_URL}/formations`, {
-      next: { revalidate: 60 },
+      next: { revalidate: 60, tags: ['formations'] },
     });
 
     if (!res.ok) return [];

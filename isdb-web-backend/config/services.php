@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'frontend_cache' => [
+        'url' => env('FRONTEND_REVALIDATE_URL'),
+        'secret' => env('REVALIDATE_SECRET'),
+    ],
 ];

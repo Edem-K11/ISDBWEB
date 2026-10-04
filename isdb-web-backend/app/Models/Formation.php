@@ -11,6 +11,9 @@ use Illuminate\Support\Str;
 
 class Formation extends Model
 {
+    use \App\Models\Concerns\PurgeFrontendCache;
+
+    protected $frontendCacheTags = ['formations'];
     use HasFactory, SoftDeletes;
 
     /**

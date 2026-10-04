@@ -8,6 +8,9 @@ use Illuminate\Support\Str;
 
 class Blog extends Model
 {
+    use \App\Models\Concerns\PurgeFrontendCache;
+
+    protected $frontendCacheTags = ['blogs'];
     use HasFactory;
 
     protected $fillable = [

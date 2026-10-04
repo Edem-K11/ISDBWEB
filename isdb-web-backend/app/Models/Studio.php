@@ -8,6 +8,9 @@ use Illuminate\Support\Str;
 
 class Studio extends Model
 {
+    use \App\Models\Concerns\PurgeFrontendCache;
+
+    protected $frontendCacheTags = ['studios'];
     use HasFactory;
 
     protected $fillable = [
