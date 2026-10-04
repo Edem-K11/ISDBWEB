@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Support\PdfStorage;
 use App\Http\Controllers\Controller;
 use App\Models\FormationModulaire;
 use App\Http\Requests\StoreFormationModulaireRequest;
@@ -75,12 +76,12 @@ class FormationModulaireController extends Controller
         ]);
     }
 
-    public function store(StoreFormationModulaireRequest $request): JsonResponse
+    public function store(StoreFormationModulaireRequest $request, PdfStorage $pdfStorage): JsonResponse
     {
         $data = $request->validated();
 
         if ($request->hasFile('programme_pdf')) {
-            $data['programme_pdf'] = $request->file('programme_pdf')->store('programmes', 'public');
+            $data['programme_pdf'] = $pdfStorage->store($request->file('programme_pdf'));
         }
 
         $formation = FormationModulaire::create($data);
@@ -92,15 +93,15 @@ class FormationModulaireController extends Controller
         ], 201);
     }
 
-    public function update(UpdateFormationModulaireRequest $request, FormationModulaire $formationModulaire): JsonResponse
+    public function update(UpdateFormationModulaireRequest $request, FormationModulaire $formationModulaire, PdfStorage $pdfStorage): JsonResponse
     {
         $data = $request->validated();
 
         if ($request->hasFile('programme_pdf')) {
             if ($formationModulaire->programme_pdf) {
-                Storage::disk('public')->delete($formationModulaire->programme_pdf);
+                $pdfStorage->delete($formationModulaire->programme_pdf);
             }
-            $data['programme_pdf'] = $request->file('programme_pdf')->store('programmes', 'public');
+            $data['programme_pdf'] = $pdfStorage->store($request->file('programme_pdf'));
         }
 
         $formationModulaire->update($data);
@@ -204,12 +205,12 @@ class FormationModulaireController extends Controller
     /**
      * Supprime définitivement une formation modulaire.
      */
-    public function forceDelete(int $id): JsonResponse
+    public function forceDelete(int $id, PdfStorage $pdfStorage): JsonResponse
     {
         $formation = FormationModulaire::withTrashed()->findOrFail($id);
 
         if ($formation->programme_pdf) {
-            Storage::disk('public')->delete($formation->programme_pdf);
+            $pdfStorage->delete($formation->programme_pdf);
         }
 
         $formation->forceDelete();

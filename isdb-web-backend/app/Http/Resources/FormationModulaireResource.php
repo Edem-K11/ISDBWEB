@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Support\PdfStorage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,7 +23,7 @@ class FormationModulaireResource extends JsonResource
             'profile_sortie' => $this->profile_sortie,
             'evaluation' => $this->evaluation,
             'programme' => $this->programme,
-            'programme_pdf' => $this->programme_pdf ? url('storage/' . $this->programme_pdf) : null,
+            'programme_pdf' => $this->programme_pdf ? PdfStorage::publicUrl($this->programme_pdf) : null,
             'duree_heures' => $this->duree_heures,
             'frais_inscription' => $this->frais_inscription,
             'frais_formation' => $this->frais_formation,

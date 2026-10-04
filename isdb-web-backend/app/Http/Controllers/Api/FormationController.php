@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Support\PdfStorage;
 use App\Http\Controllers\Controller;
 use App\Models\Formation;
 use App\Http\Requests\StoreFormationRequest;
@@ -100,13 +101,13 @@ class FormationController extends Controller
     /**
      * Store a newly created formation.
      */
-    public function store(StoreFormationRequest $request): JsonResponse
+    public function store(StoreFormationRequest $request, PdfStorage $pdfStorage): JsonResponse
     {
         $data = $request->validated();
 
         // Gestion du fichier PDF
         if ($request->hasFile('programme_pdf')) {
-            $path = $request->file('programme_pdf')->store('programmes', 'public');
+            $path = $pdfStorage->store($request->file('programme_pdf'));
             $data['programme_pdf'] = $path;
         }
 
@@ -144,7 +145,7 @@ class FormationController extends Controller
     /**
      * Update the specified formation.
      */
-    public function update(UpdateFormationRequest $request, Formation $formation): JsonResponse
+    public function update(UpdateFormationRequest $request, Formation $formation, PdfStorage $pdfStorage): JsonResponse
     {
         $data = $request->validated();
 
@@ -152,10 +153,10 @@ class FormationController extends Controller
         if ($request->hasFile('programme_pdf')) {
             // Supprimer l'ancien fichier si existe
             if ($formation->programme_pdf) {
-                Storage::disk('public')->delete($formation->programme_pdf);
+                $pdfStorage->delete($formation->programme_pdf);
             }
             
-            $path = $request->file('programme_pdf')->store('programmes', 'public');
+            $path = $pdfStorage->store($request->file('programme_pdf'));
             $data['programme_pdf'] = $path;
         }
 
@@ -269,13 +270,13 @@ class FormationController extends Controller
     /**
      * Permanently delete a formation.
      */
-    public function forceDelete(int $id): JsonResponse
+    public function forceDelete(int $id, PdfStorage $pdfStorage): JsonResponse
     {
         $formation = Formation::withTrashed()->findOrFail($id);
 
         // Supprimer le fichier PDF si existe
         if ($formation->programme_pdf) {
-            Storage::disk('public')->delete($formation->programme_pdf);
+            $pdfStorage->delete($formation->programme_pdf);
         }
 
         // Vérifier s'il y a des offres (même supprimées)

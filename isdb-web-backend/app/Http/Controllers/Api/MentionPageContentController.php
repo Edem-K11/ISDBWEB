@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Support\PdfStorage;
 use App\Http\Controllers\Controller;
 use App\Models\Mention;
 use Illuminate\Http\JsonResponse;
@@ -124,6 +125,7 @@ class MentionPageContentController extends Controller
                 ],
                 
                 // Contenu éditorial (peut être null)
+                'theme' => $content?->theme ?? $mention->themeParDefaut(),
                 'content' => $content ? [
                     'hero' => [
                         'title' => $content->hero_title,
@@ -284,7 +286,7 @@ class MentionPageContentController extends Controller
                     'condition_admission' => $formation->condition_admission,
                     'objectifs' => $formation->objectifs,
                     'programme' => $formation->programme,
-                    'programme_pdf' => $formation->programme_pdf ? url('storage/' . $formation->programme_pdf) : null,
+                    'programme_pdf' => $formation->programme_pdf ? PdfStorage::publicUrl($formation->programme_pdf) : null,
                     'evaluation' => $formation->evaluation,
                     
                     // Autres

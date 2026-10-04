@@ -62,7 +62,7 @@ export default async function MentionPage({ params }: Readonly<PageProps>) {
     ];
 
     // Thème par défaut si pas de contenu (aligné sur les cartes de /formations)
-    const theme = normalizeMentionTheme(content?.theme);
+    const theme = normalizeMentionTheme(data.theme ?? content?.theme);
     const colors = getMentionThemePalette(theme);
 
     return (
