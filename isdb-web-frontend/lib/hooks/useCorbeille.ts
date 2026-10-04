@@ -1,3 +1,4 @@
+import apiClient from '@/lib/api/axios';
 
 
 // lib/hooks/useCorbeille.ts
@@ -21,9 +22,9 @@ import { OffreFormation } from '@/lib/types/OffreFormation';
 import { redacteurService } from '@/lib/api/services/redacteurService';
 import { Redacteur } from '@/lib/types/redacteur';
 
-export function useFormationsTrashed() {
+export function useFormationsTrashed(enabled: boolean = true) {
   const { data, error, isLoading, mutate } = useSWR<Formation[]>(
-    'formations-trashed',
+    enabled ? 'formations-trashed' : null,
     formationService.getTrashed,
     { revalidateOnFocus: false }
   );
@@ -31,9 +32,9 @@ export function useFormationsTrashed() {
   return { formations: data || [], isLoading, isError: error, mutate };
 }
 
-export function useFormationsModulairesTrashed() {
+export function useFormationsModulairesTrashed(enabled: boolean = true) {
   const { data, error, isLoading, mutate } = useSWR<FormationModulaire[]>(
-    'formations-modulaires-trashed',
+    enabled ? 'formations-modulaires-trashed' : null,
     formationModulaireService.getTrashed,
     { revalidateOnFocus: false }
   );
@@ -41,9 +42,9 @@ export function useFormationsModulairesTrashed() {
   return { formations: data || [], isLoading, isError: error, mutate };
 }
 
-export function useDomainesTrashed() {
+export function useDomainesTrashed(enabled: boolean = true) {
   const { data, error, isLoading, mutate } = useSWR<Domaine[]>(
-    'domaines-trashed',
+    enabled ? 'domaines-trashed' : null,
     domaineService.getTrashed,
     { revalidateOnFocus: false }
   );
@@ -51,9 +52,9 @@ export function useDomainesTrashed() {
   return { domaines: data || [], isLoading, isError: error, mutate };
 }
 
-export function useMentionsTrashed() {
+export function useMentionsTrashed(enabled: boolean = true) {
   const { data, error, isLoading, mutate } = useSWR<Mention[]>(
-    'mentions-trashed',
+    enabled ? 'mentions-trashed' : null,
     mentionService.getTrashed,
     { revalidateOnFocus: false }
   );
@@ -61,9 +62,9 @@ export function useMentionsTrashed() {
   return { mentions: data || [], isLoading, isError: error, mutate };
 }
 
-export function useRedacteursTrashed() {
+export function useRedacteursTrashed(enabled: boolean = true) {
   const { data, error, isLoading, mutate } = useSWR<Redacteur[]>(
-    'redacteurs-trashed',
+    enabled ? 'redacteurs-trashed' : null,
     redacteurService.getTrashed,
     { revalidateOnFocus: false }
   );
@@ -71,12 +72,33 @@ export function useRedacteursTrashed() {
   return { redacteurs: data || [], isLoading, isError: error, mutate };
 }
 
-export function useOffresTrashed() {
+export function useOffresTrashed(enabled: boolean = true) {
   const { data, error, isLoading, mutate } = useSWR<OffreFormation[]>(
-    'offres-formations-trashed',
+    enabled ? 'offres-formations-trashed' : null,
     offreFormationService.getTrashed,
     { revalidateOnFocus: false }
   );
 
   return { offres: data || [], isLoading, isError: error, mutate };
+}
+
+export interface CorbeilleCounts {
+  formations: number;
+  domaines: number;
+  mentions: number;
+  offres: number;
+  redacteurs: number;
+}
+
+export function useCorbeilleCounts() {
+  const { data, mutate } = useSWR<CorbeilleCounts>(
+    'corbeille-counts',
+    async () => {
+      const { data: body } = await apiClient.get('/dashboard/corbeille/counts');
+      return body.data as CorbeilleCounts;
+    },
+    { revalidateOnFocus: false }
+  );
+
+  return { counts: data, mutateCounts: mutate };
 }

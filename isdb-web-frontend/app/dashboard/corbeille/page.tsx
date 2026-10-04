@@ -25,6 +25,7 @@ import {
   useMentionsTrashed,
   useOffresTrashed,
   useRedacteursTrashed,
+  useCorbeilleCounts,
 } from '@/lib/hooks/useCorbeille';
 import { redacteurService } from '@/lib/api/services/redacteurService';
 import { formationService } from '@/lib/api/services/formationService';
@@ -70,12 +71,13 @@ function formatDate(value?: string | null): string {
 export default function CorbeillePage() {
   const [activeTab, setActiveTab] = useState<TabKey>('formations');
 
-  const formationsTrashed = useFormationsTrashed();
-  const formationsModulairesTrashed = useFormationsModulairesTrashed();
-  const domainesTrashed = useDomainesTrashed();
-  const mentionsTrashed = useMentionsTrashed();
-  const offresTrashed = useOffresTrashed();
-  const redacteursTrashed = useRedacteursTrashed();
+  const formationsTrashed = useFormationsTrashed(activeTab === 'formations');
+  const formationsModulairesTrashed = useFormationsModulairesTrashed(activeTab === 'formations');
+  const domainesTrashed = useDomainesTrashed(activeTab === 'domaines');
+  const mentionsTrashed = useMentionsTrashed(activeTab === 'mentions');
+  const offresTrashed = useOffresTrashed(activeTab === 'offres');
+  const redacteursTrashed = useRedacteursTrashed(activeTab === 'redacteurs');
+  const { counts } = useCorbeilleCounts();
 
   // État de la fenêtre de confirmation de suppression définitive, commun aux
   // 4 onglets (une seule action irréversible à la fois).
@@ -93,12 +95,12 @@ export default function CorbeillePage() {
       key: 'formations',
       label: 'Formations',
       icon: GraduationCap,
-      count: formationsTrashed.formations.length + formationsModulairesTrashed.formations.length,
+      count: counts?.formations ?? 0,
     },
-    { key: 'domaines', label: 'Domaines', icon: Layers, count: domainesTrashed.domaines.length },
-    { key: 'mentions', label: 'Mentions', icon: Bookmark, count: mentionsTrashed.mentions.length },
-    { key: 'offres', label: 'Offres de formation', icon: ClipboardList, count: offresTrashed.offres.length },
-    { key: 'redacteurs', label: 'Rédacteurs', icon: Users, count: redacteursTrashed.redacteurs.length },
+    { key: 'domaines', label: 'Domaines', icon: Layers, count: counts?.domaines ?? 0 },
+    { key: 'mentions', label: 'Mentions', icon: Bookmark, count: counts?.mentions ?? 0 },
+    { key: 'offres', label: 'Offres de formation', icon: ClipboardList, count: counts?.offres ?? 0 },
+    { key: 'redacteurs', label: 'Rédacteurs', icon: Users, count: counts?.redacteurs ?? 0 },
   ];
 
   const totalCount = tabs.reduce((sum, t) => sum + t.count, 0);
@@ -110,7 +112,7 @@ export default function CorbeillePage() {
     try {
       await formationService.restore(id);
       toast.success(`« ${titre} » restaurée avec succès`);
-      await formationsTrashed.mutate();
+      await formationsTrashed.mutate(); globalMutate('corbeille-counts');
       revalidateFormations();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Erreur lors de la restauration');
@@ -124,7 +126,7 @@ export default function CorbeillePage() {
     try {
       await formationModulaireService.restore(id);
       toast.success(`« ${titre} » restaurée avec succès`);
-      await formationsModulairesTrashed.mutate();
+      await formationsModulairesTrashed.mutate(); globalMutate('corbeille-counts');
       revalidateFormationsModulaires();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Erreur lors de la restauration');
@@ -138,7 +140,7 @@ export default function CorbeillePage() {
     try {
       await domaineService.restore(id);
       toast.success(`« ${nom} » restauré avec succès`);
-      await domainesTrashed.mutate();
+      await domainesTrashed.mutate(); globalMutate('corbeille-counts');
       revalidateDomaines();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Erreur lors de la restauration');
@@ -152,7 +154,7 @@ export default function CorbeillePage() {
     try {
       await mentionService.restore(id);
       toast.success(`« ${titre} » restaurée avec succès`);
-      await mentionsTrashed.mutate();
+      await mentionsTrashed.mutate(); globalMutate('corbeille-counts');
       revalidateMentions();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Erreur lors de la restauration');
@@ -166,7 +168,7 @@ export default function CorbeillePage() {
     try {
       await redacteurService.restore(id);
       toast.success(`« ${nom} » restauré avec succès`);
-      await redacteursTrashed.mutate();
+      await redacteursTrashed.mutate(); globalMutate('corbeille-counts');
       globalMutate('redacteurs');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Erreur lors de la restauration');
@@ -180,7 +182,7 @@ export default function CorbeillePage() {
     try {
       await offreFormationService.restore(id);
       toast.success(`Offre « ${titre} » restaurée avec succès`);
-      await offresTrashed.mutate();
+      await offresTrashed.mutate(); globalMutate('corbeille-counts');
       revalidateOffres();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Erreur lors de la restauration');
@@ -200,32 +202,32 @@ export default function CorbeillePage() {
       switch (resource) {
         case 'formations':
           await formationService.forceDelete(id);
-          await formationsTrashed.mutate();
+          await formationsTrashed.mutate(); globalMutate('corbeille-counts');
           revalidateFormations();
           break;
         case 'formations-modulaires':
           await formationModulaireService.forceDelete(id);
-          await formationsModulairesTrashed.mutate();
+          await formationsModulairesTrashed.mutate(); globalMutate('corbeille-counts');
           revalidateFormationsModulaires();
           break;
         case 'domaines':
           await domaineService.forceDelete(id);
-          await domainesTrashed.mutate();
+          await domainesTrashed.mutate(); globalMutate('corbeille-counts');
           revalidateDomaines();
           break;
         case 'mentions':
           await mentionService.forceDelete(id);
-          await mentionsTrashed.mutate();
+          await mentionsTrashed.mutate(); globalMutate('corbeille-counts');
           revalidateMentions();
           break;
         case 'offres':
           await offreFormationService.forceDelete(id);
-          await offresTrashed.mutate();
+          await offresTrashed.mutate(); globalMutate('corbeille-counts');
           revalidateOffres();
           break;
         case 'redacteurs':
           await redacteurService.forceDelete(id);
-          await redacteursTrashed.mutate();
+          await redacteursTrashed.mutate(); globalMutate('corbeille-counts');
           break;
       }
       toast.success(`« ${label} » supprimé définitivement`);

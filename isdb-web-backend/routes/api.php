@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\DomaineController;
 use App\Http\Controllers\Api\MentionController;
 use App\Http\Controllers\Api\FormationController;
 use App\Http\Controllers\Api\AnneeAcademiqueController;
+use App\Http\Controllers\Api\CorbeilleController;
 use App\Http\Controllers\Api\OffreFormationController;
 use App\Http\Controllers\Api\RadioController;
 use App\Http\Controllers\Api\MentionPageContentController;
@@ -88,6 +89,7 @@ Route::middleware('auth:sanctum')->group(function () {
             
             // Redacteurs
             // ⚠️ "trashed" doit être déclaré AVANT Route::resource (sinon matché comme {redacteur}).
+            Route::get('corbeille/counts', [CorbeilleController::class, 'counts']);
             Route::get('redacteurs/trashed', [RedacteurController::class, 'trashed']);
             Route::resource('redacteurs', RedacteurController::class);
             Route::patch('redacteurs/{id}/restore', [RedacteurController::class, 'restore']);
