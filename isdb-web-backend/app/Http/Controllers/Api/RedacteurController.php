@@ -12,7 +12,10 @@ class RedacteurController extends Controller
 {
     public function index()
     {
-        $redacteurs = Redacteur::withCount('blogs')->get();
+        // Les comptes admin ne sont pas des bylines : tout contenu institutionnel
+        // passe par le compte système "La Rédaction". Le compte admin reste
+        // utilisable pour se connecter, il n'apparaît simplement plus dans la liste.
+        $redacteurs = Redacteur::where('role', '!=', 'admin')->withCount('blogs')->get();
         return RedacteurResource::collection($redacteurs);
     }
 
