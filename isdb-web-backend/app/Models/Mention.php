@@ -146,4 +146,13 @@ class Mention extends Model
     {
         return $this->domaine?->nom . ' - ' . $this->titre;
     }
+
+    // Couleur par défaut : les 3 thèmes se succèdent selon l'ordre de création.
+    public function themeParDefaut(): string
+    {
+        $themes = ['green', 'orange', 'red'];
+        $rang = static::orderBy('id')->pluck('id')->search($this->id);
+
+        return $themes[($rang === false ? 0 : $rang) % count($themes)];
+    }
 }

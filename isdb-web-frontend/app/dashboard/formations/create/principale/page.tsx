@@ -205,19 +205,8 @@ export default function CreateFormationPrincipalePage() {
         statut_formation: 'ACTIVE',
       };
 
-      // Ajouter le fichier PDF si présent
-      if (formData.programme_pdf) {
-        const formDataToSend = new FormData();
-        Object.entries(formationData).forEach(([key, value]) => {
-          if (value !== null && value !== undefined && value !== '') {
-            formDataToSend.append(key, String(value));
-          }
-        });
-        formDataToSend.append('programme_pdf', formData.programme_pdf);
-        await formationService.create(formDataToSend as any);
-      } else {
-        await formationService.create(formationData);
-      }
+      // Le service construit lui-même le multipart quand un PDF est présent.
+      await formationService.create({ ...formationData, programme_pdf: formData.programme_pdf } as any);
 
       // Revalider toutes les clés SWR liées aux formations (maintenant que la
       // nouvelle formation existe bien). Les clés SWRInfinite sont des

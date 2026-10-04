@@ -58,7 +58,7 @@ class MentionPageContentController extends Controller
                     'titre' => $mention->titre,
                     'slug' => $mention->slug,
                     'description' => $mention->description,
-                    'theme' => $mention->mentionPageContent->theme ?? 'green',
+                    'theme' => $mention->mentionPageContent->theme ?? $mention->themeParDefaut(),
                 ];
             }),
         ]);
@@ -101,7 +101,7 @@ class MentionPageContentController extends Controller
                     'id' => $m->id,
                     'titre' => $m->titre,
                     'slug' => $m->slug,
-                    'theme' => $m->mentionPageContent->theme ?? 'green',
+                    'theme' => $m->mentionPageContent->theme ?? $m->themeParDefaut(),
                 ];
             });
 
@@ -263,7 +263,7 @@ class MentionPageContentController extends Controller
                         'id' => $mention->domaine->id,
                         'nom' => $mention->domaine->nom,
                     ],
-                    'theme' => $mention->mentionPageContent->theme ?? 'green',
+                    'theme' => $mention->mentionPageContent->theme ?? $mention->themeParDefaut(),
                 ],
 
                 // Formation complète

@@ -320,7 +320,6 @@ export default function FormationsPage() {
                 value={filters.mention_id}
                 onChange={(value) => handleFilterChange('mention_id', value)}
                 placeholder="Sélectionnez une mention"
-                disabled={!filters.domaine_id}
               />
             </div>
 
