@@ -62,6 +62,20 @@ class AnneeAcademique extends Model
      * Source unique de vérité : appelée par le contrôleur (après création/modification/
      * suppression) et par le seeder, pour éviter que le flag est_actuelle ne devienne obsolète.
      */
+    // Le flag est_actuelle ne change pas tout seul au 1er octobre : on le resynchronise
+    // au plus une fois par jour, à la première requête API (pas de cron sur l'hébergement).
+    public static function synchroniserSiNecessaire(): void
+    {
+        $cle = 'annee_actuelle_synchro_'.now()->toDateString();
+
+        if (\Illuminate\Support\Facades\Cache::has($cle)) {
+            return;
+        }
+
+        static::recalculerAnneeActuelle();
+        \Illuminate\Support\Facades\Cache::put($cle, true, now()->endOfDay());
+    }
+
     public static function recalculerAnneeActuelle(): void
     {
         $now = \Carbon\Carbon::today();
