@@ -5,7 +5,7 @@ import { InstitutSettings } from '@/lib/types/institut';
 export async function getInstitutSettings(): Promise<InstitutSettings | null> {
   try {
     const res = await fetch(`${API_URL}/institut`, {
-      next: { revalidate: 1800 },
+      next: { revalidate: 60 },
     });
 
     if (!res.ok) return null;
