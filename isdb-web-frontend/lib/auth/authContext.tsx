@@ -2,6 +2,7 @@
 'use client';
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import { viderCacheDashboard } from '@/lib/cache/dashboardCache';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/lib/api/services/authService';
 import { User, AuthState, LoginCredentials } from '@/lib/types/user';
@@ -36,11 +37,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      // Session déjà connue sur ce poste : on affiche tout de suite, la vérification
+      // auprès du serveur continue en arrière-plan.
+      const dejaConnu = localStorage.getItem('user');
+      if (dejaConnu) {
+        try {
+          setUser(JSON.parse(dejaConnu));
+          setIsLoading(false);
+        } catch {
+          // donnée corrompue : on attend la vérification
+        }
+      }
+
       const userData = await authService.getUser();
       setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      viderCacheDashboard();
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -75,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      viderCacheDashboard();
       setUser(null);
 
       toast.success('Déconnexion réussie');
