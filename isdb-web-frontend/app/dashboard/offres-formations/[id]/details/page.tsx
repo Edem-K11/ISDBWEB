@@ -130,9 +130,13 @@ export default function OffreDetailPage() {
                 <Badge variant={isFormationPrincipale ? 'info' : 'success'}>
                   {isFormationPrincipale ? 'Formation Principale' : 'Formation Modulaire'}
                 </Badge>
-                <Badge variant={offre.est_dispensee ? 'success' : 'warning'}>
-                  {offre.est_dispensee ? 'Dispensée' : 'Non dispensée'}
-                </Badge>
+                {offre.est_terminee ? (
+                  <Badge variant="default">Terminée</Badge>
+                ) : (
+                  <Badge variant={offre.est_dispensee ? 'success' : 'warning'}>
+                    {offre.est_dispensee ? 'Dispensée' : 'Non dispensée'}
+                  </Badge>
+                )}
                 {/*
                   En cours / À venir / Terminée ne reflètent que la période
                   date_debut → date_fin de l'offre. Ces dates ne sont saisies

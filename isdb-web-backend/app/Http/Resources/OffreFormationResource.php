@@ -37,6 +37,8 @@ class OffreFormationResource extends JsonResource
             'est_en_cours' => $this->est_en_cours,
             'est_future' => $this->est_future,
             'est_passee' => $this->est_passee,
+            // Basé sur l'année académique : une offre reconduite n'a pas de dates propres.
+            'est_terminee' => (bool) $this->anneeAcademique?->date_fin?->isPast(),
             'a_places_disponibles' => $this->a_places_disponibles,
             
             // Relations conditionnelles

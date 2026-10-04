@@ -130,9 +130,13 @@ export default function FormationOffresPage() {
                   {offre.annee_academique?.est_actuelle && (
                     <Badge variant="info">En cours</Badge>
                   )}
-                  <Badge variant={offre.est_dispensee ? 'success' : 'warning'}>
-                    {offre.est_dispensee ? 'Dispensée' : 'Non dispensée'}
-                  </Badge>
+                  {offre.est_terminee ? (
+                    <Badge variant="default">Terminée</Badge>
+                  ) : (
+                    <Badge variant={offre.est_dispensee ? 'success' : 'warning'}>
+                      {offre.est_dispensee ? 'Dispensée' : 'Non dispensée'}
+                    </Badge>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">

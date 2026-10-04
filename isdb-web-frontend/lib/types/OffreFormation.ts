@@ -18,6 +18,7 @@ export interface OffreFormation {
   est_en_cours: boolean;
   est_future: boolean;
   est_passee: boolean;
+  est_terminee?: boolean;
   a_places_disponibles: boolean;
   formation?: Formation;
   annee_academique?: AnneeAcademique; 

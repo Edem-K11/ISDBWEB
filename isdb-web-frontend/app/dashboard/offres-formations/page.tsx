@@ -207,9 +207,13 @@ export default function OffresFormationsPage() {
                   <Badge variant={offre.formation?.type_formation === 'PRINCIPALE' ? 'info' : 'success'}>
                     {offre.formation?.type_formation === 'PRINCIPALE' ? 'Principale' : 'Modulaire'}
                   </Badge>
-                  <Badge variant={offre.est_dispensee ? 'success' : 'warning'}>
-                    {offre.est_dispensee ? 'Dispensée' : 'Non dispensée'}
-                  </Badge>
+                  {offre.est_terminee ? (
+                    <Badge variant="default">Terminée</Badge>
+                  ) : (
+                    <Badge variant={offre.est_dispensee ? 'success' : 'warning'}>
+                      {offre.est_dispensee ? 'Dispensée' : 'Non dispensée'}
+                    </Badge>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
