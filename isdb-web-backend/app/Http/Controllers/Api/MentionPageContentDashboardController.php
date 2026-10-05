@@ -13,6 +13,8 @@ class MentionPageContentDashboardController extends Controller
 {
     private const THEMES = ['green', 'orange', 'red', 'gold'];
 
+    private const CHAMPS_TEXTE = ['hero_title', 'hero_subtitle', 'hero_description', 'section_title', 'section_description', 'cta_title', 'cta_description', 'seo_title', 'seo_description'];
+
     public function show(Mention $mention): JsonResponse
     {
         return response()->json([
@@ -38,14 +40,21 @@ class MentionPageContentDashboardController extends Controller
             'theme' => ['required', 'in:'.implode(',', self::THEMES)],
         ]);
 
-        // Les champs vides reviennent à null : le site retombe alors sur ses textes par défaut.
-        foreach ($donnees as $cle => $valeur) {
-            if ($valeur === '') {
-                $donnees[$cle] = null;
+        // Les colonnes texte sont NOT NULL en base : un champ vide est stocké vide,
+        // et le site affiche alors son texte par défaut (les tests sont sur des chaînes vides).
+        $contenu = MentionPageContent::firstOrNew(['mention_id' => $mention->id]);
+        if (! $contenu->exists) {
+            foreach (self::CHAMPS_TEXTE as $champ) {
+                $contenu->{$champ} = '';
             }
+            $contenu->seo_keywords = [];
         }
 
-        MentionPageContent::updateOrCreate(['mention_id' => $mention->id], $donnees);
+        foreach ($donnees as $cle => $valeur) {
+            $contenu->{$cle} = $valeur ?? ($cle === 'seo_keywords' ? [] : '');
+        }
+
+        $contenu->save();
 
         return response()->json([
             'success' => true,
