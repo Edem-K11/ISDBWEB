@@ -23,3 +23,17 @@ export interface MentionFormData {
   description?: string | null;
   domaine_id: number;
 }
+
+export interface MentionPageContentForm {
+  hero_title: string | null;
+  hero_subtitle: string | null;
+  hero_description: string | null;
+  section_title: string | null;
+  section_description: string | null;
+  cta_title: string | null;
+  cta_description: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  seo_keywords: string[];
+  theme: 'green' | 'orange' | 'red' | 'gold';
+}

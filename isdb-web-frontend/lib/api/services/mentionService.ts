@@ -3,12 +3,27 @@
 import { ApiResponse } from "@/lib/types/api";
 import apiClient from "../axios";
 import { ENDPOINTS } from "../endpoints";
-import { Mention, MentionFormData } from "@/lib/types/Mention";
+import { Mention, MentionFormData, MentionPageContentForm } from "@/lib/types/Mention";
 
 
 export const mentionService = {
   getAll: async (): Promise<Mention[]> => {
     const { data } = await apiClient.get<ApiResponse<Mention[]>>(ENDPOINTS.DASHBOARD_MENTIONS);
+    return data.data;
+  },
+
+  getPageContent: async (id: number): Promise<MentionPageContentForm> => {
+    const { data } = await apiClient.get<{ success: boolean; data: MentionPageContentForm }>(
+      `${ENDPOINTS.DASHBOARD_MENTIONS}/${id}/page`
+    );
+    return data.data;
+  },
+
+  updatePageContent: async (id: number, contenu: MentionPageContentForm): Promise<MentionPageContentForm> => {
+    const { data } = await apiClient.put<{ success: boolean; data: MentionPageContentForm }>(
+      `${ENDPOINTS.DASHBOARD_MENTIONS}/${id}/page`,
+      contenu
+    );
     return data.data;
   },
 

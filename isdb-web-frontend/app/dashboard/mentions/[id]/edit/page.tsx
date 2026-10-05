@@ -11,6 +11,7 @@ import { toast } from 'react-hot-toast';
 import { mentionService } from '@/lib/api/services/mentionService';
 import { useDomaines } from '@/lib/hooks/useDomaine';
 import { SelectWithSearch } from '@/components/ui/selectWithSearch';
+import { ContenuPageForm } from '@/components/dashboard/mentions/contenuPageForm';
 import { ENDPOINTS } from '@/lib/api/endpoints';
 import { mutate } from 'swr';
 
@@ -283,6 +284,12 @@ export default function EditMentionPage() {
           </div>
         </form>
       </div>
+
+      {id ? (
+        <div className="mt-6">
+          <ContenuPageForm mentionId={id} />
+        </div>
+      ) : null}
 
       {/* Informations et avertissements */}
       <div className="mt-6 space-y-6">

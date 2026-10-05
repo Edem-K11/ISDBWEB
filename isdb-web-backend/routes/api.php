@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\MentionController;
 use App\Http\Controllers\Api\FormationController;
 use App\Http\Controllers\Api\AnneeAcademiqueController;
 use App\Http\Controllers\Api\CorbeilleController;
+use App\Http\Controllers\Api\MentionPageContentDashboardController;
 use App\Http\Controllers\Api\OffreFormationController;
 use App\Http\Controllers\Api\RadioController;
 use App\Http\Controllers\Api\MentionPageContentController;
@@ -118,6 +119,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::resource('mentions', MentionController::class);
             Route::get('mentions/{mention}/formations', [MentionController::class, 'formations']);
             Route::get('mentions/{mention}/statistics', [MentionController::class, 'statistics']);
+            Route::get('mentions/{mention}/page', [MentionPageContentDashboardController::class, 'show']);
+            Route::put('mentions/{mention}/page', [MentionPageContentDashboardController::class, 'update']);
             Route::patch('mentions/{id}/restore', [MentionController::class, 'restore']);
             Route::delete('mentions/{id}/force', [MentionController::class, 'forceDelete']);
 
