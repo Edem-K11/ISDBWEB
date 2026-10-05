@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MentionPageContent extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Models\Concerns\PurgeFrontendCache;
+
+    protected $frontendCacheTags = ['formations'];
 
     protected $fillable = [
         'mention_id',
