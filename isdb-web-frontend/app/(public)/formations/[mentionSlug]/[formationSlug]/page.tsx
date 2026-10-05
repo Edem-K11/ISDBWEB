@@ -94,7 +94,7 @@ export default async function FormationDetailPage({ params }: Readonly<PageProps
               </span>
             </div>
             
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight md:max-w-[60%]">
               {formation.titre}
             </h1>
             

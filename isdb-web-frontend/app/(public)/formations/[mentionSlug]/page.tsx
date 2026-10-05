@@ -63,6 +63,24 @@ export default async function MentionPage({ params }: Readonly<PageProps>) {
 
     // Thème par défaut si pas de contenu (aligné sur les cartes de /formations)
     const theme = normalizeMentionTheme(data.theme ?? content?.theme);
+
+    // Textes par défaut : "Nos formations" seulement s'il y a plusieurs offres, et la
+    // description liste les diplômes réellement proposés dans cette mention.
+    const titreSection = offres.length > 1
+      ? `Nos formations en ${mention.titre}`
+      : `Formations en ${mention.titre}`;
+    const LIBELLES_DIPLOME: Record<string, string> = {
+      LICENCE_FONDAMENTALE: 'Licence fondamentale',
+      LICENCE_PROFESSIONNELLE: 'Licence professionnelle',
+      MASTER: 'Master',
+      CERTIFICAT_MODULE: 'Certificat',
+    };
+    const diplomesPresents = [...new Set(
+      offres.map((o: any) => LIBELLES_DIPLOME[o.formation?.diplome]).filter(Boolean)
+    )] as string[];
+    const descriptionParcours = diplomesPresents.length
+      ? `Parcours ${diplomesPresents.join(' et ')} en ${mention.titre}.`
+      : `Découvrez nos parcours de formation en ${mention.titre}.`;
     const colors = getMentionThemePalette(theme);
 
     return (
@@ -101,10 +119,10 @@ export default async function MentionPage({ params }: Readonly<PageProps>) {
         <div className=" py-8 sm:py-12">
             <div className="max-w-4xl mx-auto px-6 text-center mb-12">
                 <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-6">
-                    {content?.section.title || `Formations en ${mention.titre}`}
+                    {content?.section.title || titreSection}
                 </h2>
                 <p className="text-base sm:text-lg text-slate-600">
-                    {content?.section.description || `Découvrez nos parcours de formation en ${mention.titre}.`}
+                    {content?.section.description || descriptionParcours}
                 </p>
             </div>
 
@@ -280,7 +298,7 @@ export default async function MentionPage({ params }: Readonly<PageProps>) {
         const { mention, content } = data;
 
         return {
-            title: content?.seo.title || `${mention.titre} | ISDB`,
+            title: content?.seo.title || `${mention.titre} - Institut Supérieur Don Bosco`,
             description: content?.seo.description || mention.description,
             keywords: content?.seo.keywords || [],
         };
